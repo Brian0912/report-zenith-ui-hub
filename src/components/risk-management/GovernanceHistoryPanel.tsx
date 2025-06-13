@@ -1,8 +1,8 @@
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../ThemeProvider';
-import { GovernanceGroup, mockEntities, mockRisks } from './mockRiskData';
+import { GovernanceGroup, mockRisks } from './mockRiskData';
 
 interface GovernanceHistoryPanelProps {
   isOpen: boolean;
@@ -21,26 +21,16 @@ export const GovernanceHistoryPanel: React.FC<GovernanceHistoryPanelProps> = ({
 }) => {
   const { theme } = useTheme();
   const navigate = useNavigate();
-  const [slideIn, setSlideIn] = useState(false);
 
-  useEffect(() => {
-    if (isOpen) {
-      setTimeout(() => setSlideIn(true), 10);
-    } else {
-      setSlideIn(false);
-    }
-  }, [isOpen]);
+  if (!isOpen) return null;
 
-  const filteredGroups = showAll 
+  const filteredGovernances = showAll 
     ? governanceGroups 
-    : governanceGroups.filter(group => {
-        if (!entityRisk) return false;
-        return group.riskId === entityRisk.riskId && 
-               group.entityIds.includes(entityRisk.entityId);
-      });
-
-  const entity = entityRisk ? mockEntities.find(e => e.id === entityRisk.entityId) : null;
-  const risk = entityRisk ? mockRisks.find(r => r.id === entityRisk.riskId) : null;
+    : governanceGroups.filter(gov => 
+        entityRisk && 
+        gov.entityIds.includes(entityRisk.entityId) && 
+        gov.riskId === entityRisk.riskId
+      );
 
   const overlayStyle: React.CSSProperties = {
     position: 'fixed',
@@ -49,56 +39,41 @@ export const GovernanceHistoryPanel: React.FC<GovernanceHistoryPanelProps> = ({
     right: 0,
     bottom: 0,
     background: 'rgba(0, 0, 0, 0.5)',
+    backdropFilter: 'blur(4px)',
     zIndex: 1000,
-    opacity: isOpen ? 1 : 0,
-    visibility: isOpen ? 'visible' : 'hidden',
-    transition: 'all 0.3s ease',
-    backdropFilter: 'blur(4px)'
+    display: 'flex',
+    justifyContent: 'flex-end'
   };
 
   const panelStyle: React.CSSProperties = {
-    position: 'fixed',
-    top: 0,
-    right: 0,
-    bottom: 0,
-    width: '480px',
-    maxWidth: '90vw',
+    width: '500px',
+    height: '100vh',
     background: theme === 'dark' 
       ? 'linear-gradient(135deg, #1e293b 0%, #334155 100%)'
       : 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
     boxShadow: '-8px 0 32px rgba(0, 0, 0, 0.3)',
-    transform: slideIn ? 'translateX(0)' : 'translateX(100%)',
-    transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
     display: 'flex',
     flexDirection: 'column',
-    zIndex: 1001
+    transform: isOpen ? 'translateX(0)' : 'translateX(100%)',
+    transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
   };
 
   const headerStyle: React.CSSProperties = {
     padding: '24px',
     borderBottom: `1px solid ${theme === 'dark' ? '#475569' : '#e2e8f0'}`,
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     background: theme === 'dark' 
-      ? 'rgba(15, 23, 42, 0.8)'
-      : 'rgba(248, 250, 252, 0.9)',
-    backdropFilter: 'blur(8px)',
-    position: 'sticky',
-    top: 0,
-    zIndex: 10
+      ? 'rgba(30, 41, 59, 0.8)'
+      : 'rgba(255, 255, 255, 0.9)',
+    backdropFilter: 'blur(10px)'
   };
 
   const titleStyle: React.CSSProperties = {
     fontSize: '20px',
     fontWeight: 'bold',
-    color: theme === 'dark' ? '#f1f5f9' : '#1e293b',
-    marginBottom: '8px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between'
-  };
-
-  const subtitleStyle: React.CSSProperties = {
-    fontSize: '14px',
-    color: theme === 'dark' ? '#94a3b8' : '#64748b'
+    color: theme === 'dark' ? '#f1f5f9' : '#334155'
   };
 
   const closeButtonStyle: React.CSSProperties = {
@@ -108,7 +83,7 @@ export const GovernanceHistoryPanel: React.FC<GovernanceHistoryPanelProps> = ({
     cursor: 'pointer',
     color: theme === 'dark' ? '#94a3b8' : '#64748b',
     padding: '4px',
-    borderRadius: '6px',
+    borderRadius: '4px',
     transition: 'all 0.2s ease'
   };
 
@@ -118,219 +93,160 @@ export const GovernanceHistoryPanel: React.FC<GovernanceHistoryPanelProps> = ({
     overflowY: 'auto'
   };
 
-  const timelineStyle: React.CSSProperties = {
-    position: 'relative'
+  const governanceCardStyle: React.CSSProperties = {
+    background: theme === 'dark' 
+      ? 'rgba(55, 65, 81, 0.6)'
+      : 'rgba(255, 255, 255, 0.8)',
+    borderRadius: '12px',
+    padding: '20px',
+    marginBottom: '16px',
+    border: `1px solid ${theme === 'dark' ? 'rgba(75, 85, 99, 0.3)' : 'rgba(226, 232, 240, 0.5)'}`,
+    cursor: 'pointer',
+    transition: 'all 0.3s ease',
+    backdropFilter: 'blur(8px)'
   };
 
-  const timelineLineStyle: React.CSSProperties = {
-    position: 'absolute',
-    left: '16px',
-    top: '0',
-    bottom: '0',
-    width: '2px',
-    background: theme === 'dark' ? '#475569' : '#cbd5e1'
-  };
-
-  const governanceCardStyle = (status: string): React.CSSProperties => {
-    const statusColors = {
-      completed: '#10b981',
-      active: '#f59e0b',
-      pending: '#ef4444'
-    };
-
-    return {
-      position: 'relative',
-      marginBottom: '20px',
-      padding: '20px',
-      background: theme === 'dark' 
-        ? 'rgba(30, 41, 59, 0.6)'
-        : 'rgba(255, 255, 255, 0.9)',
-      borderRadius: '12px',
-      border: `1px solid ${theme === 'dark' ? '#475569' : '#e2e8f0'}`,
-      marginLeft: '40px',
-      cursor: 'pointer',
-      transition: 'all 0.3s ease',
-      borderLeft: `4px solid ${statusColors[status as keyof typeof statusColors] || '#6b7280'}`
-    };
-  };
-
-  const governanceTimelineMarkerStyle = (status: string): React.CSSProperties => {
-    const statusColors = {
-      completed: '#10b981',
-      active: '#f59e0b',
-      pending: '#ef4444'
-    };
-
-    return {
-      position: 'absolute',
-      left: '8px',
-      top: '24px',
-      width: '16px',
-      height: '16px',
-      borderRadius: '50%',
-      background: statusColors[status as keyof typeof statusColors] || '#6b7280',
-      border: `3px solid ${theme === 'dark' ? '#1e293b' : '#ffffff'}`,
-      zIndex: 2
-    };
-  };
-
-  const governanceTitleStyle: React.CSSProperties = {
+  const cardTitleStyle: React.CSSProperties = {
     fontSize: '16px',
     fontWeight: '600',
-    color: theme === 'dark' ? '#f1f5f9' : '#1e293b',
-    marginBottom: '8px'
+    marginBottom: '8px',
+    color: theme === 'dark' ? '#f1f5f9' : '#334155'
   };
 
-  const governanceMetaStyle: React.CSSProperties = {
+  const cardMetaStyle: React.CSSProperties = {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: '12px'
   };
 
-  const governanceDateStyle: React.CSSProperties = {
-    fontSize: '12px',
+  const dateStyle: React.CSSProperties = {
+    fontSize: '14px',
     color: theme === 'dark' ? '#94a3b8' : '#64748b'
   };
 
-  const statusBadgeStyle = (status: string): React.CSSProperties => {
-    const statusColors = {
-      completed: { bg: '#10b981', text: 'white' },
-      active: { bg: '#f59e0b', text: 'white' },
-      pending: { bg: '#ef4444', text: 'white' }
+  const riskBadgeStyle = (riskId: string): React.CSSProperties => {
+    const risk = mockRisks.find(r => r.id === riskId);
+    const severityColors = {
+      low: '#10b981',
+      medium: '#f59e0b',
+      high: '#ef4444',
+      critical: '#dc2626'
     };
-
-    const colors = statusColors[status as keyof typeof statusColors] || { bg: '#6b7280', text: 'white' };
 
     return {
-      background: colors.bg,
-      color: colors.text,
+      background: risk ? severityColors[risk.severity] || '#6b7280' : '#6b7280',
+      color: 'white',
       padding: '4px 8px',
       borderRadius: '12px',
-      fontSize: '11px',
-      fontWeight: '600',
-      textTransform: 'uppercase' as const
+      fontSize: '12px',
+      fontWeight: '600'
     };
   };
 
-  const progressBarStyle: React.CSSProperties = {
-    width: '100%',
-    height: '6px',
-    background: theme === 'dark' ? '#475569' : '#e2e8f0',
-    borderRadius: '3px',
-    overflow: 'hidden'
+  const statusBadgeStyle: React.CSSProperties = {
+    background: '#10b981',
+    color: 'white',
+    padding: '4px 8px',
+    borderRadius: '12px',
+    fontSize: '12px',
+    fontWeight: '600'
   };
 
-  const progressFillStyle = (rate: number): React.CSSProperties => ({
-    height: '100%',
-    width: `${rate}%`,
-    background: rate >= 70 ? '#10b981' : rate >= 40 ? '#f59e0b' : '#ef4444',
-    transition: 'width 0.3s ease'
-  });
+  const getRiskName = (riskId: string) => {
+    const risk = mockRisks.find(r => r.id === riskId);
+    return risk ? risk.name : 'Unknown Risk';
+  };
 
-  if (!isOpen) return null;
+  const handleGovernanceClick = (governanceId: string) => {
+    navigate(`/governance/${governanceId}`);
+    onClose();
+  };
 
   return (
     <div style={overlayStyle} onClick={onClose}>
       <div style={panelStyle} onClick={(e) => e.stopPropagation()}>
         <div style={headerStyle}>
-          <div style={titleStyle}>
-            <span>
-              {showAll ? '📋 All Governance Groups' : '📖 Governance History'}
-            </span>
-            <button
-              style={closeButtonStyle}
-              onClick={onClose}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = theme === 'dark' ? '#374151' : '#f1f5f9';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'none';
-              }}
-            >
-              ×
-            </button>
-          </div>
-          {!showAll && entity && risk && (
-            <div style={subtitleStyle}>
-              {entity.apiPath} {entity.method} • {risk.name}
-            </div>
-          )}
+          <h2 style={titleStyle}>
+            {showAll ? 'All Governance Groups' : 'Governance History'}
+          </h2>
+          <button 
+            style={closeButtonStyle}
+            onClick={onClose}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = theme === 'dark' ? '#374151' : '#f1f5f9';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'none';
+            }}
+          >
+            ×
+          </button>
         </div>
 
         <div style={contentStyle}>
-          <div style={timelineStyle}>
-            <div style={timelineLineStyle} />
-            
-            {filteredGroups.map((group) => (
+          {filteredGovernances.length === 0 ? (
+            <div style={{
+              textAlign: 'center',
+              color: theme === 'dark' ? '#94a3b8' : '#64748b',
+              fontSize: '16px',
+              marginTop: '40px'
+            }}>
+              {showAll ? 'No governance groups found' : 'No governance history available'}
+            </div>
+          ) : (
+            filteredGovernances.map((governance) => (
               <div
-                key={group.id}
-                style={governanceCardStyle(group.status)}
-                onClick={() => navigate(`/governance/${group.id}`)}
+                key={governance.id}
+                style={governanceCardStyle}
+                onClick={() => handleGovernanceClick(governance.id)}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateX(4px)';
+                  e.currentTarget.style.transform = 'translateY(-2px)';
                   e.currentTarget.style.boxShadow = theme === 'dark' 
                     ? '0 8px 24px rgba(0, 0, 0, 0.4)'
                     : '0 8px 24px rgba(0, 0, 0, 0.15)';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'translateX(0)';
+                  e.currentTarget.style.transform = 'translateY(0)';
                   e.currentTarget.style.boxShadow = 'none';
                 }}
               >
-                <div style={governanceTimelineMarkerStyle(group.status)} />
+                <div style={cardTitleStyle}>{governance.name}</div>
                 
-                <div style={governanceTitleStyle}>{group.name}</div>
-                
-                <div style={governanceMetaStyle}>
-                  <span style={governanceDateStyle}>
-                    {new Date(group.createdDate).toLocaleDateString()}
+                <div style={cardMetaStyle}>
+                  <span style={dateStyle}>
+                    {new Date(governance.createdDate).toLocaleDateString()}
                   </span>
-                  <span style={statusBadgeStyle(group.status)}>
-                    {group.status}
-                  </span>
-                </div>
-
-                <div style={{ marginBottom: '8px' }}>
-                  <div style={{ 
-                    fontSize: '12px', 
-                    color: theme === 'dark' ? '#94a3b8' : '#64748b',
-                    marginBottom: '4px' 
-                  }}>
-                    Compliance: {group.complianceRate}%
-                  </div>
-                  <div style={progressBarStyle}>
-                    <div style={progressFillStyle(group.complianceRate)} />
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    <span style={riskBadgeStyle(governance.riskId)}>
+                      {getRiskName(governance.riskId)}
+                    </span>
+                    <span style={statusBadgeStyle}>
+                      {governance.complianceRate}% Complete
+                    </span>
                   </div>
                 </div>
 
                 <div style={{
-                  fontSize: '12px',
-                  color: theme === 'dark' ? '#94a3b8' : '#64748b'
+                  fontSize: '14px',
+                  color: theme === 'dark' ? '#94a3b8' : '#64748b',
+                  marginBottom: '8px'
                 }}>
-                  {group.entityIds.length} entities • {mockRisks.find(r => r.id === group.riskId)?.name}
+                  {governance.entityIds.length} entities affected
                 </div>
-              </div>
-            ))}
 
-            {filteredGroups.length === 0 && (
-              <div style={{
-                textAlign: 'center',
-                padding: '40px',
-                color: theme === 'dark' ? '#94a3b8' : '#64748b'
-              }}>
-                <div style={{ fontSize: '48px', marginBottom: '16px' }}>📭</div>
-                <div style={{ fontSize: '16px', fontWeight: '500' }}>
-                  No governance history found
-                </div>
-                <div style={{ fontSize: '14px', marginTop: '8px' }}>
-                  {showAll 
-                    ? 'No governance groups have been created yet.'
-                    : 'This entity-risk combination has no governance history.'}
-                </div>
+                {governance.description && (
+                  <div style={{
+                    fontSize: '13px',
+                    color: theme === 'dark' ? '#cbd5e1' : '#475569',
+                    lineHeight: '1.4'
+                  }}>
+                    {governance.description}
+                  </div>
+                )}
               </div>
-            )}
-          </div>
+            ))
+          )}
         </div>
       </div>
     </div>

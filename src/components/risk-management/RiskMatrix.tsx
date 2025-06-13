@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../ThemeProvider';
 import { Entity, Risk } from './mockRiskData';
@@ -17,6 +17,18 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
 }) => {
   const { theme } = useTheme();
   const navigate = useNavigate();
+  const [selectedEntities, setSelectedEntities] = useState<Set<string>>(new Set());
+  const [riskStatus, setRiskStatus] = useState<Record<string, Record<string, boolean>>>(() => {
+    // Initialize with existing data from entities
+    const initial: Record<string, Record<string, boolean>> = {};
+    entities.forEach(entity => {
+      initial[entity.id] = {};
+      risks.forEach(risk => {
+        initial[entity.id][risk.id] = entity.riskStatus[risk.id]?.isResolved || false;
+      });
+    });
+    return initial;
+  });
 
   const containerStyle: React.CSSProperties = {
     background: theme === 'dark' 
@@ -29,6 +41,30 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
     boxShadow: theme === 'dark' 
       ? '0 8px 32px rgba(0, 0, 0, 0.3)'
       : '0 8px 32px rgba(0, 0, 0, 0.1)'
+  };
+
+  const batchControlsStyle: React.CSSProperties = {
+    padding: '16px 20px',
+    borderBottom: `1px solid ${theme === 'dark' ? '#334155' : '#e2e8f0'}`,
+    display: 'flex',
+    alignItems: 'center',
+    gap: '16px',
+    background: theme === 'dark' 
+      ? 'linear-gradient(135deg, #1e293b 0%, #334155 100%)'
+      : 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)'
+  };
+
+  const batchButtonStyle: React.CSSProperties = {
+    background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+    color: 'white',
+    border: 'none',
+    borderRadius: '8px',
+    padding: '8px 16px',
+    fontSize: '14px',
+    fontWeight: '600',
+    cursor: 'pointer',
+    transition: 'all 0.3s ease',
+    boxShadow: '0 2px 8px rgba(99, 102, 241, 0.3)'
   };
 
   const tableStyle: React.CSSProperties = {
@@ -111,7 +147,7 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
 
   const riskCellStyle: React.CSSProperties = {
     textAlign: 'center',
-    minWidth: '120px'
+    minWidth: '180px'
   };
 
   const riskCellContentStyle: React.CSSProperties = {
@@ -147,14 +183,23 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
   });
 
   const actionButtonStyle: React.CSSProperties = {
-    background: 'none',
-    border: `1px solid ${theme === 'dark' ? '#475569' : '#cbd5e1'}`,
+    background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+    color: 'white',
+    border: 'none',
     borderRadius: '6px',
-    padding: '6px 8px',
+    padding: '6px 12px',
     cursor: 'pointer',
     fontSize: '12px',
+    fontWeight: '500',
     transition: 'all 0.2s ease',
-    color: theme === 'dark' ? '#94a3b8' : '#64748b'
+    marginRight: '4px'
+  };
+
+  const disabledButtonStyle: React.CSSProperties = {
+    ...actionButtonStyle,
+    background: theme === 'dark' ? '#475569' : '#cbd5e1',
+    cursor: 'not-allowed',
+    opacity: 0.5
   };
 
   const getSeverityColor = (severity: string) => {
@@ -168,8 +213,13 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
   };
 
   const handleToggleRisk = (entityId: string, riskId: string) => {
-    // This would typically update the backend
-    console.log(`Toggling risk ${riskId} for entity ${entityId}`);
+    setRiskStatus(prev => ({
+      ...prev,
+      [entityId]: {
+        ...prev[entityId],
+        [riskId]: !prev[entityId]?.[riskId]
+      }
+    }));
   };
 
   const handleGovernanceClick = (entityId: string, riskId: string) => {
@@ -180,13 +230,93 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
     }
   };
 
+  const handleEntitySelect = (entityId: string, selected: boolean) => {
+    const newSelected = new Set(selectedEntities);
+    if (selected) {
+      newSelected.add(entityId);
+    } else {
+      newSelected.delete(entityId);
+    }
+    setSelectedEntities(newSelected);
+  };
+
+  const handleSelectAll = () => {
+    const allSelected = selectedEntities.size === entities.length;
+    if (allSelected) {
+      setSelectedEntities(new Set());
+    } else {
+      setSelectedEntities(new Set(entities.map(e => e.id)));
+    }
+  };
+
+  const handleBatchToggle = () => {
+    const selectedEntityIds = Array.from(selectedEntities);
+    if (selectedEntityIds.length === 0) return;
+
+    // Toggle all risks for selected entities
+    setRiskStatus(prev => {
+      const newStatus = { ...prev };
+      selectedEntityIds.forEach(entityId => {
+        risks.forEach(risk => {
+          if (!newStatus[entityId]) newStatus[entityId] = {};
+          newStatus[entityId][risk.id] = !newStatus[entityId][risk.id];
+        });
+      });
+      return newStatus;
+    });
+  };
+
+  const hasGovernanceData = (entityId: string, riskId: string) => {
+    const entity = entities.find(e => e.id === entityId);
+    return entity?.riskStatus[riskId]?.latestGovernanceId;
+  };
+
+  const hasHistoryData = (entityId: string, riskId: string) => {
+    const entity = entities.find(e => e.id === entityId);
+    return entity?.riskStatus[riskId]?.hasHistory !== false;
+  };
+
   return (
     <div style={containerStyle}>
+      <div style={batchControlsStyle}>
+        <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', fontWeight: '500' }}>
+          <input
+            type="checkbox"
+            checked={selectedEntities.size === entities.length && entities.length > 0}
+            onChange={handleSelectAll}
+            style={checkboxStyle}
+          />
+          Check All
+        </label>
+        
+        {selectedEntities.size > 0 && (
+          <button
+            style={batchButtonStyle}
+            onClick={handleBatchToggle}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-1px)';
+              e.currentTarget.style.boxShadow = '0 4px 12px rgba(99, 102, 241, 0.4)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 2px 8px rgba(99, 102, 241, 0.3)';
+            }}
+          >
+            🔄 Batch Toggle ({selectedEntities.size} selected)
+          </button>
+        )}
+      </div>
+
       <table style={tableStyle}>
         <thead style={headerStyle}>
           <tr>
             <th style={{...headerCellStyle, width: '40px'}}>
-              <input type="checkbox" style={checkboxStyle} />
+              <input 
+                type="checkbox" 
+                style={checkboxStyle}
+                checked={selectedEntities.size === entities.length && entities.length > 0}
+                onChange={handleSelectAll}
+              />
             </th>
             <th style={{...headerCellStyle, width: '120px'}}>P.S.M</th>
             <th style={{...headerCellStyle, width: '200px'}}>Entity</th>
@@ -230,7 +360,12 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
               }}
             >
               <td style={cellStyle}>
-                <input type="checkbox" style={checkboxStyle} />
+                <input 
+                  type="checkbox" 
+                  style={checkboxStyle}
+                  checked={selectedEntities.has(entity.id)}
+                  onChange={(e) => handleEntitySelect(entity.id, e.target.checked)}
+                />
               </td>
               <td style={cellStyle}>
                 <div style={psmStyle}>{entity.psm}</div>
@@ -244,8 +379,9 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
                 </div>
               </td>
               {risks.map((risk) => {
-                const riskStatus = entity.riskStatus[risk.id];
-                const isResolved = riskStatus?.isResolved || false;
+                const isResolved = riskStatus[entity.id]?.[risk.id] || false;
+                const hasLatestGovernance = hasGovernanceData(entity.id, risk.id);
+                const hasHistory = hasHistoryData(entity.id, risk.id);
                 
                 return (
                   <td key={risk.id} style={{...cellStyle, ...riskCellStyle}}>
@@ -258,37 +394,23 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
                         <div style={toggleKnobStyle(isResolved)} />
                       </button>
                       
-                      <div style={{ display: 'flex', gap: '4px' }}>
+                      <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', justifyContent: 'center' }}>
                         <button
-                          style={actionButtonStyle}
-                          onClick={() => handleGovernanceClick(entity.id, risk.id)}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.background = theme === 'dark' ? '#374151' : '#f1f5f9';
-                            e.currentTarget.style.borderColor = '#6366f1';
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.background = 'none';
-                            e.currentTarget.style.borderColor = theme === 'dark' ? '#475569' : '#cbd5e1';
-                          }}
-                          title="View latest governance"
+                          style={hasLatestGovernance ? actionButtonStyle : disabledButtonStyle}
+                          onClick={() => hasLatestGovernance && handleGovernanceClick(entity.id, risk.id)}
+                          disabled={!hasLatestGovernance}
+                          title={hasLatestGovernance ? "View latest governance" : "No governance data available"}
                         >
-                          📋
+                          View Latest
                         </button>
                         
                         <button
-                          style={actionButtonStyle}
-                          onClick={() => onEntityRiskHistory(entity.id, risk.id)}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.background = theme === 'dark' ? '#374151' : '#f1f5f9';
-                            e.currentTarget.style.borderColor = '#6366f1';
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.background = 'none';
-                            e.currentTarget.style.borderColor = theme === 'dark' ? '#475569' : '#cbd5e1';
-                          }}
-                          title="View history"
+                          style={hasHistory ? actionButtonStyle : disabledButtonStyle}
+                          onClick={() => hasHistory && onEntityRiskHistory(entity.id, risk.id)}
+                          disabled={!hasHistory}
+                          title={hasHistory ? "View governance history" : "No history available"}
                         >
-                          📖
+                          View History
                         </button>
                       </div>
                     </div>

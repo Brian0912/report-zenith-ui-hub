@@ -132,6 +132,23 @@ export const AplusRiskManagement: React.FC = () => {
     marginBottom: '24px'
   };
 
+  const contentStyle: React.CSSProperties = {
+    padding: '0 40px 40px'
+  };
+
+  const matrixHeaderStyle: React.CSSProperties = {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '16px'
+  };
+
+  const matrixTitleStyle: React.CSSProperties = {
+    fontSize: '20px',
+    fontWeight: 'bold',
+    color: theme === 'dark' ? '#f1f5f9' : '#334155'
+  };
+
   const governanceButtonStyle: React.CSSProperties = {
     background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
     color: 'white',
@@ -142,12 +159,7 @@ export const AplusRiskManagement: React.FC = () => {
     fontWeight: '600',
     cursor: 'pointer',
     transition: 'all 0.3s ease',
-    boxShadow: '0 4px 16px rgba(99, 102, 241, 0.3)',
-    marginBottom: '24px'
-  };
-
-  const contentStyle: React.CSSProperties = {
-    padding: '0 40px 40px'
+    boxShadow: '0 4px 16px rgba(99, 102, 241, 0.3)'
   };
 
   const handleEntityRiskHistory = (entityId: string, riskId: string) => {
@@ -231,6 +243,18 @@ export const AplusRiskManagement: React.FC = () => {
         </div>
 
         <div style={actionBarStyle}>
+          <RiskFilters
+            entities={mockEntities}
+            risks={mockRisks}
+            onFilterChange={setFilteredEntities}
+            onRiskVisibilityChange={setVisibleRisks}
+          />
+        </div>
+      </div>
+
+      <div style={contentStyle}>
+        <div style={matrixHeaderStyle}>
+          <h2 style={matrixTitleStyle}>Risk Matrix</h2>
           <button
             style={governanceButtonStyle}
             onClick={() => setShowGovernanceList(true)}
@@ -245,17 +269,8 @@ export const AplusRiskManagement: React.FC = () => {
           >
             📋 Governance List
           </button>
-          
-          <RiskFilters
-            entities={mockEntities}
-            risks={mockRisks}
-            onFilterChange={setFilteredEntities}
-            onRiskVisibilityChange={setVisibleRisks}
-          />
         </div>
-      </div>
-
-      <div style={contentStyle}>
+        
         <RiskMatrix
           entities={filteredEntities}
           risks={mockRisks.filter(risk => visibleRisks.includes(risk.id))}

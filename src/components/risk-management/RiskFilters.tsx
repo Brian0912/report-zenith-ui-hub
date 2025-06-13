@@ -21,18 +21,28 @@ export const RiskFilters: React.FC<RiskFiltersProps> = ({
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [searchResults, setSearchResults] = useState<Array<{type: 'psm' | 'entity', value: string, entity?: Entity}>>([]);
   const [showSearchResults, setShowSearchResults] = useState(false);
-  const [expandedPsms, setExpandedPsms] = useState<Set<string>>(new Set());
+  const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set());
   const [selectedRisks, setSelectedRisks] = useState<Set<string>>(new Set(risks.map(r => r.id)));
   const searchInputRef = useRef<HTMLInputElement>(null);
 
-  // Group entities by PSM
-  const psmGroups = entities.reduce((acc, entity) => {
-    if (!acc[entity.psm]) {
-      acc[entity.psm] = [];
-    }
-    acc[entity.psm].push(entity);
-    return acc;
-  }, {} as Record<string, Entity[]>);
+  // Create multi-level tree structure: PSM -> API Path -> Method
+  const createTreeStructure = () => {
+    const tree: Record<string, Record<string, Entity[]>> = {};
+    
+    entities.forEach(entity => {
+      if (!tree[entity.psm]) {
+        tree[entity.psm] = {};
+      }
+      if (!tree[entity.psm][entity.apiPath]) {
+        tree[entity.psm][entity.apiPath] = [];
+      }
+      tree[entity.psm][entity.apiPath].push(entity);
+    });
+    
+    return tree;
+  };
+
+  const treeStructure = createTreeStructure();
 
   // Fuzzy search function
   const fuzzySearch = (query: string) => {
@@ -45,7 +55,7 @@ export const RiskFilters: React.FC<RiskFiltersProps> = ({
     const queryLower = query.toLowerCase();
 
     // Search PSMs
-    Object.keys(psmGroups).forEach(psm => {
+    Object.keys(treeStructure).forEach(psm => {
       if (psm.toLowerCase().includes(queryLower)) {
         results.push({ type: 'psm', value: psm });
       }
@@ -63,7 +73,7 @@ export const RiskFilters: React.FC<RiskFiltersProps> = ({
       }
     });
 
-    setSearchResults(results.slice(0, 10)); // Limit results
+    setSearchResults(results.slice(0, 10));
   };
 
   useEffect(() => {
@@ -71,7 +81,6 @@ export const RiskFilters: React.FC<RiskFiltersProps> = ({
   }, [searchQuery, entities]);
 
   useEffect(() => {
-    // Filter entities based on selected items
     if (selectedItems.length === 0) {
       onFilterChange(entities);
       return;
@@ -89,6 +98,8 @@ export const RiskFilters: React.FC<RiskFiltersProps> = ({
     onRiskVisibilityChange(Array.from(selectedRisks));
   }, [selectedRisks, onRiskVisibilityChange]);
 
+  const FILTER_HEIGHT = '320px';
+
   const containerStyle: React.CSSProperties = {
     display: 'grid',
     gridTemplateColumns: '1fr 1fr 1fr',
@@ -101,20 +112,43 @@ export const RiskFilters: React.FC<RiskFiltersProps> = ({
       ? 'rgba(30, 41, 59, 0.6)'
       : 'rgba(255, 255, 255, 0.8)',
     borderRadius: '12px',
-    padding: '20px',
     border: `1px solid ${theme === 'dark' ? 'rgba(55, 65, 81, 0.3)' : 'rgba(226, 232, 240, 0.5)'}`,
-    backdropFilter: 'blur(8px)'
+    backdropFilter: 'blur(8px)',
+    height: FILTER_HEIGHT,
+    display: 'flex',
+    flexDirection: 'column'
+  };
+
+  const sectionHeaderStyle: React.CSSProperties = {
+    padding: '20px 20px 16px 20px',
+    borderBottom: `1px solid ${theme === 'dark' ? 'rgba(55, 65, 81, 0.3)' : 'rgba(226, 232, 240, 0.5)}`,
+    flexShrink: 0
   };
 
   const sectionTitleStyle: React.CSSProperties = {
     fontSize: '16px',
     fontWeight: '600',
-    marginBottom: '16px',
-    color: theme === 'dark' ? '#f1f5f9' : '#334155'
+    color: theme === 'dark' ? '#f1f5f9' : '#334155',
+    margin: 0
+  };
+
+  const sectionContentStyle: React.CSSProperties = {
+    padding: '16px 20px 20px 20px',
+    flex: 1,
+    overflow: 'hidden',
+    display: 'flex',
+    flexDirection: 'column'
+  };
+
+  const scrollableContentStyle: React.CSSProperties = {
+    flex: 1,
+    overflowY: 'auto',
+    overflowX: 'hidden'
   };
 
   const searchContainerStyle: React.CSSProperties = {
-    position: 'relative'
+    position: 'relative',
+    marginBottom: '12px'
   };
 
   const searchInputStyle: React.CSSProperties = {
@@ -180,29 +214,15 @@ export const RiskFilters: React.FC<RiskFiltersProps> = ({
     fontSize: '10px'
   };
 
-  const treeStyle: React.CSSProperties = {
-    maxHeight: '300px',
-    overflowY: 'auto'
-  };
-
-  const psmNodeStyle: React.CSSProperties = {
-    padding: '8px 12px',
+  const treeNodeStyle: React.CSSProperties = {
+    padding: '6px 12px',
     cursor: 'pointer',
     borderRadius: '6px',
-    marginBottom: '4px',
+    marginBottom: '2px',
     transition: 'all 0.2s ease',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between'
-  };
-
-  const entityNodeStyle: React.CSSProperties = {
-    padding: '6px 12px 6px 32px',
-    cursor: 'pointer',
-    borderRadius: '6px',
-    marginBottom: '2px',
-    fontSize: '14px',
-    transition: 'all 0.2s ease'
   };
 
   const methodBadgeStyle = (method: string): React.CSSProperties => {
@@ -244,13 +264,9 @@ export const RiskFilters: React.FC<RiskFiltersProps> = ({
       cursor: 'pointer',
       transition: 'all 0.3s ease',
       fontSize: '14px',
-      fontWeight: '500'
+      fontWeight: '500',
+      marginBottom: '8px'
     };
-  };
-
-  const riskGridStyle: React.CSSProperties = {
-    display: 'grid',
-    gap: '8px'
   };
 
   const addSelectedItem = (item: string) => {
@@ -265,14 +281,14 @@ export const RiskFilters: React.FC<RiskFiltersProps> = ({
     setSelectedItems(selectedItems.filter(i => i !== item));
   };
 
-  const togglePsm = (psm: string) => {
-    const newExpanded = new Set(expandedPsms);
-    if (newExpanded.has(psm)) {
-      newExpanded.delete(psm);
+  const toggleNode = (nodeId: string) => {
+    const newExpanded = new Set(expandedNodes);
+    if (newExpanded.has(nodeId)) {
+      newExpanded.delete(nodeId);
     } else {
-      newExpanded.add(psm);
+      newExpanded.add(nodeId);
     }
-    setExpandedPsms(newExpanded);
+    setExpandedNodes(newExpanded);
   };
 
   const toggleRisk = (riskId: string) => {
@@ -289,93 +305,80 @@ export const RiskFilters: React.FC<RiskFiltersProps> = ({
     <div style={containerStyle}>
       {/* Multi-select Search */}
       <div style={sectionStyle}>
-        <div style={sectionTitleStyle}>🔍 Smart Search</div>
-        <div style={searchContainerStyle}>
-          <input
-            ref={searchInputRef}
-            type="text"
-            placeholder="Search PSM, API path, or method..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            onFocus={() => setShowSearchResults(true)}
-            style={searchInputStyle}
-          />
-          
-          {showSearchResults && searchResults.length > 0 && (
-            <div style={searchResultsStyle}>
-              {searchResults.map((result, index) => (
-                <div
-                  key={index}
-                  style={resultItemStyle}
-                  onClick={() => addSelectedItem(result.value)}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = theme === 'dark' ? '#334155' : '#f1f5f9';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = 'transparent';
-                  }}
-                >
-                  <span style={{ fontSize: '12px', color: theme === 'dark' ? '#94a3b8' : '#64748b' }}>
-                    {result.type === 'psm' ? 'PSM' : 'API'}:
-                  </span>
-                  <span style={{ marginLeft: '8px' }}>{result.value}</span>
-                  {result.entity && (
-                    <span style={methodBadgeStyle(result.entity.method)}>
-                      {result.entity.method}
+        <div style={sectionHeaderStyle}>
+          <div style={sectionTitleStyle}>🔍 Smart Search</div>
+        </div>
+        <div style={sectionContentStyle}>
+          <div style={searchContainerStyle}>
+            <input
+              ref={searchInputRef}
+              type="text"
+              placeholder="Search PSM, API path, or method..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onFocus={() => setShowSearchResults(true)}
+              style={searchInputStyle}
+            />
+            
+            {showSearchResults && searchResults.length > 0 && (
+              <div style={searchResultsStyle}>
+                {searchResults.map((result, index) => (
+                  <div
+                    key={index}
+                    style={resultItemStyle}
+                    onClick={() => addSelectedItem(result.value)}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = theme === 'dark' ? '#334155' : '#f1f5f9';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = 'transparent';
+                    }}
+                  >
+                    <span style={{ fontSize: '12px', color: theme === 'dark' ? '#94a3b8' : '#64748b' }}>
+                      {result.type === 'psm' ? 'PSM' : 'API'}:
                     </span>
-                  )}
+                    <span style={{ marginLeft: '8px' }}>{result.value}</span>
+                    {result.entity && (
+                      <span style={methodBadgeStyle(result.entity.method)}>
+                        {result.entity.method}
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {selectedItems.length > 0 && (
+            <div style={tagContainerStyle}>
+              {selectedItems.map((item) => (
+                <div key={item} style={tagStyle}>
+                  {item}
+                  <div 
+                    style={removeTagStyle}
+                    onClick={() => removeSelectedItem(item)}
+                  >
+                    ×
+                  </div>
                 </div>
               ))}
             </div>
           )}
         </div>
-
-        {selectedItems.length > 0 && (
-          <div style={tagContainerStyle}>
-            {selectedItems.map((item) => (
-              <div key={item} style={tagStyle}>
-                {item}
-                <div 
-                  style={removeTagStyle}
-                  onClick={() => removeSelectedItem(item)}
-                >
-                  ×
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
       </div>
 
-      {/* Tree Navigation */}
+      {/* Multi-level Tree Navigation */}
       <div style={sectionStyle}>
-        <div style={sectionTitleStyle}>🌳 Service Tree</div>
-        <div style={treeStyle}>
-          {Object.entries(psmGroups).map(([psm, psmEntities]) => (
-            <div key={psm}>
-              <div
-                style={psmNodeStyle}
-                onClick={() => togglePsm(psm)}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = theme === 'dark' ? '#334155' : '#f1f5f9';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'transparent';
-                }}
-              >
-                <span>
-                  {expandedPsms.has(psm) ? '📂' : '📁'} {psm}
-                </span>
-                <span style={{ fontSize: '12px', color: theme === 'dark' ? '#94a3b8' : '#64748b' }}>
-                  {psmEntities.length}
-                </span>
-              </div>
-              
-              {expandedPsms.has(psm) && psmEntities.map((entity) => (
+        <div style={sectionHeaderStyle}>
+          <div style={sectionTitleStyle}>🌳 Service Tree</div>
+        </div>
+        <div style={sectionContentStyle}>
+          <div style={scrollableContentStyle}>
+            {Object.entries(treeStructure).map(([psm, apiPaths]) => (
+              <div key={psm}>
                 <div
-                  key={entity.id}
-                  style={entityNodeStyle}
-                  onClick={() => addSelectedItem(`${entity.apiPath} ${entity.method}`)}
+                  style={treeNodeStyle}
+                  onClick={() => toggleNode(psm)}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.background = theme === 'dark' ? '#334155' : '#f1f5f9';
                   }}
@@ -383,31 +386,78 @@ export const RiskFilters: React.FC<RiskFiltersProps> = ({
                     e.currentTarget.style.background = 'transparent';
                   }}
                 >
-                  📄 {entity.apiPath}
-                  <span style={methodBadgeStyle(entity.method)}>
-                    {entity.method}
+                  <span>
+                    {expandedNodes.has(psm) ? '📂' : '📁'} {psm}
+                  </span>
+                  <span style={{ fontSize: '12px', color: theme === 'dark' ? '#94a3b8' : '#64748b' }}>
+                    {Object.values(apiPaths).reduce((acc, methods) => acc + methods.length, 0)}
                   </span>
                 </div>
-              ))}
-            </div>
-          ))}
+                
+                {expandedNodes.has(psm) && Object.entries(apiPaths).map(([apiPath, methods]) => (
+                  <div key={`${psm}-${apiPath}`} style={{ marginLeft: '16px' }}>
+                    <div
+                      style={{...treeNodeStyle, fontSize: '14px'}}
+                      onClick={() => toggleNode(`${psm}-${apiPath}`)}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = theme === 'dark' ? '#334155' : '#f1f5f9';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = 'transparent';
+                      }}
+                    >
+                      <span>
+                        {expandedNodes.has(`${psm}-${apiPath}`) ? '📂' : '📁'} {apiPath}
+                      </span>
+                      <span style={{ fontSize: '12px', color: theme === 'dark' ? '#94a3b8' : '#64748b' }}>
+                        {methods.length}
+                      </span>
+                    </div>
+                    
+                    {expandedNodes.has(`${psm}-${apiPath}`) && methods.map((entity) => (
+                      <div
+                        key={entity.id}
+                        style={{...treeNodeStyle, marginLeft: '16px', fontSize: '13px'}}
+                        onClick={() => addSelectedItem(`${entity.apiPath} ${entity.method}`)}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = theme === 'dark' ? '#334155' : '#f1f5f9';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = 'transparent';
+                        }}
+                      >
+                        <span>📄 {entity.method}</span>
+                        <span style={methodBadgeStyle(entity.method)}>
+                          {entity.method}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
       {/* Risk Filter */}
       <div style={sectionStyle}>
-        <div style={sectionTitleStyle}>⚠️ Risk Categories</div>
-        <div style={riskGridStyle}>
-          {risks.map((risk) => (
-            <div
-              key={risk.id}
-              style={riskChipStyle(risk, selectedRisks.has(risk.id))}
-              onClick={() => toggleRisk(risk.id)}
-              title={risk.description}
-            >
-              {risk.name}
-            </div>
-          ))}
+        <div style={sectionHeaderStyle}>
+          <div style={sectionTitleStyle}>⚠️ Risk Categories</div>
+        </div>
+        <div style={sectionContentStyle}>
+          <div style={scrollableContentStyle}>
+            {risks.map((risk) => (
+              <div
+                key={risk.id}
+                style={riskChipStyle(risk, selectedRisks.has(risk.id))}
+                onClick={() => toggleRisk(risk.id)}
+                title={risk.description}
+              >
+                {risk.name}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>

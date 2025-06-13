@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTheme } from '../components/ThemeProvider';
@@ -11,6 +10,7 @@ export const GovernancePage: React.FC = () => {
   const { theme } = useTheme();
   const [selectedEntities, setSelectedEntities] = useState<Set<string>>(new Set());
   const [filteredEntities, setFilteredEntities] = useState(mockEntities);
+  const [entityStates, setEntityStates] = useState<Record<string, boolean>>({});
 
   const governance = mockGovernanceGroups.find(g => g.id === id);
   const governanceEntities = governance 
@@ -19,6 +19,13 @@ export const GovernancePage: React.FC = () => {
 
   useEffect(() => {
     setFilteredEntities(governanceEntities);
+    // Initialize entity states
+    const initialStates: Record<string, boolean> = {};
+    governanceEntities.forEach(entity => {
+      const riskStatus = entity.riskStatus[governance?.riskId || ''];
+      initialStates[entity.id] = riskStatus?.isResolved || false;
+    });
+    setEntityStates(initialStates);
   }, [governance]);
 
   if (!governance) {
@@ -117,8 +124,16 @@ export const GovernancePage: React.FC = () => {
   };
 
   const toggleAllSelected = () => {
-    // Batch toggle functionality
-    console.log('Toggling fixes for selected entities:', Array.from(selectedEntities));
+    const selectedEntityIds = Array.from(selectedEntities);
+    if (selectedEntityIds.length === 0) return;
+
+    setEntityStates(prev => {
+      const newStates = { ...prev };
+      selectedEntityIds.forEach(entityId => {
+        newStates[entityId] = !newStates[entityId];
+      });
+      return newStates;
+    });
   };
 
   const handleEntitySelect = (entityId: string, selected: boolean) => {
@@ -129,6 +144,22 @@ export const GovernancePage: React.FC = () => {
       newSelected.delete(entityId);
     }
     setSelectedEntities(newSelected);
+  };
+
+  const handleSelectAll = () => {
+    const allSelected = selectedEntities.size === filteredEntities.length;
+    if (allSelected) {
+      setSelectedEntities(new Set());
+    } else {
+      setSelectedEntities(new Set(filteredEntities.map(e => e.id)));
+    }
+  };
+
+  const handleToggleEntity = (entityId: string) => {
+    setEntityStates(prev => ({
+      ...prev,
+      [entityId]: !prev[entityId]
+    }));
   };
 
   return (
@@ -167,7 +198,17 @@ export const GovernancePage: React.FC = () => {
           </div>
         </div>
 
-        {selectedEntities.size > 0 && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', fontWeight: '500' }}>
+            <input
+              type="checkbox"
+              checked={selectedEntities.size === filteredEntities.length && filteredEntities.length > 0}
+              onChange={handleSelectAll}
+              style={{ width: '18px', height: '18px', accentColor: '#6366f1' }}
+            />
+            Check All
+          </label>
+
           <button
             style={batchActionStyle}
             onClick={toggleAllSelected}
@@ -182,7 +223,7 @@ export const GovernancePage: React.FC = () => {
           >
             🔄 Batch Toggle Fixes ({selectedEntities.size} selected)
           </button>
-        )}
+        </div>
 
         <RiskFilters
           entities={governanceEntities}
@@ -198,6 +239,8 @@ export const GovernancePage: React.FC = () => {
           risk={risk}
           selectedEntities={selectedEntities}
           onEntitySelect={handleEntitySelect}
+          entityStates={entityStates}
+          onToggleEntity={handleToggleEntity}
         />
       </div>
     </div>
@@ -209,13 +252,17 @@ interface GovernanceMatrixProps {
   risk: any;
   selectedEntities: Set<string>;
   onEntitySelect: (entityId: string, selected: boolean) => void;
+  entityStates: Record<string, boolean>;
+  onToggleEntity: (entityId: string) => void;
 }
 
 const GovernanceMatrix: React.FC<GovernanceMatrixProps> = ({
   entities,
   risk,
   selectedEntities,
-  onEntitySelect
+  onEntitySelect,
+  entityStates,
+  onToggleEntity
 }) => {
   const { theme } = useTheme();
   const navigate = useNavigate();
@@ -270,8 +317,7 @@ const GovernanceMatrix: React.FC<GovernanceMatrixProps> = ({
         <tbody>
           {entities.map((entity, index) => {
             const isSelected = selectedEntities.has(entity.id);
-            const riskStatus = entity.riskStatus[risk?.id];
-            const isResolved = riskStatus?.isResolved || false;
+            const isResolved = entityStates[entity.id] || false;
 
             return (
               <tr 
@@ -328,6 +374,7 @@ const GovernanceMatrix: React.FC<GovernanceMatrixProps> = ({
                 </td>
                 <td style={{ padding: '12px', textAlign: 'center' }}>
                   <button
+                    onClick={() => onToggleEntity(entity.id)}
                     style={{
                       position: 'relative',
                       display: 'inline-block',
