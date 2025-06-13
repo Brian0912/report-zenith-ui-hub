@@ -121,7 +121,7 @@ export const RiskFilters: React.FC<RiskFiltersProps> = ({
 
   const sectionHeaderStyle: React.CSSProperties = {
     padding: '20px 20px 16px 20px',
-    borderBottom: `1px solid ${theme === 'dark' ? 'rgba(55, 65, 81, 0.3)' : 'rgba(226, 232, 240, 0.5)}`,
+    borderBottom: `1px solid ${theme === 'dark' ? 'rgba(55, 65, 81, 0.3)' : 'rgba(226, 232, 240, 0.5)'}`,
     flexShrink: 0
   };
 
