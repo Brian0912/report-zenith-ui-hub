@@ -2,8 +2,6 @@
 import React from 'react';
 import { ReportCenter } from '../components/ReportCenter';
 
-const Index = () => {
+export const Index: React.FC = () => {
   return <ReportCenter />;
 };
-
-export default Index;
