@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../ThemeProvider';
@@ -323,6 +322,17 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
     return entity && entity.riskStatus[riskId] !== undefined;
   };
 
+  const hasGovernanceData = (entityId: string, riskId: string) => {
+    const entity = entities.find(e => e.id === entityId);
+    return entity?.riskStatus[riskId]?.latestGovernanceId;
+  };
+
+  const hasHistoryData = (entityId: string, riskId: string) => {
+    const entity = entities.find(e => e.id === entityId);
+    return entity?.riskStatus[riskId]?.governanceHistory && 
+           entity.riskStatus[riskId].governanceHistory.length > 0;
+  };
+
   const handleToggleRisk = (entityId: string, riskId: string) => {
     if (!hasRiskData(entityId, riskId)) return;
     
@@ -399,11 +409,6 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
       });
       return newStatus;
     });
-  };
-
-  const hasGovernanceData = (entityId: string, riskId: string) => {
-    const entity = entities.find(e => e.id === entityId);
-    return entity?.riskStatus[riskId]?.latestGovernanceId;
   };
 
   const goToPage = (page: number) => {
@@ -542,7 +547,8 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
                     }
 
                     const isResolved = riskStatus[entity.id]?.[risk.id] || false;
-                    const hasLatestGovernance = hasGovernanceData(entity.id, risk.id);
+                    const hasCurrentGovernance = hasGovernanceData(entity.id, risk.id);
+                    const hasHistory = hasHistoryData(entity.id, risk.id);
                     
                     return (
                       <td key={risk.id} style={{...cellStyle, ...riskCellStyle}}>
@@ -558,19 +564,19 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
                           
                           <div style={{ display: 'flex', gap: '3px', flexWrap: 'wrap', justifyContent: 'center' }}>
                             <button
-                              style={hasLatestGovernance ? actionButtonStyle : disabledButtonStyle}
-                              onClick={() => hasLatestGovernance && handleGovernanceClick(entity.id, risk.id)}
-                              disabled={!hasLatestGovernance}
-                              title={hasLatestGovernance ? "View current governance" : "No current governance"}
+                              style={hasCurrentGovernance ? actionButtonStyle : disabledButtonStyle}
+                              onClick={() => hasCurrentGovernance && handleGovernanceClick(entity.id, risk.id)}
+                              disabled={!hasCurrentGovernance}
+                              title={hasCurrentGovernance ? "View current governance" : "No current governance"}
                             >
                               Current Governance
                             </button>
                             
                             <button
-                              style={hasLatestGovernance ? actionButtonStyle : disabledButtonStyle}
-                              onClick={() => hasLatestGovernance && onEntityRiskHistory(entity.id, risk.id)}
-                              disabled={!hasLatestGovernance}
-                              title={hasLatestGovernance ? "View governance history" : "No governance history"}
+                              style={hasHistory ? actionButtonStyle : disabledButtonStyle}
+                              onClick={() => hasHistory && onEntityRiskHistory(entity.id, risk.id)}
+                              disabled={!hasHistory}
+                              title={hasHistory ? "View governance history" : "No governance history"}
                             >
                               Governance History
                             </button>
