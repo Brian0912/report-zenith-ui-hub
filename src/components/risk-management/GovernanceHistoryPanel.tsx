@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../ThemeProvider';
@@ -234,16 +233,6 @@ export const GovernanceHistoryPanel: React.FC<GovernanceHistoryPanelProps> = ({
                 }}>
                   {governance.entityIds.length} entities affected
                 </div>
-
-                {governance.description && (
-                  <div style={{
-                    fontSize: '13px',
-                    color: theme === 'dark' ? '#cbd5e1' : '#475569',
-                    lineHeight: '1.4'
-                  }}>
-                    {governance.description}
-                  </div>
-                )}
               </div>
             ))
           )}

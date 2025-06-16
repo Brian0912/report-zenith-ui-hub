@@ -63,18 +63,18 @@ export const AplusRiskManagement: React.FC = () => {
   };
 
   const headerStyle: React.CSSProperties = {
-    padding: '40px',
+    padding: '24px 40px 16px',
     borderBottom: `1px solid ${theme === 'dark' ? '#334155' : '#e2e8f0'}`
   };
 
   const heroSectionStyle: React.CSSProperties = {
-    marginBottom: '32px'
+    marginBottom: '20px'
   };
 
   const titleStyle: React.CSSProperties = {
-    fontSize: '32px',
+    fontSize: '28px',
     fontWeight: 'bold',
-    marginBottom: '8px',
+    marginBottom: '6px',
     background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
     WebkitBackgroundClip: 'text',
     WebkitTextFillColor: 'transparent',
@@ -82,41 +82,41 @@ export const AplusRiskManagement: React.FC = () => {
   };
 
   const subtitleStyle: React.CSSProperties = {
-    fontSize: '18px',
+    fontSize: '16px',
     color: theme === 'dark' ? '#94a3b8' : '#64748b',
-    marginBottom: '32px'
+    marginBottom: '20px'
   };
 
   const metricsGridStyle: React.CSSProperties = {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-    gap: '24px',
-    marginBottom: '32px'
+    gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+    gap: '16px',
+    marginBottom: '20px'
   };
 
   const metricCardStyle: React.CSSProperties = {
     background: theme === 'dark' 
       ? 'linear-gradient(135deg, rgba(55, 65, 81, 0.6) 0%, rgba(31, 41, 55, 0.8) 100%)'
       : 'linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 250, 252, 0.9) 100%)',
-    borderRadius: '16px',
-    padding: '24px',
+    borderRadius: '12px',
+    padding: '16px',
     border: `1px solid ${theme === 'dark' ? 'rgba(55, 65, 81, 0.3)' : 'rgba(226, 232, 240, 0.5)'}`,
     boxShadow: theme === 'dark' 
-      ? '0 8px 32px rgba(0, 0, 0, 0.3)'
-      : '0 8px 32px rgba(0, 0, 0, 0.1)',
+      ? '0 4px 16px rgba(0, 0, 0, 0.3)'
+      : '0 4px 16px rgba(0, 0, 0, 0.1)',
     backdropFilter: 'blur(10px)',
     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
     cursor: 'default'
   };
 
   const metricValueStyle: React.CSSProperties = {
-    fontSize: '36px',
+    fontSize: '28px',
     fontWeight: 'bold',
-    marginBottom: '8px'
+    marginBottom: '4px'
   };
 
   const metricLabelStyle: React.CSSProperties = {
-    fontSize: '14px',
+    fontSize: '12px',
     color: theme === 'dark' ? '#94a3b8' : '#64748b',
     fontWeight: '500'
   };
@@ -125,11 +125,11 @@ export const AplusRiskManagement: React.FC = () => {
     background: theme === 'dark' 
       ? 'rgba(30, 41, 59, 0.8)'
       : 'rgba(255, 255, 255, 0.9)',
-    borderRadius: '16px',
-    padding: '24px',
+    borderRadius: '12px',
+    padding: '16px',
     border: `1px solid ${theme === 'dark' ? 'rgba(55, 65, 81, 0.3)' : 'rgba(226, 232, 240, 0.5)'}`,
     backdropFilter: 'blur(10px)',
-    marginBottom: '24px'
+    marginBottom: '16px'
   };
 
   const contentStyle: React.CSSProperties = {
@@ -180,16 +180,16 @@ export const AplusRiskManagement: React.FC = () => {
             <div 
               style={metricCardStyle}
               onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-4px)';
+                e.currentTarget.style.transform = 'translateY(-2px)';
                 e.currentTarget.style.boxShadow = theme === 'dark' 
-                  ? '0 12px 48px rgba(0, 0, 0, 0.4)'
-                  : '0 12px 48px rgba(0, 0, 0, 0.15)';
+                  ? '0 8px 24px rgba(0, 0, 0, 0.4)'
+                  : '0 8px 24px rgba(0, 0, 0, 0.15)';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = 'translateY(0)';
                 e.currentTarget.style.boxShadow = theme === 'dark' 
-                  ? '0 8px 32px rgba(0, 0, 0, 0.3)'
-                  : '0 8px 32px rgba(0, 0, 0, 0.1)';
+                  ? '0 4px 16px rgba(0, 0, 0, 0.3)'
+                  : '0 4px 16px rgba(0, 0, 0, 0.1)';
               }}
             >
               <div style={{...metricValueStyle, color: '#3b82f6'}}>
@@ -201,16 +201,16 @@ export const AplusRiskManagement: React.FC = () => {
             <div 
               style={metricCardStyle}
               onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-4px)';
+                e.currentTarget.style.transform = 'translateY(-2px)';
                 e.currentTarget.style.boxShadow = theme === 'dark' 
-                  ? '0 12px 48px rgba(0, 0, 0, 0.4)'
-                  : '0 12px 48px rgba(0, 0, 0, 0.15)';
+                  ? '0 8px 24px rgba(0, 0, 0, 0.4)'
+                  : '0 8px 24px rgba(0, 0, 0, 0.15)';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = 'translateY(0)';
                 e.currentTarget.style.boxShadow = theme === 'dark' 
-                  ? '0 8px 32px rgba(0, 0, 0, 0.3)'
-                  : '0 8px 32px rgba(0, 0, 0, 0.1)';
+                  ? '0 4px 16px rgba(0, 0, 0, 0.3)'
+                  : '0 4px 16px rgba(0, 0, 0, 0.1)';
               }}
             >
               <div style={{...metricValueStyle, color: '#f59e0b'}}>
@@ -222,16 +222,16 @@ export const AplusRiskManagement: React.FC = () => {
             <div 
               style={metricCardStyle}
               onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-4px)';
+                e.currentTarget.style.transform = 'translateY(-2px)';
                 e.currentTarget.style.boxShadow = theme === 'dark' 
-                  ? '0 12px 48px rgba(0, 0, 0, 0.4)'
-                  : '0 12px 48px rgba(0, 0, 0, 0.15)';
+                  ? '0 8px 24px rgba(0, 0, 0, 0.4)'
+                  : '0 8px 24px rgba(0, 0, 0, 0.15)';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = 'translateY(0)';
                 e.currentTarget.style.boxShadow = theme === 'dark' 
-                  ? '0 8px 32px rgba(0, 0, 0, 0.3)'
-                  : '0 8px 32px rgba(0, 0, 0, 0.1)';
+                  ? '0 4px 16px rgba(0, 0, 0, 0.3)'
+                  : '0 4px 16px rgba(0, 0, 0, 0.1)';
               }}
             >
               <div style={{...metricValueStyle, color: complianceRate >= 70 ? '#10b981' : complianceRate >= 40 ? '#f59e0b' : '#ef4444'}}>
