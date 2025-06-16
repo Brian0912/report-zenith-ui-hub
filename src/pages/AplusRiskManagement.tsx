@@ -3,56 +3,24 @@ import { useTheme } from '../components/ThemeProvider';
 import { RiskFilters } from '../components/risk-management/RiskFilters';
 import { RiskMatrix } from '../components/risk-management/RiskMatrix';
 import { GovernanceHistoryPanel } from '../components/risk-management/GovernanceHistoryPanel';
-import { Entity, Risk, GovernanceGroup } from '../components/risk-management/mockRiskData';
-import { fetchEntities } from '../services/psmService';
-import { fetchRisks } from '../services/riskService';
-import { fetchGovernanceGroups } from '../services/governanceService';
+import { mockEntities, mockRisks, mockGovernanceGroups } from '../components/risk-management/mockRiskData';
 
 export const AplusRiskManagement: React.FC = () => {
   const { theme } = useTheme();
-  const [entities, setEntities] = useState<Entity[]>([]);
-  const [risks, setRisks] = useState<Risk[]>([]);
-  const [governanceGroups, setGovernanceGroups] = useState<GovernanceGroup[]>([]);
-  const [filteredEntities, setFilteredEntities] = useState<Entity[]>([]);
-  const [visibleRisks, setVisibleRisks] = useState<string[]>([]);
+  const [filteredEntities, setFilteredEntities] = useState(mockEntities);
+  const [visibleRisks, setVisibleRisks] = useState(mockRisks.map(r => r.id));
   const [showGovernanceHistory, setShowGovernanceHistory] = useState(false);
   const [selectedEntityRisk, setSelectedEntityRisk] = useState<{entityId: string, riskId: string} | null>(null);
   const [showGovernanceList, setShowGovernanceList] = useState(false);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        setLoading(true);
-        const [entitiesData, risksData, governanceData] = await Promise.all([
-          fetchEntities(),
-          fetchRisks(),
-          fetchGovernanceGroups()
-        ]);
-        
-        setEntities(entitiesData);
-        setRisks(risksData);
-        setGovernanceGroups(governanceData);
-        setFilteredEntities(entitiesData);
-        setVisibleRisks(risksData.map(r => r.id));
-      } catch (error) {
-        console.error('Failed to load data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadData();
-  }, []);
 
   // Metrics calculations
-  const totalApis = entities.length;
-  const activeRisks = risks.length;
-  const resolvedCount = entities.reduce((acc, entity) => {
+  const totalApis = mockEntities.length;
+  const activeRisks = mockRisks.length;
+  const resolvedCount = mockEntities.reduce((acc, entity) => {
     return acc + Object.values(entity.riskStatus).filter(status => status.isResolved).length;
   }, 0);
-  const totalRiskInstances = entities.length * risks.length;
-  const complianceRate = totalRiskInstances > 0 ? Math.round((resolvedCount / totalRiskInstances) * 100) : 0;
+  const totalRiskInstances = mockEntities.length * mockRisks.length;
+  const complianceRate = Math.round((resolvedCount / totalRiskInstances) * 100);
 
   const [animatedMetrics, setAnimatedMetrics] = useState({
     totalApis: 0,
@@ -61,8 +29,6 @@ export const AplusRiskManagement: React.FC = () => {
   });
 
   useEffect(() => {
-    if (loading) return;
-
     const duration = 2000;
     const steps = 60;
     const stepDuration = duration / steps;
@@ -85,7 +51,7 @@ export const AplusRiskManagement: React.FC = () => {
     }, stepDuration);
 
     return () => clearInterval(timer);
-  }, [totalApis, activeRisks, complianceRate, loading]);
+  }, [totalApis, activeRisks, complianceRate]);
 
   const containerStyle: React.CSSProperties = {
     minHeight: '100vh',
@@ -200,23 +166,6 @@ export const AplusRiskManagement: React.FC = () => {
     setShowGovernanceHistory(true);
   };
 
-  if (loading) {
-    return (
-      <div style={containerStyle}>
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'center', 
-          alignItems: 'center', 
-          height: '100vh',
-          fontSize: '18px',
-          color: theme === 'dark' ? '#94a3b8' : '#64748b'
-        }}>
-          Loading...
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div style={containerStyle}>
       <div style={headerStyle}>
@@ -294,8 +243,8 @@ export const AplusRiskManagement: React.FC = () => {
 
         <div style={actionBarStyle}>
           <RiskFilters
-            entities={entities}
-            risks={risks}
+            entities={mockEntities}
+            risks={mockRisks}
             onFilterChange={setFilteredEntities}
             onRiskVisibilityChange={setVisibleRisks}
           />
@@ -323,7 +272,7 @@ export const AplusRiskManagement: React.FC = () => {
         
         <RiskMatrix
           entities={filteredEntities}
-          risks={risks.filter(risk => visibleRisks.includes(risk.id))}
+          risks={mockRisks.filter(risk => visibleRisks.includes(risk.id))}
           onEntityRiskHistory={handleEntityRiskHistory}
         />
       </div>
@@ -337,7 +286,7 @@ export const AplusRiskManagement: React.FC = () => {
         }}
         entityRisk={selectedEntityRisk}
         showAll={showGovernanceList}
-        governanceGroups={governanceGroups}
+        governanceGroups={mockGovernanceGroups}
       />
     </div>
   );
