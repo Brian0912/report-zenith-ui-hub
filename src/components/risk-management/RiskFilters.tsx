@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { useTheme } from '../ThemeProvider';
 import { Entity, Risk } from './mockRiskData';
@@ -43,7 +44,6 @@ export const RiskFilters: React.FC<RiskFiltersProps> = ({
 
   const treeStructure = createTreeStructure();
 
-  // Fuzzy search function
   const fuzzySearch = (query: string) => {
     if (!query.trim()) {
       setSearchResults([]);

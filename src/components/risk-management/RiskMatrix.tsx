@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../ThemeProvider';
@@ -145,6 +146,15 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
     padding: '10px',
     verticalAlign: 'middle',
     borderRight: `1px solid ${theme === 'dark' ? '#334155' : '#e2e8f0'}`
+  };
+
+  const disabledCellStyle: React.CSSProperties = {
+    ...cellStyle,
+    background: theme === 'dark' 
+      ? 'rgba(71, 85, 105, 0.3)' 
+      : 'rgba(203, 213, 225, 0.3)',
+    color: theme === 'dark' ? '#64748b' : '#94a3b8',
+    textAlign: 'center'
   };
 
   const checkboxStyle: React.CSSProperties = {
@@ -308,7 +318,14 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
     return colorMap[severity] || '#6b7280';
   };
 
+  const hasRiskData = (entityId: string, riskId: string) => {
+    const entity = entities.find(e => e.id === entityId);
+    return entity && entity.riskStatus[riskId] !== undefined;
+  };
+
   const handleToggleRisk = (entityId: string, riskId: string) => {
+    if (!hasRiskData(entityId, riskId)) return;
+    
     const currentState = riskStatus[entityId]?.[riskId] || false;
     // Only allow turning on if it's currently off
     if (!currentState) {
@@ -371,10 +388,12 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
       const newStatus = { ...prev };
       selectedEntityIds.forEach(entityId => {
         risks.forEach(risk => {
-          if (!newStatus[entityId]) newStatus[entityId] = {};
-          // Only turn on, never turn off
-          if (!newStatus[entityId][risk.id]) {
-            newStatus[entityId][risk.id] = true;
+          if (hasRiskData(entityId, risk.id)) {
+            if (!newStatus[entityId]) newStatus[entityId] = {};
+            // Only turn on, never turn off
+            if (!newStatus[entityId][risk.id]) {
+              newStatus[entityId][risk.id] = true;
+            }
           }
         });
       });
@@ -510,6 +529,18 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
                     </div>
                   </td>
                   {risks.map((risk) => {
+                    const hasData = hasRiskData(entity.id, risk.id);
+                    
+                    if (!hasData) {
+                      return (
+                        <td key={risk.id} style={disabledCellStyle}>
+                          <div style={{ fontSize: '12px', fontStyle: 'italic' }}>
+                            No data
+                          </div>
+                        </td>
+                      );
+                    }
+
                     const isResolved = riskStatus[entity.id]?.[risk.id] || false;
                     const hasLatestGovernance = hasGovernanceData(entity.id, risk.id);
                     
