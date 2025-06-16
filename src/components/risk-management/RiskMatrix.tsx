@@ -42,6 +42,16 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
     return initial;
   });
 
+  // Helper function to check if entity has any risks
+  const entityHasRisks = (entity: Entity) => {
+    return Object.keys(entity.riskStatus).length > 0;
+  };
+
+  // Helper function to check if entity has specific risk
+  const entityHasRisk = (entity: Entity, riskId: string) => {
+    return entity.riskStatus[riskId] !== undefined;
+  };
+
   // Pagination calculations
   const totalPages = Math.ceil(entities.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -141,10 +151,23 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
     transition: 'all 0.2s ease'
   });
 
+  const disabledRowStyle = (index: number): React.CSSProperties => ({
+    ...rowStyle(index),
+    opacity: 0.4,
+    pointerEvents: 'none',
+    background: theme === 'dark' ? 'rgba(75, 85, 99, 0.3)' : 'rgba(156, 163, 175, 0.3)'
+  });
+
   const cellStyle: React.CSSProperties = {
     padding: '10px',
     verticalAlign: 'middle',
     borderRight: `1px solid ${theme === 'dark' ? '#334155' : '#e2e8f0'}`
+  };
+
+  const disabledCellStyle: React.CSSProperties = {
+    ...cellStyle,
+    opacity: 0.4,
+    pointerEvents: 'none'
   };
 
   const checkboxStyle: React.CSSProperties = {
@@ -355,11 +378,11 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
   };
 
   const handleSelectAll = () => {
-    const allSelected = selectedEntities.size === paginatedEntities.length;
+    const allSelected = selectedEntities.size === paginatedEntities.filter(entityHasRisks).length;
     if (allSelected) {
       setSelectedEntities(new Set());
     } else {
-      setSelectedEntities(new Set(paginatedEntities.map(e => e.id)));
+      setSelectedEntities(new Set(paginatedEntities.filter(entityHasRisks).map(e => e.id)));
     }
   };
 
@@ -404,7 +427,7 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
             <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: '500' }}>
               <input
                 type="checkbox"
-                checked={selectedEntities.size === paginatedEntities.length && paginatedEntities.length > 0}
+                checked={selectedEntities.size === paginatedEntities.filter(entityHasRisks).length && paginatedEntities.filter(entityHasRisks).length > 0}
                 onChange={handleSelectAll}
                 style={checkboxStyle}
               />
@@ -445,7 +468,7 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
                   <input 
                     type="checkbox" 
                     style={checkboxStyle}
-                    checked={selectedEntities.size === paginatedEntities.length && paginatedEntities.length > 0}
+                    checked={selectedEntities.size === paginatedEntities.filter(entityHasRisks).length && paginatedEntities.filter(entityHasRisks).length > 0}
                     onChange={handleSelectAll}
                   />
                 </th>
@@ -477,79 +500,103 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
               </tr>
             </thead>
             <tbody>
-              {paginatedEntities.map((entity, index) => (
-                <tr 
-                  key={entity.id} 
-                  style={rowStyle(index)}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = theme === 'dark' ? 'rgba(55, 65, 81, 0.3)' : 'rgba(226, 232, 240, 0.3)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = index % 2 === 0 
-                      ? (theme === 'dark' ? 'rgba(30, 41, 59, 0.3)' : 'rgba(248, 250, 252, 0.8)')
-                      : 'transparent';
-                  }}
-                >
-                  <td style={cellStyle}>
-                    <input 
-                      type="checkbox" 
-                      style={checkboxStyle}
-                      checked={selectedEntities.has(entity.id)}
-                      onChange={(e) => handleEntitySelect(entity.id, e.target.checked)}
-                    />
-                  </td>
-                  <td style={cellStyle}>
-                    <div style={psmStyle}>{entity.psm}</div>
-                  </td>
-                  <td style={cellStyle}>
-                    <div style={entityStyle}>
-                      <span style={apiPathStyle}>{entity.apiPath}</span>
-                      <span style={methodBadgeStyle(entity.method)}>
-                        {entity.method}
-                      </span>
-                    </div>
-                  </td>
-                  {risks.map((risk) => {
-                    const isResolved = riskStatus[entity.id]?.[risk.id] || false;
-                    const hasLatestGovernance = hasGovernanceData(entity.id, risk.id);
-                    
-                    return (
-                      <td key={risk.id} style={{...cellStyle, ...riskCellStyle}}>
-                        <div style={riskCellContentStyle}>
-                          <button
-                            style={toggleSwitchStyle(isResolved)}
-                            onClick={() => handleToggleRisk(entity.id, risk.id)}
-                            disabled={isResolved}
-                            title={isResolved ? 'Already resolved' : 'Mark as resolved'}
-                          >
-                            <div style={toggleKnobStyle(isResolved)} />
-                          </button>
-                          
-                          <div style={{ display: 'flex', gap: '3px', flexWrap: 'wrap', justifyContent: 'center' }}>
-                            <button
-                              style={hasLatestGovernance ? actionButtonStyle : disabledButtonStyle}
-                              onClick={() => hasLatestGovernance && handleGovernanceClick(entity.id, risk.id)}
-                              disabled={!hasLatestGovernance}
-                              title={hasLatestGovernance ? "View current governance" : "No current governance"}
-                            >
-                              Current Governance
-                            </button>
-                            
-                            <button
-                              style={hasLatestGovernance ? actionButtonStyle : disabledButtonStyle}
-                              onClick={() => hasLatestGovernance && onEntityRiskHistory(entity.id, risk.id)}
-                              disabled={!hasLatestGovernance}
-                              title={hasLatestGovernance ? "View governance history" : "No governance history"}
-                            >
-                              Governance History
-                            </button>
+              {paginatedEntities.map((entity, index) => {
+                const hasRisks = entityHasRisks(entity);
+                const isRowDisabled = !hasRisks;
+                
+                return (
+                  <tr 
+                    key={entity.id} 
+                    style={isRowDisabled ? disabledRowStyle(index) : rowStyle(index)}
+                    onMouseEnter={(e) => {
+                      if (!isRowDisabled) {
+                        e.currentTarget.style.background = theme === 'dark' ? 'rgba(55, 65, 81, 0.3)' : 'rgba(226, 232, 240, 0.3)';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!isRowDisabled) {
+                        e.currentTarget.style.background = index % 2 === 0 
+                          ? (theme === 'dark' ? 'rgba(30, 41, 59, 0.3)' : 'rgba(248, 250, 252, 0.8)')
+                          : 'transparent';
+                      }
+                    }}
+                  >
+                    <td style={isRowDisabled ? disabledCellStyle : cellStyle}>
+                      <input 
+                        type="checkbox" 
+                        style={checkboxStyle}
+                        checked={selectedEntities.has(entity.id)}
+                        onChange={(e) => handleEntitySelect(entity.id, e.target.checked)}
+                        disabled={isRowDisabled}
+                      />
+                    </td>
+                    <td style={isRowDisabled ? disabledCellStyle : cellStyle}>
+                      <div style={psmStyle}>{entity.psm}</div>
+                    </td>
+                    <td style={isRowDisabled ? disabledCellStyle : cellStyle}>
+                      <div style={entityStyle}>
+                        <span style={apiPathStyle}>{entity.apiPath}</span>
+                        <span style={methodBadgeStyle(entity.method)}>
+                          {entity.method}
+                        </span>
+                      </div>
+                    </td>
+                    {risks.map((risk) => {
+                      const hasThisRisk = entityHasRisk(entity, risk.id);
+                      const isResolved = riskStatus[entity.id]?.[risk.id] || false;
+                      const hasLatestGovernance = hasThisRisk && hasGovernanceData(entity.id, risk.id);
+                      const isCellDisabled = !hasThisRisk;
+                      
+                      return (
+                        <td key={risk.id} style={{...(isCellDisabled ? disabledCellStyle : cellStyle), ...riskCellStyle}}>
+                          <div style={riskCellContentStyle}>
+                            {hasThisRisk ? (
+                              <>
+                                <button
+                                  style={toggleSwitchStyle(isResolved)}
+                                  onClick={() => handleToggleRisk(entity.id, risk.id)}
+                                  disabled={isResolved}
+                                  title={isResolved ? 'Already resolved' : 'Mark as resolved'}
+                                >
+                                  <div style={toggleKnobStyle(isResolved)} />
+                                </button>
+                                
+                                <div style={{ display: 'flex', gap: '3px', flexWrap: 'wrap', justifyContent: 'center' }}>
+                                  <button
+                                    style={hasLatestGovernance ? actionButtonStyle : disabledButtonStyle}
+                                    onClick={() => hasLatestGovernance && handleGovernanceClick(entity.id, risk.id)}
+                                    disabled={!hasLatestGovernance}
+                                    title={hasLatestGovernance ? "View current governance" : "No current governance"}
+                                  >
+                                    Current Governance
+                                  </button>
+                                  
+                                  <button
+                                    style={hasLatestGovernance ? actionButtonStyle : disabledButtonStyle}
+                                    onClick={() => hasLatestGovernance && onEntityRiskHistory(entity.id, risk.id)}
+                                    disabled={!hasLatestGovernance}
+                                    title={hasLatestGovernance ? "View governance history" : "No governance history"}
+                                  >
+                                    Governance History
+                                  </button>
+                                </div>
+                              </>
+                            ) : (
+                              <div style={{
+                                fontSize: '12px',
+                                color: theme === 'dark' ? '#64748b' : '#94a3b8',
+                                fontStyle: 'italic'
+                              }}>
+                                No Risk
+                              </div>
+                            )}
                           </div>
-                        </div>
-                      </td>
-                    );
-                  })}
-                </tr>
-              ))}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
