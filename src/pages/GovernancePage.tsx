@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTheme } from '../components/ThemeProvider';
@@ -316,43 +317,15 @@ export const GovernancePage: React.FC = () => {
       </div>
 
       <div style={contentStyle}>
-        <div style={batchControlsStyle}>
-          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', fontWeight: '500' }}>
-            <input
-              type="checkbox"
-              checked={selectedEntities.size === paginatedEntities.length && paginatedEntities.length > 0}
-              onChange={handleSelectAll}
-              style={{ width: '18px', height: '18px', accentColor: '#6366f1' }}
-            />
-            Check All
-          </label>
-
-          <button
-            style={batchActionStyle}
-            onClick={toggleAllSelected}
-            disabled={selectedEntities.size === 0}
-            onMouseEnter={(e) => {
-              if (selectedEntities.size > 0) {
-                e.currentTarget.style.transform = 'translateY(-2px)';
-                e.currentTarget.style.boxShadow = '0 8px 24px rgba(99, 102, 241, 0.4)';
-              }
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = '0 4px 16px rgba(99, 102, 241, 0.3)';
-            }}
-          >
-            🔄 Batch Toggle Fixes ({selectedEntities.size} selected)
-          </button>
-        </div>
-
         <GovernanceMatrix 
           entities={paginatedEntities}
           risk={risk}
           selectedEntities={selectedEntities}
           onEntitySelect={handleEntitySelect}
+          onSelectAll={handleSelectAll}
           entityStates={entityStates}
           onToggleEntity={handleToggleEntity}
+          onBatchToggle={toggleAllSelected}
           currentPage={currentPage}
           totalPages={totalPages}
           itemsPerPage={itemsPerPage}
@@ -385,8 +358,10 @@ interface GovernanceMatrixProps {
   risk: any;
   selectedEntities: Set<string>;
   onEntitySelect: (entityId: string, selected: boolean) => void;
+  onSelectAll: () => void;
   entityStates: Record<string, boolean>;
   onToggleEntity: (entityId: string) => void;
+  onBatchToggle: () => void;
   currentPage: number;
   totalPages: number;
   itemsPerPage: number;
@@ -400,8 +375,10 @@ const GovernanceMatrix: React.FC<GovernanceMatrixProps> = ({
   risk,
   selectedEntities,
   onEntitySelect,
+  onSelectAll,
   entityStates,
   onToggleEntity,
+  onBatchToggle,
   currentPage,
   totalPages,
   itemsPerPage,
@@ -425,6 +402,54 @@ const GovernanceMatrix: React.FC<GovernanceMatrixProps> = ({
       : '0 8px 32px rgba(0, 0, 0, 0.1)',
     display: 'flex',
     flexDirection: 'column'
+  };
+
+  const batchControlsStyle: React.CSSProperties = {
+    padding: '12px 20px',
+    borderBottom: `1px solid ${theme === 'dark' ? '#334155' : '#e2e8f0'}`,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    background: theme === 'dark' 
+      ? 'linear-gradient(135deg, #1e293b 0%, #334155 100%)'
+      : 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+    flexShrink: 0
+  };
+
+  const batchControlsLeftStyle: React.CSSProperties = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '16px'
+  };
+
+  const batchControlsRightStyle: React.CSSProperties = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px'
+  };
+
+  const batchButtonStyle: React.CSSProperties = {
+    background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+    color: 'white',
+    border: 'none',
+    borderRadius: '8px',
+    padding: '6px 12px',
+    fontSize: '12px',
+    fontWeight: '600',
+    cursor: 'pointer',
+    transition: 'all 0.3s ease',
+    boxShadow: '0 2px 8px rgba(99, 102, 241, 0.3)'
+  };
+
+  const checkboxStyle: React.CSSProperties = {
+    width: '16px',
+    height: '16px',
+    accentColor: '#6366f1'
+  };
+
+  const pageInfoStyle: React.CSSProperties = {
+    fontSize: '13px',
+    color: theme === 'dark' ? '#94a3b8' : '#64748b'
   };
 
   const tableContainerStyle: React.CSSProperties = {
@@ -469,11 +494,6 @@ const GovernanceMatrix: React.FC<GovernanceMatrixProps> = ({
     flexShrink: 0
   };
 
-  const pageInfoStyle: React.CSSProperties = {
-    fontSize: '13px',
-    color: theme === 'dark' ? '#94a3b8' : '#64748b'
-  };
-
   const paginationControlsStyle: React.CSSProperties = {
     display: 'flex',
     alignItems: 'center',
@@ -510,6 +530,44 @@ const GovernanceMatrix: React.FC<GovernanceMatrixProps> = ({
 
   return (
     <div style={containerStyle}>
+      <div style={batchControlsStyle}>
+        <div style={batchControlsLeftStyle}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: '500' }}>
+            <input
+              type="checkbox"
+              checked={selectedEntities.size === entities.length && entities.length > 0}
+              onChange={onSelectAll}
+              style={checkboxStyle}
+            />
+            Check All
+          </label>
+          
+          <button
+            style={batchButtonStyle}
+            onClick={onBatchToggle}
+            disabled={selectedEntities.size === 0}
+            onMouseEnter={(e) => {
+              if (selectedEntities.size > 0) {
+                e.currentTarget.style.transform = 'translateY(-1px)';
+                e.currentTarget.style.boxShadow = '0 4px 12px rgba(99, 102, 241, 0.4)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 2px 8px rgba(99, 102, 241, 0.3)';
+            }}
+          >
+            🔄 Batch Toggle {selectedEntities.size > 0 && `(${selectedEntities.size} selected)`}
+          </button>
+        </div>
+
+        <div style={batchControlsRightStyle}>
+          <span style={pageInfoStyle}>
+            Showing {startIndex + 1}-{Math.min(startIndex + itemsPerPage, totalEntities)} of {totalEntities}
+          </span>
+        </div>
+      </div>
+      
       <div style={tableContainerStyle}>
         <table style={tableStyle}>
           <thead style={headerStyle}>
