@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../ThemeProvider';
@@ -17,6 +18,8 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
   const { theme } = useTheme();
   const navigate = useNavigate();
   const [selectedEntities, setSelectedEntities] = useState<Set<string>>(new Set());
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
   const [riskStatus, setRiskStatus] = useState<Record<string, Record<string, boolean>>>(() => {
     const initial: Record<string, Record<string, boolean>> = {};
     entities.forEach(entity => {
@@ -27,6 +30,12 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
     });
     return initial;
   });
+
+  // Pagination calculations
+  const totalPages = Math.ceil(entities.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedEntities = entities.slice(startIndex, endIndex);
 
   const containerStyle: React.CSSProperties = {
     background: theme === 'dark' 
@@ -39,21 +48,33 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
     boxShadow: theme === 'dark' 
       ? '0 8px 32px rgba(0, 0, 0, 0.3)'
       : '0 8px 32px rgba(0, 0, 0, 0.1)',
-    height: '600px',
+    height: '500px',
     display: 'flex',
     flexDirection: 'column'
   };
 
   const batchControlsStyle: React.CSSProperties = {
-    padding: '16px 20px',
+    padding: '12px 20px',
     borderBottom: `1px solid ${theme === 'dark' ? '#334155' : '#e2e8f0'}`,
     display: 'flex',
     alignItems: 'center',
-    gap: '16px',
+    justifyContent: 'space-between',
     background: theme === 'dark' 
       ? 'linear-gradient(135deg, #1e293b 0%, #334155 100%)'
       : 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
     flexShrink: 0
+  };
+
+  const batchControlsLeftStyle: React.CSSProperties = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '16px'
+  };
+
+  const batchControlsRightStyle: React.CSSProperties = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px'
   };
 
   const batchButtonStyle: React.CSSProperties = {
@@ -61,8 +82,8 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
     color: 'white',
     border: 'none',
     borderRadius: '8px',
-    padding: '8px 16px',
-    fontSize: '14px',
+    padding: '6px 12px',
+    fontSize: '12px',
     fontWeight: '600',
     cursor: 'pointer',
     transition: 'all 0.3s ease',
@@ -72,7 +93,8 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
   const tableContainerStyle: React.CSSProperties = {
     flex: 1,
     overflow: 'auto',
-    position: 'relative'
+    position: 'relative',
+    maxWidth: '100%'
   };
 
   const tableStyle: React.CSSProperties = {
@@ -92,10 +114,10 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
   };
 
   const headerCellStyle: React.CSSProperties = {
-    padding: '16px 12px',
+    padding: '12px',
     textAlign: 'left',
     fontWeight: '600',
-    fontSize: '14px',
+    fontSize: '13px',
     color: theme === 'dark' ? '#f1f5f9' : '#334155',
     whiteSpace: 'nowrap'
   };
@@ -109,37 +131,37 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
   });
 
   const cellStyle: React.CSSProperties = {
-    padding: '12px',
+    padding: '10px',
     verticalAlign: 'middle',
     borderRight: `1px solid ${theme === 'dark' ? '#334155' : '#e2e8f0'}`
   };
 
   const checkboxStyle: React.CSSProperties = {
-    width: '18px',
-    height: '18px',
+    width: '16px',
+    height: '16px',
     accentColor: '#6366f1'
   };
 
   const psmStyle: React.CSSProperties = {
     fontWeight: '500',
     color: theme === 'dark' ? '#94a3b8' : '#64748b',
-    fontSize: '14px'
+    fontSize: '13px'
   };
 
   const entityStyle: React.CSSProperties = {
     display: 'flex',
     alignItems: 'center',
-    gap: '8px'
+    gap: '6px'
   };
 
   const apiPathStyle: React.CSSProperties = {
     fontFamily: 'monospace',
-    fontSize: '13px',
+    fontSize: '12px',
     color: theme === 'dark' ? '#f1f5f9' : '#1e293b'
   };
 
   const methodBadgeStyle = (method: string): React.CSSProperties => {
-    const colors = {
+    const colorMap: Record<string, string> = {
       'GET': '#3b82f6',
       'POST': '#10b981',
       'PUT': '#f59e0b',
@@ -148,34 +170,34 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
     };
 
     return {
-      background: colors[method as keyof typeof colors] || '#6b7280',
+      background: colorMap[method] || '#6b7280',
       color: 'white',
-      padding: '4px 8px',
-      borderRadius: '6px',
-      fontSize: '11px',
+      padding: '2px 6px',
+      borderRadius: '4px',
+      fontSize: '10px',
       fontWeight: '600'
     };
   };
 
   const riskCellStyle: React.CSSProperties = {
     textAlign: 'center',
-    minWidth: '200px'
+    minWidth: '180px'
   };
 
   const riskCellContentStyle: React.CSSProperties = {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    gap: '8px'
+    gap: '6px'
   };
 
   const toggleSwitchStyle = (isOn: boolean): React.CSSProperties => ({
     position: 'relative',
     display: 'inline-block',
-    width: '44px',
-    height: '24px',
+    width: '40px',
+    height: '20px',
     background: isOn ? '#10b981' : (theme === 'dark' ? '#475569' : '#cbd5e1'),
-    borderRadius: '12px',
+    borderRadius: '10px',
     cursor: 'pointer',
     transition: 'all 0.3s ease',
     border: 'none',
@@ -186,8 +208,8 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
     position: 'absolute',
     top: '2px',
     left: isOn ? '22px' : '2px',
-    width: '20px',
-    height: '20px',
+    width: '16px',
+    height: '16px',
     background: 'white',
     borderRadius: '50%',
     transition: 'all 0.3s ease',
@@ -198,13 +220,13 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
     background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
     color: 'white',
     border: 'none',
-    borderRadius: '6px',
-    padding: '6px 12px',
+    borderRadius: '5px',
+    padding: '4px 8px',
     cursor: 'pointer',
-    fontSize: '12px',
+    fontSize: '11px',
     fontWeight: '500',
     transition: 'all 0.2s ease',
-    marginRight: '4px',
+    marginRight: '3px',
     whiteSpace: 'nowrap'
   };
 
@@ -215,14 +237,63 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
     opacity: 0.5
   };
 
+  const paginationStyle: React.CSSProperties = {
+    padding: '12px 20px',
+    borderTop: `1px solid ${theme === 'dark' ? '#334155' : '#e2e8f0'}`,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    background: theme === 'dark' 
+      ? 'linear-gradient(135deg, #1e293b 0%, #334155 100%)'
+      : 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+    flexShrink: 0
+  };
+
+  const pageInfoStyle: React.CSSProperties = {
+    fontSize: '13px',
+    color: theme === 'dark' ? '#94a3b8' : '#64748b'
+  };
+
+  const paginationControlsStyle: React.CSSProperties = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px'
+  };
+
+  const pageButtonStyle: React.CSSProperties = {
+    background: theme === 'dark' ? '#334155' : '#f1f5f9',
+    border: `1px solid ${theme === 'dark' ? '#475569' : '#cbd5e1'}`,
+    borderRadius: '4px',
+    padding: '4px 8px',
+    fontSize: '12px',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease'
+  };
+
+  const currentPageButtonStyle: React.CSSProperties = {
+    ...pageButtonStyle,
+    background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+    color: 'white',
+    border: 'none'
+  };
+
+  const selectStyle: React.CSSProperties = {
+    background: theme === 'dark' ? '#334155' : '#f1f5f9',
+    border: `1px solid ${theme === 'dark' ? '#475569' : '#cbd5e1'}`,
+    borderRadius: '4px',
+    padding: '4px 8px',
+    fontSize: '12px',
+    color: theme === 'dark' ? '#f1f5f9' : '#334155'
+  };
+
   const getSeverityColor = (severity: string) => {
-    const colors = {
+    const colorMap: Record<string, string> = {
       low: '#10b981',
       medium: '#f59e0b',
       high: '#ef4444',
       critical: '#dc2626'
     };
-    return colors[severity as keyof colors] || '#6b7280';
+    return colorMap[severity] || '#6b7280';
   };
 
   const handleToggleRisk = (entityId: string, riskId: string) => {
@@ -254,11 +325,11 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
   };
 
   const handleSelectAll = () => {
-    const allSelected = selectedEntities.size === entities.length;
+    const allSelected = selectedEntities.size === paginatedEntities.length;
     if (allSelected) {
       setSelectedEntities(new Set());
     } else {
-      setSelectedEntities(new Set(entities.map(e => e.id)));
+      setSelectedEntities(new Set(paginatedEntities.map(e => e.id)));
     }
   };
 
@@ -283,33 +354,53 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
     return entity?.riskStatus[riskId]?.latestGovernanceId;
   };
 
+  const goToPage = (page: number) => {
+    setCurrentPage(Math.max(1, Math.min(page, totalPages)));
+  };
+
+  const changeItemsPerPage = (newItemsPerPage: number) => {
+    setItemsPerPage(newItemsPerPage);
+    setCurrentPage(1);
+  };
+
   return (
     <div style={containerStyle}>
       <div style={batchControlsStyle}>
-        <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', fontWeight: '500' }}>
-          <input
-            type="checkbox"
-            checked={selectedEntities.size === entities.length && entities.length > 0}
-            onChange={handleSelectAll}
-            style={checkboxStyle}
-          />
-          Check All
-        </label>
-        
-        <button
-          style={batchButtonStyle}
-          onClick={handleBatchToggle}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = 'translateY(-1px)';
-            e.currentTarget.style.boxShadow = '0 4px 12px rgba(99, 102, 241, 0.4)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'translateY(0)';
-            e.currentTarget.style.boxShadow = '0 2px 8px rgba(99, 102, 241, 0.3)';
-          }}
-        >
-          🔄 Batch Toggle {selectedEntities.size > 0 && `(${selectedEntities.size} selected)`}
-        </button>
+        <div style={batchControlsLeftStyle}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: '500' }}>
+            <input
+              type="checkbox"
+              checked={selectedEntities.size === paginatedEntities.length && paginatedEntities.length > 0}
+              onChange={handleSelectAll}
+              style={checkboxStyle}
+            />
+            Select All
+          </label>
+          
+          <button
+            style={batchButtonStyle}
+            onClick={handleBatchToggle}
+            disabled={selectedEntities.size === 0}
+            onMouseEnter={(e) => {
+              if (selectedEntities.size > 0) {
+                e.currentTarget.style.transform = 'translateY(-1px)';
+                e.currentTarget.style.boxShadow = '0 4px 12px rgba(99, 102, 241, 0.4)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 2px 8px rgba(99, 102, 241, 0.3)';
+            }}
+          >
+            🔄 Batch Toggle {selectedEntities.size > 0 && `(${selectedEntities.size} selected)`}
+          </button>
+        </div>
+
+        <div style={batchControlsRightStyle}>
+          <span style={pageInfoStyle}>
+            Showing {startIndex + 1}-{Math.min(endIndex, entities.length)} of {entities.length}
+          </span>
+        </div>
       </div>
 
       <div style={tableContainerStyle}>
@@ -320,12 +411,12 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
                 <input 
                   type="checkbox" 
                   style={checkboxStyle}
-                  checked={selectedEntities.size === entities.length && entities.length > 0}
+                  checked={selectedEntities.size === paginatedEntities.length && paginatedEntities.length > 0}
                   onChange={handleSelectAll}
                 />
               </th>
-              <th style={{...headerCellStyle, width: '120px'}}>P.S.M</th>
-              <th style={{...headerCellStyle, width: '240px'}}>Entity</th>
+              <th style={{...headerCellStyle, width: '100px'}}>P.S.M</th>
+              <th style={{...headerCellStyle, width: '200px'}}>Entity</th>
               {risks.map((risk) => (
                 <th 
                   key={risk.id} 
@@ -338,11 +429,11 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
                   <div style={{ textAlign: 'center' }}>
                     <div>{risk.name}</div>
                     <div style={{
-                      fontSize: '10px',
+                      fontSize: '9px',
                       color: getSeverityColor(risk.severity),
                       fontWeight: '700',
                       textTransform: 'uppercase',
-                      marginTop: '4px'
+                      marginTop: '2px'
                     }}>
                       {risk.severity}
                     </div>
@@ -352,7 +443,7 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
             </tr>
           </thead>
           <tbody>
-            {entities.map((entity, index) => (
+            {paginatedEntities.map((entity, index) => (
               <tr 
                 key={entity.id} 
                 style={rowStyle(index)}
@@ -399,7 +490,7 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
                           <div style={toggleKnobStyle(isResolved)} />
                         </button>
                         
-                        <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', justifyContent: 'center' }}>
+                        <div style={{ display: 'flex', gap: '3px', flexWrap: 'wrap', justifyContent: 'center' }}>
                           <button
                             style={hasLatestGovernance ? actionButtonStyle : disabledButtonStyle}
                             onClick={() => hasLatestGovernance && handleGovernanceClick(entity.id, risk.id)}
@@ -426,6 +517,56 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
             ))}
           </tbody>
         </table>
+      </div>
+
+      <div style={paginationStyle}>
+        <div style={pageInfoStyle}>
+          Page {currentPage} of {totalPages}
+        </div>
+        
+        <div style={paginationControlsStyle}>
+          <button 
+            style={pageButtonStyle}
+            onClick={() => goToPage(currentPage - 1)}
+            disabled={currentPage === 1}
+          >
+            Previous
+          </button>
+          
+          {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+            const pageNum = Math.max(1, currentPage - 2) + i;
+            if (pageNum > totalPages) return null;
+            
+            return (
+              <button
+                key={pageNum}
+                style={pageNum === currentPage ? currentPageButtonStyle : pageButtonStyle}
+                onClick={() => goToPage(pageNum)}
+              >
+                {pageNum}
+              </button>
+            );
+          })}
+          
+          <button 
+            style={pageButtonStyle}
+            onClick={() => goToPage(currentPage + 1)}
+            disabled={currentPage === totalPages}
+          >
+            Next
+          </button>
+          
+          <select
+            style={selectStyle}
+            value={itemsPerPage}
+            onChange={(e) => changeItemsPerPage(Number(e.target.value))}
+          >
+            <option value={5}>5 per page</option>
+            <option value={10}>10 per page</option>
+            <option value={20}>20 per page</option>
+            <option value={50}>50 per page</option>
+          </select>
+        </div>
       </div>
     </div>
   );

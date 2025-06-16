@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useTheme } from '../components/ThemeProvider';
 import { RiskFilters } from '../components/risk-management/RiskFilters';
@@ -63,18 +62,18 @@ export const AplusRiskManagement: React.FC = () => {
   };
 
   const headerStyle: React.CSSProperties = {
-    padding: '24px 40px 16px',
+    padding: '16px 32px 12px',
     borderBottom: `1px solid ${theme === 'dark' ? '#334155' : '#e2e8f0'}`
   };
 
   const heroSectionStyle: React.CSSProperties = {
-    marginBottom: '20px'
+    marginBottom: '12px'
   };
 
   const titleStyle: React.CSSProperties = {
-    fontSize: '28px',
+    fontSize: '24px',
     fontWeight: 'bold',
-    marginBottom: '6px',
+    marginBottom: '4px',
     background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
     WebkitBackgroundClip: 'text',
     WebkitTextFillColor: 'transparent',
@@ -82,41 +81,41 @@ export const AplusRiskManagement: React.FC = () => {
   };
 
   const subtitleStyle: React.CSSProperties = {
-    fontSize: '16px',
+    fontSize: '14px',
     color: theme === 'dark' ? '#94a3b8' : '#64748b',
-    marginBottom: '20px'
+    marginBottom: '12px'
   };
 
   const metricsGridStyle: React.CSSProperties = {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-    gap: '16px',
-    marginBottom: '20px'
+    gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+    gap: '12px',
+    marginBottom: '12px'
   };
 
   const metricCardStyle: React.CSSProperties = {
     background: theme === 'dark' 
       ? 'linear-gradient(135deg, rgba(55, 65, 81, 0.6) 0%, rgba(31, 41, 55, 0.8) 100%)'
       : 'linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 250, 252, 0.9) 100%)',
-    borderRadius: '12px',
-    padding: '16px',
+    borderRadius: '10px',
+    padding: '12px',
     border: `1px solid ${theme === 'dark' ? 'rgba(55, 65, 81, 0.3)' : 'rgba(226, 232, 240, 0.5)'}`,
     boxShadow: theme === 'dark' 
-      ? '0 4px 16px rgba(0, 0, 0, 0.3)'
-      : '0 4px 16px rgba(0, 0, 0, 0.1)',
+      ? '0 3px 12px rgba(0, 0, 0, 0.3)'
+      : '0 3px 12px rgba(0, 0, 0, 0.1)',
     backdropFilter: 'blur(10px)',
     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
     cursor: 'default'
   };
 
   const metricValueStyle: React.CSSProperties = {
-    fontSize: '28px',
+    fontSize: '22px',
     fontWeight: 'bold',
-    marginBottom: '4px'
+    marginBottom: '2px'
   };
 
   const metricLabelStyle: React.CSSProperties = {
-    fontSize: '12px',
+    fontSize: '11px',
     color: theme === 'dark' ? '#94a3b8' : '#64748b',
     fontWeight: '500'
   };
@@ -125,26 +124,26 @@ export const AplusRiskManagement: React.FC = () => {
     background: theme === 'dark' 
       ? 'rgba(30, 41, 59, 0.8)'
       : 'rgba(255, 255, 255, 0.9)',
-    borderRadius: '12px',
-    padding: '16px',
+    borderRadius: '10px',
+    padding: '12px',
     border: `1px solid ${theme === 'dark' ? 'rgba(55, 65, 81, 0.3)' : 'rgba(226, 232, 240, 0.5)'}`,
     backdropFilter: 'blur(10px)',
-    marginBottom: '16px'
+    marginBottom: '12px'
   };
 
   const contentStyle: React.CSSProperties = {
-    padding: '0 40px 40px'
+    padding: '0 32px 32px'
   };
 
   const matrixHeaderStyle: React.CSSProperties = {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: '16px'
+    marginBottom: '12px'
   };
 
   const matrixTitleStyle: React.CSSProperties = {
-    fontSize: '20px',
+    fontSize: '18px',
     fontWeight: 'bold',
     color: theme === 'dark' ? '#f1f5f9' : '#334155'
   };
@@ -153,13 +152,13 @@ export const AplusRiskManagement: React.FC = () => {
     background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
     color: 'white',
     border: 'none',
-    borderRadius: '12px',
-    padding: '12px 24px',
-    fontSize: '14px',
+    borderRadius: '10px',
+    padding: '10px 20px',
+    fontSize: '13px',
     fontWeight: '600',
     cursor: 'pointer',
     transition: 'all 0.3s ease',
-    boxShadow: '0 4px 16px rgba(99, 102, 241, 0.3)'
+    boxShadow: '0 3px 12px rgba(99, 102, 241, 0.3)'
   };
 
   const handleEntityRiskHistory = (entityId: string, riskId: string) => {
@@ -180,16 +179,16 @@ export const AplusRiskManagement: React.FC = () => {
             <div 
               style={metricCardStyle}
               onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.transform = 'translateY(-1px)';
                 e.currentTarget.style.boxShadow = theme === 'dark' 
-                  ? '0 8px 24px rgba(0, 0, 0, 0.4)'
-                  : '0 8px 24px rgba(0, 0, 0, 0.15)';
+                  ? '0 6px 18px rgba(0, 0, 0, 0.4)'
+                  : '0 6px 18px rgba(0, 0, 0, 0.15)';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = 'translateY(0)';
                 e.currentTarget.style.boxShadow = theme === 'dark' 
-                  ? '0 4px 16px rgba(0, 0, 0, 0.3)'
-                  : '0 4px 16px rgba(0, 0, 0, 0.1)';
+                  ? '0 3px 12px rgba(0, 0, 0, 0.3)'
+                  : '0 3px 12px rgba(0, 0, 0, 0.1)';
               }}
             >
               <div style={{...metricValueStyle, color: '#3b82f6'}}>
@@ -201,16 +200,16 @@ export const AplusRiskManagement: React.FC = () => {
             <div 
               style={metricCardStyle}
               onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.transform = 'translateY(-1px)';
                 e.currentTarget.style.boxShadow = theme === 'dark' 
-                  ? '0 8px 24px rgba(0, 0, 0, 0.4)'
-                  : '0 8px 24px rgba(0, 0, 0, 0.15)';
+                  ? '0 6px 18px rgba(0, 0, 0, 0.4)'
+                  : '0 6px 18px rgba(0, 0, 0, 0.15)';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = 'translateY(0)';
                 e.currentTarget.style.boxShadow = theme === 'dark' 
-                  ? '0 4px 16px rgba(0, 0, 0, 0.3)'
-                  : '0 4px 16px rgba(0, 0, 0, 0.1)';
+                  ? '0 3px 12px rgba(0, 0, 0, 0.3)'
+                  : '0 3px 12px rgba(0, 0, 0, 0.1)';
               }}
             >
               <div style={{...metricValueStyle, color: '#f59e0b'}}>
@@ -222,16 +221,16 @@ export const AplusRiskManagement: React.FC = () => {
             <div 
               style={metricCardStyle}
               onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.transform = 'translateY(-1px)';
                 e.currentTarget.style.boxShadow = theme === 'dark' 
-                  ? '0 8px 24px rgba(0, 0, 0, 0.4)'
-                  : '0 8px 24px rgba(0, 0, 0, 0.15)';
+                  ? '0 6px 18px rgba(0, 0, 0, 0.4)'
+                  : '0 6px 18px rgba(0, 0, 0, 0.15)';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = 'translateY(0)';
                 e.currentTarget.style.boxShadow = theme === 'dark' 
-                  ? '0 4px 16px rgba(0, 0, 0, 0.3)'
-                  : '0 4px 16px rgba(0, 0, 0, 0.1)';
+                  ? '0 3px 12px rgba(0, 0, 0, 0.3)'
+                  : '0 3px 12px rgba(0, 0, 0, 0.1)';
               }}
             >
               <div style={{...metricValueStyle, color: complianceRate >= 70 ? '#10b981' : complianceRate >= 40 ? '#f59e0b' : '#ef4444'}}>
@@ -259,12 +258,12 @@ export const AplusRiskManagement: React.FC = () => {
             style={governanceButtonStyle}
             onClick={() => setShowGovernanceList(true)}
             onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-2px)';
-              e.currentTarget.style.boxShadow = '0 8px 24px rgba(99, 102, 241, 0.4)';
+              e.currentTarget.style.transform = 'translateY(-1px)';
+              e.currentTarget.style.boxShadow = '0 6px 18px rgba(99, 102, 241, 0.4)';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = '0 4px 16px rgba(99, 102, 241, 0.3)';
+              e.currentTarget.style.boxShadow = '0 3px 12px rgba(99, 102, 241, 0.3)';
             }}
           >
             📋 Governance List

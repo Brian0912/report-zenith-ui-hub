@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { useTheme } from '../ThemeProvider';
 import { Entity, Risk } from './mockRiskData';
@@ -98,12 +97,12 @@ export const RiskFilters: React.FC<RiskFiltersProps> = ({
     onRiskVisibilityChange(Array.from(selectedRisks));
   }, [selectedRisks, onRiskVisibilityChange]);
 
-  const FILTER_HEIGHT = '320px';
+  const FILTER_HEIGHT = '220px';
 
   const containerStyle: React.CSSProperties = {
     display: 'grid',
     gridTemplateColumns: '1fr 1fr 1fr',
-    gap: '24px',
+    gap: '16px',
     alignItems: 'start'
   };
 
@@ -111,7 +110,7 @@ export const RiskFilters: React.FC<RiskFiltersProps> = ({
     background: theme === 'dark' 
       ? 'rgba(30, 41, 59, 0.6)'
       : 'rgba(255, 255, 255, 0.8)',
-    borderRadius: '12px',
+    borderRadius: '10px',
     border: `1px solid ${theme === 'dark' ? 'rgba(55, 65, 81, 0.3)' : 'rgba(226, 232, 240, 0.5)'}`,
     backdropFilter: 'blur(8px)',
     height: FILTER_HEIGHT,
@@ -120,20 +119,20 @@ export const RiskFilters: React.FC<RiskFiltersProps> = ({
   };
 
   const sectionHeaderStyle: React.CSSProperties = {
-    padding: '20px 20px 16px 20px',
+    padding: '12px 16px 10px 16px',
     borderBottom: `1px solid ${theme === 'dark' ? 'rgba(55, 65, 81, 0.3)' : 'rgba(226, 232, 240, 0.5)'}`,
     flexShrink: 0
   };
 
   const sectionTitleStyle: React.CSSProperties = {
-    fontSize: '16px',
+    fontSize: '14px',
     fontWeight: '600',
     color: theme === 'dark' ? '#f1f5f9' : '#334155',
     margin: 0
   };
 
   const sectionContentStyle: React.CSSProperties = {
-    padding: '16px 20px 20px 20px',
+    padding: '12px 16px 16px 16px',
     flex: 1,
     overflow: 'hidden',
     display: 'flex',
@@ -153,12 +152,12 @@ export const RiskFilters: React.FC<RiskFiltersProps> = ({
 
   const searchInputStyle: React.CSSProperties = {
     width: '100%',
-    padding: '12px 16px',
-    borderRadius: '8px',
+    padding: '8px 12px',
+    borderRadius: '6px',
     border: `1px solid ${theme === 'dark' ? '#475569' : '#cbd5e1'}`,
     background: theme === 'dark' ? '#1e293b' : '#ffffff',
     color: theme === 'dark' ? '#f1f5f9' : '#334155',
-    fontSize: '14px',
+    fontSize: '13px',
     outline: 'none',
     transition: 'all 0.3s ease'
   };
@@ -187,19 +186,19 @@ export const RiskFilters: React.FC<RiskFiltersProps> = ({
   const tagContainerStyle: React.CSSProperties = {
     display: 'flex',
     flexWrap: 'wrap',
-    gap: '8px',
-    marginTop: '12px'
+    gap: '6px',
+    marginTop: '8px'
   };
 
   const tagStyle: React.CSSProperties = {
     background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
     color: 'white',
-    padding: '4px 12px',
-    borderRadius: '20px',
-    fontSize: '12px',
+    padding: '3px 8px',
+    borderRadius: '12px',
+    fontSize: '11px',
     display: 'flex',
     alignItems: 'center',
-    gap: '8px'
+    gap: '6px'
   };
 
   const removeTagStyle: React.CSSProperties = {
@@ -215,14 +214,15 @@ export const RiskFilters: React.FC<RiskFiltersProps> = ({
   };
 
   const treeNodeStyle: React.CSSProperties = {
-    padding: '6px 12px',
+    padding: '4px 8px',
     cursor: 'pointer',
-    borderRadius: '6px',
-    marginBottom: '2px',
+    borderRadius: '4px',
+    marginBottom: '1px',
     transition: 'all 0.2s ease',
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
+    fontSize: '13px'
   };
 
   const methodBadgeStyle = (method: string): React.CSSProperties => {
@@ -254,8 +254,8 @@ export const RiskFilters: React.FC<RiskFiltersProps> = ({
     };
 
     return {
-      padding: '8px 16px',
-      borderRadius: '20px',
+      padding: '6px 12px',
+      borderRadius: '16px',
       border: `2px solid ${severityColors[risk.severity]}`,
       background: isSelected 
         ? severityColors[risk.severity]
@@ -263,9 +263,9 @@ export const RiskFilters: React.FC<RiskFiltersProps> = ({
       color: isSelected ? 'white' : severityColors[risk.severity],
       cursor: 'pointer',
       transition: 'all 0.3s ease',
-      fontSize: '14px',
+      fontSize: '12px',
       fontWeight: '500',
-      marginBottom: '8px'
+      marginBottom: '6px'
     };
   };
 
@@ -313,7 +313,7 @@ export const RiskFilters: React.FC<RiskFiltersProps> = ({
             <input
               ref={searchInputRef}
               type="text"
-              placeholder="Search PSM, API path, or method..."
+              placeholder="Search PSM, API path..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onFocus={() => setShowSearchResults(true)}
@@ -334,10 +334,10 @@ export const RiskFilters: React.FC<RiskFiltersProps> = ({
                       e.currentTarget.style.background = 'transparent';
                     }}
                   >
-                    <span style={{ fontSize: '12px', color: theme === 'dark' ? '#94a3b8' : '#64748b' }}>
+                    <span style={{ fontSize: '11px', color: theme === 'dark' ? '#94a3b8' : '#64748b' }}>
                       {result.type === 'psm' ? 'PSM' : 'API'}:
                     </span>
-                    <span style={{ marginLeft: '8px' }}>{result.value}</span>
+                    <span style={{ marginLeft: '6px', fontSize: '12px' }}>{result.value}</span>
                     {result.entity && (
                       <span style={methodBadgeStyle(result.entity.method)}>
                         {result.entity.method}
@@ -389,15 +389,15 @@ export const RiskFilters: React.FC<RiskFiltersProps> = ({
                   <span>
                     {expandedNodes.has(psm) ? '📂' : '📁'} {psm}
                   </span>
-                  <span style={{ fontSize: '12px', color: theme === 'dark' ? '#94a3b8' : '#64748b' }}>
+                  <span style={{ fontSize: '11px', color: theme === 'dark' ? '#94a3b8' : '#64748b' }}>
                     {Object.values(apiPaths).reduce((acc, methods) => acc + methods.length, 0)}
                   </span>
                 </div>
                 
                 {expandedNodes.has(psm) && Object.entries(apiPaths).map(([apiPath, methods]) => (
-                  <div key={`${psm}-${apiPath}`} style={{ marginLeft: '16px' }}>
+                  <div key={`${psm}-${apiPath}`} style={{ marginLeft: '12px' }}>
                     <div
-                      style={{...treeNodeStyle, fontSize: '14px'}}
+                      style={{...treeNodeStyle, fontSize: '12px'}}
                       onClick={() => toggleNode(`${psm}-${apiPath}`)}
                       onMouseEnter={(e) => {
                         e.currentTarget.style.background = theme === 'dark' ? '#334155' : '#f1f5f9';
@@ -409,7 +409,7 @@ export const RiskFilters: React.FC<RiskFiltersProps> = ({
                       <span>
                         {expandedNodes.has(`${psm}-${apiPath}`) ? '📂' : '📁'} {apiPath}
                       </span>
-                      <span style={{ fontSize: '12px', color: theme === 'dark' ? '#94a3b8' : '#64748b' }}>
+                      <span style={{ fontSize: '10px', color: theme === 'dark' ? '#94a3b8' : '#64748b' }}>
                         {methods.length}
                       </span>
                     </div>
@@ -417,7 +417,7 @@ export const RiskFilters: React.FC<RiskFiltersProps> = ({
                     {expandedNodes.has(`${psm}-${apiPath}`) && methods.map((entity) => (
                       <div
                         key={entity.id}
-                        style={{...treeNodeStyle, marginLeft: '16px', fontSize: '13px'}}
+                        style={{...treeNodeStyle, marginLeft: '12px', fontSize: '11px'}}
                         onClick={() => addSelectedItem(`${entity.apiPath} ${entity.method}`)}
                         onMouseEnter={(e) => {
                           e.currentTarget.style.background = theme === 'dark' ? '#334155' : '#f1f5f9';
