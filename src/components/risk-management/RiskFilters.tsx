@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useTheme } from '../ThemeProvider';
 import { Entity, Risk } from './mockRiskData';
-import { fetchEntities } from '../services/psmService';
-import { fetchRisks } from '../services/riskService';
+import { fetchEntities } from '../../services/psmService';
+import { fetchRisks } from '../../services/riskService';
 
 interface RiskFiltersProps {
   entities: Entity[];
