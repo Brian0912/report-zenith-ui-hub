@@ -330,7 +330,7 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
   const hasHistoryData = (entityId: string, riskId: string) => {
     const entity = entities.find(e => e.id === entityId);
     return entity?.riskStatus[riskId]?.governanceHistory && 
-           entity.riskStatus[riskId].governanceHistory.length > 0;
+           entity.riskStatus[riskId].governanceHistory!.length > 0;
   };
 
   const handleToggleRisk = (entityId: string, riskId: string) => {
