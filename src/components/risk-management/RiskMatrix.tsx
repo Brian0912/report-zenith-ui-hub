@@ -59,7 +59,7 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
     boxShadow: theme === 'dark' 
       ? '0 8px 32px rgba(0, 0, 0, 0.3)'
       : '0 8px 32px rgba(0, 0, 0, 0.1)',
-    height: '500px',
+    height: '700px',
     display: 'flex',
     flexDirection: 'column'
   };
