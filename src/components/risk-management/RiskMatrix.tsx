@@ -327,8 +327,15 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
     const riskData = entity?.riskStatus[riskId];
     if (!riskData) return false;
     
-    // Has governance data if there's either a current governance ID or governance history
-    return !!(riskData.latestGovernanceId || (riskData.governanceHistory && riskData.governanceHistory.length > 0));
+    // Check if there's a valid current governance ID
+    const hasCurrentGovernance = !!(riskData.latestGovernanceId && riskData.latestGovernanceId.trim() !== '');
+    
+    // Check if there's valid governance history
+    const hasGovernanceHistory = !!(riskData.governanceHistory && 
+                                   riskData.governanceHistory.length > 0 &&
+                                   riskData.governanceHistory.some(g => g.id && g.id.trim() !== ''));
+    
+    return hasCurrentGovernance || hasGovernanceHistory;
   };
 
   const hasHistoryData = (entityId: string, riskId: string) => {
