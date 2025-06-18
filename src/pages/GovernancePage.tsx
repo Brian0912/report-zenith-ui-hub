@@ -1,8 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTheme } from '../components/ThemeProvider';
 import { mockGovernanceGroups, mockEntities, mockRisks } from '../components/risk-management/mockRiskData';
+import { PsmSearch } from '../components/risk-management/PsmSearch';
+import { ApiSearch } from '../components/risk-management/ApiSearch';
 import { RiskFilters } from '../components/risk-management/RiskFilters';
 import {
   AlertDialog,
@@ -26,6 +27,9 @@ export const GovernancePage: React.FC = () => {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [confirmationOpen, setConfirmationOpen] = useState(false);
   const [pendingToggle, setPendingToggle] = useState<{entityId: string} | null>(null);
+  const [selectedPsms, setSelectedPsms] = useState<string[]>([]);
+  const [selectedApis, setSelectedApis] = useState<string[]>([]);
+  const [visibleRisks, setVisibleRisks] = useState<string[]>([]);
 
   const governance = mockGovernanceGroups.find(g => g.id === id);
   const governanceEntities = governance 
@@ -33,15 +37,28 @@ export const GovernancePage: React.FC = () => {
     : [];
 
   useEffect(() => {
-    setFilteredEntities(governanceEntities);
+    let filtered = [...governanceEntities];
+    
+    // Apply PSM filter
+    if (selectedPsms.length > 0) {
+      filtered = filtered.filter(entity => selectedPsms.includes(entity.psm));
+    }
+    
+    // Apply API filter  
+    if (selectedApis.length > 0) {
+      filtered = filtered.filter(entity => selectedApis.includes(entity.apiPath));
+    }
+    
+    setFilteredEntities(filtered);
+    
     // Initialize entity states
     const initialStates: Record<string, boolean> = {};
-    governanceEntities.forEach(entity => {
+    filtered.forEach(entity => {
       const riskStatus = entity.riskStatus[governance?.riskId || ''];
       initialStates[entity.id] = riskStatus?.isResolved || false;
     });
     setEntityStates(initialStates);
-  }, [governance]);
+  }, [governance, selectedPsms, selectedApis]);
 
   // Pagination calculations
   const totalPages = Math.ceil(filteredEntities.length / itemsPerPage);
@@ -75,6 +92,21 @@ export const GovernancePage: React.FC = () => {
   const headerStyle: React.CSSProperties = {
     padding: '40px',
     borderBottom: `1px solid ${theme === 'dark' ? '#334155' : '#e2e8f0'}`
+  };
+
+  const filtersContainerStyle: React.CSSProperties = {
+    display: 'grid',
+    gridTemplateColumns: '25% 25% 25% 25%',
+    gap: '16px',
+    alignItems: 'start',
+    background: theme === 'dark' 
+      ? 'rgba(30, 41, 59, 0.8)'
+      : 'rgba(255, 255, 255, 0.9)',
+    borderRadius: '10px',
+    padding: '12px',
+    border: `1px solid ${theme === 'dark' ? 'rgba(55, 65, 81, 0.3)' : 'rgba(226, 232, 240, 0.5)'}`,
+    backdropFilter: 'blur(10px)',
+    marginBottom: '24px'
   };
 
   const breadcrumbStyle: React.CSSProperties = {
@@ -242,6 +274,10 @@ export const GovernancePage: React.FC = () => {
     setCurrentPage(1);
   };
 
+  const handleOtherFiltersChange = (filtered: any[]) => {
+    setFilteredEntities(filtered);
+  };
+
   return (
     <div style={containerStyle}>
       <div style={headerStyle}>
@@ -308,12 +344,23 @@ export const GovernancePage: React.FC = () => {
           </div>
         </div>
 
-        <RiskFilters
-          entities={governanceEntities}
-          risks={risk ? [risk] : []}
-          onFilterChange={setFilteredEntities}
-          onRiskVisibilityChange={() => {}} // Not used in governance page
-        />
+        <div style={filtersContainerStyle}>
+          <PsmSearch
+            entities={governanceEntities}
+            selectedPsms={selectedPsms}
+            onPsmChange={setSelectedPsms}
+          />
+          <ApiSearch
+            selectedApis={selectedApis}
+            onApiChange={setSelectedApis}
+          />
+          <RiskFilters
+            entities={governanceEntities}
+            risks={risk ? [risk] : []}
+            onFilterChange={handleOtherFiltersChange}
+            onRiskVisibilityChange={setVisibleRisks}
+          />
+        </div>
       </div>
 
       <div style={contentStyle}>

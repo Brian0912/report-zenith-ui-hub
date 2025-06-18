@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useTheme } from '../components/ThemeProvider';
 import { PsmSearch } from '../components/risk-management/PsmSearch';
@@ -108,7 +109,7 @@ export const AplusRiskManagement: React.FC = () => {
 
   const filtersContainerStyle: React.CSSProperties = {
     display: 'grid',
-    gridTemplateColumns: '1fr 1fr 1fr',
+    gridTemplateColumns: '25% 25% 25% 25%',
     gap: '16px',
     alignItems: 'start',
     background: theme === 'dark' 
