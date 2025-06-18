@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../ThemeProvider';
@@ -337,13 +336,19 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
     const hasGovernanceHistory = !!(riskData.governanceHistory && 
                                    riskData.governanceHistory.length > 0 &&
                                    riskData.governanceHistory.some(g => {
-                                     // More explicit null checking
-                                     if (g === null || g === undefined) return false;
-                                     if (typeof g !== 'object') return false;
-                                     if (!('id' in g)) return false;
+                                     // Explicit type guard to ensure g is not null/undefined and is an object
+                                     if (g === null || g === undefined || typeof g !== 'object') {
+                                       return false;
+                                     }
                                      
+                                     // Now TypeScript knows g is not null and is an object
+                                     if (!('id' in g)) {
+                                       return false;
+                                     }
+                                     
+                                     // Safe to cast now since we've verified the structure
                                      const govItem = g as { id?: string };
-                                     return !!(govItem?.id && govItem.id.trim() !== '' && govItem.id !== 'N/A');
+                                     return !!(govItem.id && govItem.id.trim() !== '' && govItem.id !== 'N/A');
                                    }));
     
     return hasCurrentGovernance || hasGovernanceHistory;
