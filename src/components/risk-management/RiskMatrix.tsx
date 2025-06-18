@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../ThemeProvider';
@@ -335,9 +336,11 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
     // Check if there's valid governance history with actual IDs
     const hasGovernanceHistory = !!(riskData.governanceHistory && 
                                    riskData.governanceHistory.length > 0 &&
-                                   riskData.governanceHistory.some(g => 
-                                     g && typeof g === 'object' && 'id' in g && g.id && g.id.trim() !== '' && g.id !== 'N/A'
-                                   ));
+                                   riskData.governanceHistory.some(g => {
+                                     if (!g || typeof g !== 'object' || !('id' in g)) return false;
+                                     const govItem = g as { id?: string };
+                                     return govItem.id && govItem.id.trim() !== '' && govItem.id !== 'N/A';
+                                   }));
     
     return hasCurrentGovernance || hasGovernanceHistory;
   };
