@@ -333,13 +333,6 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
         <div style={batchControlsStyle}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: '500' }}>
-              <input
-                type="checkbox"
-                checked={selectedEntities.size === paginatedEntities.length && paginatedEntities.length > 0}
-                onChange={handleSelectAll}
-                style={checkboxStyle}
-              />
-              Select All
             </label>
           </div>
 
@@ -354,14 +347,6 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
           <table style={tableStyle}>
             <thead style={headerStyle}>
               <tr>
-                <th style={{...headerCellStyle, width: '40px'}}>
-                  <input 
-                    type="checkbox" 
-                    style={checkboxStyle}
-                    checked={selectedEntities.size === paginatedEntities.length && paginatedEntities.length > 0}
-                    onChange={handleSelectAll}
-                  />
-                </th>
                 <th style={{...headerCellStyle, width: '100px'}}>P.S.M</th>
                 <th style={{...headerCellStyle, width: '200px'}}>Entity</th>
                 {risks.map((risk) => (
@@ -403,14 +388,6 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
                       : 'transparent';
                   }}
                 >
-                  <td style={cellStyle}>
-                    <input 
-                      type="checkbox" 
-                      style={checkboxStyle}
-                      checked={selectedEntities.has(entity.id)}
-                      onChange={(e) => handleEntitySelect(entity.id, e.target.checked)}
-                    />
-                  </td>
                   <td style={cellStyle}>
                     <div style={psmStyle}>{entity.psm}</div>
                   </td>
