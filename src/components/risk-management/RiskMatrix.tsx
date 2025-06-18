@@ -327,40 +327,21 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
     const riskData = entity?.riskStatus[riskId];
     if (!riskData) return false;
     
-    // Check if there's a valid current governance ID (not empty or just whitespace)
-    const hasCurrentGovernance = !!(riskData.latestGovernanceId && 
-                                   riskData.latestGovernanceId.trim() !== '' &&
-                                   riskData.latestGovernanceId !== 'N/A');
+    // Check if there's a valid current governance ID
+    const hasCurrentGovernance = !!(riskData.latestGovernanceId && riskData.latestGovernanceId.trim() !== '');
     
-    // Check if there's valid governance history with actual IDs
+    // Check if there's valid governance history
     const hasGovernanceHistory = !!(riskData.governanceHistory && 
                                    riskData.governanceHistory.length > 0 &&
-                                   riskData.governanceHistory.some(g => {
-                                     // Explicit type guard to ensure g is not null/undefined and is an object
-                                     if (g === null || g === undefined || typeof g !== 'object') {
-                                       return false;
-                                     }
-                                     
-                                     // Now TypeScript knows g is not null and is an object
-                                     if (!('id' in g)) {
-                                       return false;
-                                     }
-                                     
-                                     // Safe to cast now since we've verified the structure
-                                     const govItem = g as { id?: string };
-                                     return !!(govItem.id && govItem.id.trim() !== '' && govItem.id !== 'N/A');
-                                   }));
+                                   riskData.governanceHistory.some(g => g.id && g.id.trim() !== ''));
     
     return hasCurrentGovernance || hasGovernanceHistory;
   };
 
-  const getGovernanceStatus = (entityId: string, riskId: string) => {
+  const hasHistoryData = (entityId: string, riskId: string) => {
     const entity = entities.find(e => e.id === entityId);
-    const riskData = entity?.riskStatus[riskId];
-    
-    if (!riskData) return 'No Risk';
-    if (riskData.isResolved) return 'Compliant';
-    return 'Non-Compliant';
+    return entity?.riskStatus[riskId]?.governanceHistory && 
+           entity.riskStatus[riskId].governanceHistory!.length > 0;
   };
 
   const handleToggleRisk = (entityId: string, riskId: string) => {
@@ -565,54 +546,51 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
                   </td>
                   {risks.map((risk) => {
                     const hasData = hasRiskData(entity.id, risk.id);
-                    const status = getGovernanceStatus(entity.id, risk.id);
                     
                     if (!hasData) {
                       return (
                         <td key={risk.id} style={disabledCellStyle}>
-                          <div style={riskCellContentStyle}>
-                            <div style={{ 
-                              fontSize: '12px', 
-                              fontWeight: '500',
-                              marginBottom: '6px',
-                              color: theme === 'dark' ? '#94a3b8' : '#64748b'
-                            }}>
-                              No Risk
-                            </div>
-                            <button
-                              style={disabledButtonStyle}
-                              disabled={true}
-                              title="No risk data available"
-                            >
-                              Details
-                            </button>
+                          <div style={{ fontSize: '12px', fontStyle: 'italic' }}>
+                            No data
                           </div>
                         </td>
                       );
                     }
 
-                    const statusColor = status === 'Compliant' ? '#10b981' : 
-                                      status === 'Non-Compliant' ? '#ef4444' : '#6b7280';
+                    const isResolved = riskStatus[entity.id]?.[risk.id] || false;
+                    const hasAnyGovernance = hasAnyGovernanceData(entity.id, risk.id);
                     
                     return (
                       <td key={risk.id} style={{...cellStyle, ...riskCellStyle}}>
                         <div style={riskCellContentStyle}>
-                          <div style={{ 
-                            fontSize: '12px', 
-                            fontWeight: '500',
-                            marginBottom: '6px',
-                            color: statusColor
-                          }}>
-                            {status}
-                          </div>
-                          
                           <button
-                            style={actionButtonStyle}
-                            onClick={() => navigate(`/entity/${entity.id}/risk/${risk.id}`)}
-                            title="View API-Risk details"
+                            style={toggleSwitchStyle(isResolved)}
+                            onClick={() => handleToggleRisk(entity.id, risk.id)}
+                            disabled={isResolved}
+                            title={isResolved ? 'Already resolved' : 'Mark as resolved'}
                           >
-                            Details
+                            <div style={toggleKnobStyle(isResolved)} />
                           </button>
+                          
+                          <div style={{ display: 'flex', gap: '3px', flexWrap: 'wrap', justifyContent: 'center' }}>
+                            <button
+                              style={hasAnyGovernance ? actionButtonStyle : disabledButtonStyle}
+                              onClick={() => hasAnyGovernance && handleGovernanceClick(entity.id, risk.id)}
+                              disabled={!hasAnyGovernance}
+                              title={hasAnyGovernance ? "View current governance" : "No governance data"}
+                            >
+                              Current Governance
+                            </button>
+                            
+                            <button
+                              style={hasAnyGovernance ? actionButtonStyle : disabledButtonStyle}
+                              onClick={() => hasAnyGovernance && onEntityRiskHistory(entity.id, risk.id)}
+                              disabled={!hasAnyGovernance}
+                              title={hasAnyGovernance ? "View governance history" : "No governance data"}
+                            >
+                              Governance History
+                            </button>
+                          </div>
                         </div>
                       </td>
                     );
