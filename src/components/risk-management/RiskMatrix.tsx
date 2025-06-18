@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../ThemeProvider';
@@ -337,7 +336,7 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
     const hasGovernanceHistory = !!(riskData.governanceHistory && 
                                    riskData.governanceHistory.length > 0 &&
                                    riskData.governanceHistory.some(g => 
-                                     g && typeof g === 'object' && g.id && g.id.trim() !== '' && g.id !== 'N/A'
+                                     g && typeof g === 'object' && 'id' in g && g.id && g.id.trim() !== '' && g.id !== 'N/A'
                                    ));
     
     return hasCurrentGovernance || hasGovernanceHistory;
