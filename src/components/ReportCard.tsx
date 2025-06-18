@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useTheme } from './ThemeProvider';
 import { Report } from './mockData';
 import { TimeRangeSelector } from './TimeRangeSelector';
+import { DateSelector } from './DateSelector';
 
 interface ReportCardProps {
   report: Report;
@@ -14,6 +15,7 @@ export const ReportCard: React.FC<ReportCardProps> = ({ report, viewMode, onSubs
   const { theme } = useTheme();
   const [isHovered, setIsHovered] = useState(false);
   const [timeRange, setTimeRange] = useState<{ start: Date; end: Date } | null>(null);
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>();
 
   const getStatusConfig = (status: string) => {
     switch (status) {
@@ -273,6 +275,11 @@ export const ReportCard: React.FC<ReportCardProps> = ({ report, viewMode, onSubs
     console.log('Time range selected:', range);
   };
 
+  const handleDateChange = (date: Date | undefined) => {
+    setSelectedDate(date);
+    console.log('Date selected:', date);
+  };
+
   const formatTimeAgo = (date: Date) => {
     const now = new Date();
     const diff = now.getTime() - date.getTime();
@@ -304,6 +311,7 @@ export const ReportCard: React.FC<ReportCardProps> = ({ report, viewMode, onSubs
         <p style={descriptionStyle}>{report.description}</p>
         
         <TimeRangeSelector onTimeRangeChange={handleTimeRangeChange} />
+        <DateSelector onDateChange={handleDateChange} />
         
         <div style={metaRowStyle}>
           <div style={contactStyle}>
