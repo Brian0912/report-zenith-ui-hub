@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useTheme } from '../components/ThemeProvider';
 import { PsmSearch } from '../components/risk-management/PsmSearch';
@@ -22,6 +21,8 @@ export const AplusRiskManagement: React.FC = () => {
   const [showGovernanceHistory, setShowGovernanceHistory] = useState(false);
   const [selectedEntityRisk, setSelectedEntityRisk] = useState<{entityId: string, riskId: string} | null>(null);
   const [showGovernanceList, setShowGovernanceList] = useState(false);
+  const [selectedPsms, setSelectedPsms] = useState<string[]>([]);
+  const [selectedApis, setSelectedApis] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Load data from services
@@ -145,8 +146,12 @@ export const AplusRiskManagement: React.FC = () => {
   const handleSmartSearchFilterChange = (filtered: Entity[]) => {
     // Apply smart search filter first, then apply other filters
     const finalFiltered = filtered.filter(entity => {
-      // Apply risk visibility filter if needed
-      return true; // For now, just pass through
+      // Apply PSM filter
+      const psmMatch = selectedPsms.length === 0 || selectedPsms.includes(entity.psm);
+      // Apply API filter
+      const apiMatch = selectedApis.length === 0 || selectedApis.includes(entity.apiPath);
+      
+      return psmMatch && apiMatch;
     });
     setFilteredEntities(finalFiltered);
   };
@@ -197,9 +202,14 @@ export const AplusRiskManagement: React.FC = () => {
           </div>
 
           <div style={filtersContainerStyle}>
-            <SmartSearch
+            <PsmSearch
               entities={entities}
-              onFilterChange={handleSmartSearchFilterChange}
+              selectedPsms={selectedPsms}
+              onPsmChange={setSelectedPsms}
+            />
+            <ApiSearch
+              selectedApis={selectedApis}
+              onApiChange={setSelectedApis}
             />
             <RiskFilters
               entities={entities}
