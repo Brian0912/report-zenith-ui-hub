@@ -1,5 +1,5 @@
-
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../ThemeProvider';
 import { GovernanceGroup } from './mockRiskData';
 
@@ -15,11 +15,17 @@ export const GovernanceSidebar: React.FC<GovernanceSidebarProps> = ({
   governanceGroups
 }) => {
   const { theme } = useTheme();
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
 
   const filteredGroups = governanceGroups.filter(group =>
     group.name?.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const handleGovernanceClick = (groupId: string) => {
+    navigate(`/governance/${groupId}`);
+    onClose();
+  };
 
   const sidebarStyle: React.CSSProperties = {
     position: 'fixed',
@@ -201,15 +207,18 @@ export const GovernanceSidebar: React.FC<GovernanceSidebarProps> = ({
               <div
                 key={group.id}
                 style={groupCardStyle}
+                onClick={() => handleGovernanceClick(group.id)}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.transform = 'translateY(-2px)';
                   e.currentTarget.style.boxShadow = theme === 'dark' 
                     ? '0 6px 20px rgba(0, 0, 0, 0.4)'
                     : '0 6px 20px rgba(0, 0, 0, 0.15)';
+                  e.currentTarget.style.cursor = 'pointer';
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.transform = 'translateY(0)';
                   e.currentTarget.style.boxShadow = 'none';
+                  e.currentTarget.style.cursor = 'default';
                 }}
               >
                 <div style={groupTitleStyle}>{group.name}</div>

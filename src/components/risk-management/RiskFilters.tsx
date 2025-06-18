@@ -189,8 +189,8 @@ export const RiskFilters: React.FC<RiskFiltersProps> = ({
   };
 
   return (
-    <div style={containerStyle}>
-      {/* Multi-level Tree Navigation */}
+    <>
+      {/* Service Tree */}
       <div style={sectionStyle}>
         <div style={sectionHeaderStyle}>
           <div style={sectionTitleStyle}>🌳 Service Tree</div>
@@ -263,7 +263,7 @@ export const RiskFilters: React.FC<RiskFiltersProps> = ({
         </div>
       </div>
 
-      {/* Risk Filter */}
+      {/* Risk Categories */}
       <div style={sectionStyle}>
         <div style={sectionHeaderStyle}>
           <div style={sectionTitleStyle}>⚠️ Risk Categories</div>
@@ -283,6 +283,6 @@ export const RiskFilters: React.FC<RiskFiltersProps> = ({
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };

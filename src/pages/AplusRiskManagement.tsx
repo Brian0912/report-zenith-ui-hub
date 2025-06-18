@@ -1,8 +1,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { useTheme } from '../components/ThemeProvider';
+import { PsmSearch } from '../components/risk-management/PsmSearch';
+import { ApiSearch } from '../components/risk-management/ApiSearch';
 import { RiskFilters } from '../components/risk-management/RiskFilters';
-import { SmartSearch } from '../components/risk-management/SmartSearch';
 import { RiskMatrix } from '../components/risk-management/RiskMatrix';
 import { GovernanceHistoryPanel } from '../components/risk-management/GovernanceHistoryPanel';
 import { GovernanceSidebar } from '../components/risk-management/GovernanceSidebar';
