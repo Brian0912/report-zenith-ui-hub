@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../ThemeProvider';
@@ -31,16 +32,6 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [confirmationOpen, setConfirmationOpen] = useState(false);
   const [pendingToggle, setPendingToggle] = useState<{entityId: string, riskId: string} | null>(null);
-  const [riskStatus, setRiskStatus] = useState<Record<string, Record<string, boolean>>>(() => {
-    const initial: Record<string, Record<string, boolean>> = {};
-    entities.forEach(entity => {
-      initial[entity.id] = {};
-      risks.forEach(risk => {
-        initial[entity.id][risk.id] = entity.riskStatus[risk.id]?.isResolved || false;
-      });
-    });
-    return initial;
-  });
 
   // Pagination calculations
   const totalPages = Math.ceil(entities.length / itemsPerPage);
@@ -76,29 +67,10 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
     flexShrink: 0
   };
 
-  const batchControlsLeftStyle: React.CSSProperties = {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '16px'
-  };
-
   const batchControlsRightStyle: React.CSSProperties = {
     display: 'flex',
     alignItems: 'center',
     gap: '12px'
-  };
-
-  const batchButtonStyle: React.CSSProperties = {
-    background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
-    color: 'white',
-    border: 'none',
-    borderRadius: '8px',
-    padding: '6px 12px',
-    fontSize: '12px',
-    fontWeight: '600',
-    cursor: 'pointer',
-    transition: 'all 0.3s ease',
-    boxShadow: '0 2px 8px rgba(99, 102, 241, 0.3)'
   };
 
   const tableContainerStyle: React.CSSProperties = {
@@ -211,31 +183,23 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
     gap: '6px'
   };
 
-  const toggleSwitchStyle = (isOn: boolean): React.CSSProperties => ({
-    position: 'relative',
-    display: 'inline-block',
-    width: '40px',
-    height: '20px',
-    background: isOn ? '#10b981' : (theme === 'dark' ? '#475569' : '#cbd5e1'),
-    borderRadius: '10px',
-    cursor: isOn ? 'not-allowed' : 'pointer',
-    transition: 'all 0.3s ease',
-    border: 'none',
-    outline: 'none',
-    opacity: isOn ? 0.7 : 1
-  });
+  const statusBadgeStyle = (status: string): React.CSSProperties => {
+    const colorMap: Record<string, string> = {
+      'Compliant': '#10b981',
+      'Non-Compliant': '#ef4444',
+      'No Risk': '#6b7280'
+    };
 
-  const toggleKnobStyle = (isOn: boolean): React.CSSProperties => ({
-    position: 'absolute',
-    top: '2px',
-    left: isOn ? '22px' : '2px',
-    width: '16px',
-    height: '16px',
-    background: 'white',
-    borderRadius: '50%',
-    transition: 'all 0.3s ease',
-    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)'
-  });
+    return {
+      background: colorMap[status] || '#6b7280',
+      color: 'white',
+      padding: '4px 8px',
+      borderRadius: '12px',
+      fontSize: '11px',
+      fontWeight: '600',
+      marginBottom: '4px'
+    };
+  };
 
   const actionButtonStyle: React.CSSProperties = {
     background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
@@ -247,7 +211,6 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
     fontSize: '11px',
     fontWeight: '500',
     transition: 'all 0.2s ease',
-    marginRight: '3px',
     whiteSpace: 'nowrap'
   };
 
@@ -322,64 +285,18 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
     return entity && entity.riskStatus[riskId] !== undefined;
   };
 
-  const hasAnyGovernanceData = (entityId: string, riskId: string) => {
+  const getGovernanceStatus = (entityId: string, riskId: string) => {
     const entity = entities.find(e => e.id === entityId);
     const riskData = entity?.riskStatus[riskId];
-    if (!riskData) return false;
     
-    // Check if there's a valid current governance ID
-    const hasCurrentGovernance = !!(riskData.latestGovernanceId && riskData.latestGovernanceId.trim() !== '');
+    if (!riskData) return 'No Risk';
     
-    // Check if there's valid governance history
-    const hasGovernanceHistory = !!(riskData.governanceHistory && 
-                                   riskData.governanceHistory.length > 0 &&
-                                   riskData.governanceHistory.some(g => g.id && g.id.trim() !== ''));
-    
-    return hasCurrentGovernance || hasGovernanceHistory;
+    return riskData.isResolved ? 'Compliant' : 'Non-Compliant';
   };
 
-  const hasHistoryData = (entityId: string, riskId: string) => {
-    const entity = entities.find(e => e.id === entityId);
-    return entity?.riskStatus[riskId]?.governanceHistory && 
-           entity.riskStatus[riskId].governanceHistory!.length > 0;
-  };
-
-  const handleToggleRisk = (entityId: string, riskId: string) => {
+  const handleDetailsClick = (entityId: string, riskId: string) => {
     if (!hasRiskData(entityId, riskId)) return;
-    
-    const currentState = riskStatus[entityId]?.[riskId] || false;
-    // Only allow turning on if it's currently off
-    if (!currentState) {
-      setPendingToggle({ entityId, riskId });
-      setConfirmationOpen(true);
-    }
-  };
-
-  const confirmToggle = () => {
-    if (pendingToggle) {
-      setRiskStatus(prev => ({
-        ...prev,
-        [pendingToggle.entityId]: {
-          ...prev[pendingToggle.entityId],
-          [pendingToggle.riskId]: true
-        }
-      }));
-    }
-    setConfirmationOpen(false);
-    setPendingToggle(null);
-  };
-
-  const cancelToggle = () => {
-    setConfirmationOpen(false);
-    setPendingToggle(null);
-  };
-
-  const handleGovernanceClick = (entityId: string, riskId: string) => {
-    const entity = entities.find(e => e.id === entityId);
-    const governanceId = entity?.riskStatus[riskId]?.latestGovernanceId;
-    if (governanceId) {
-      navigate(`/governance/${governanceId}`);
-    }
+    navigate(`/entity/${entityId}/risk/${riskId}`);
   };
 
   const handleEntitySelect = (entityId: string, selected: boolean) => {
@@ -401,27 +318,6 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
     }
   };
 
-  const handleBatchToggle = () => {
-    const selectedEntityIds = Array.from(selectedEntities);
-    if (selectedEntityIds.length === 0) return;
-
-    setRiskStatus(prev => {
-      const newStatus = { ...prev };
-      selectedEntityIds.forEach(entityId => {
-        risks.forEach(risk => {
-          if (hasRiskData(entityId, risk.id)) {
-            if (!newStatus[entityId]) newStatus[entityId] = {};
-            // Only turn on, never turn off
-            if (!newStatus[entityId][risk.id]) {
-              newStatus[entityId][risk.id] = true;
-            }
-          }
-        });
-      });
-      return newStatus;
-    });
-  };
-
   const goToPage = (page: number) => {
     setCurrentPage(Math.max(1, Math.min(page, totalPages)));
   };
@@ -435,7 +331,7 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
     <>
       <div style={containerStyle}>
         <div style={batchControlsStyle}>
-          <div style={batchControlsLeftStyle}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: '500' }}>
               <input
                 type="checkbox"
@@ -445,28 +341,10 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
               />
               Select All
             </label>
-            
-            <button
-              style={batchButtonStyle}
-              onClick={handleBatchToggle}
-              disabled={selectedEntities.size === 0}
-              onMouseEnter={(e) => {
-                if (selectedEntities.size > 0) {
-                  e.currentTarget.style.transform = 'translateY(-1px)';
-                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(99, 102, 241, 0.4)';
-                }
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 2px 8px rgba(99, 102, 241, 0.3)';
-              }}
-            >
-              🔄 Batch Toggle {selectedEntities.size > 0 && `(${selectedEntities.size} selected)`}
-            </button>
           </div>
 
           <div style={batchControlsRightStyle}>
-            <span style={pageInfoStyle}>
+            <span style={{ fontSize: '13px', color: theme === 'dark' ? '#94a3b8' : '#64748b' }}>
               Showing {startIndex + 1}-{Math.min(endIndex, entities.length)} of {entities.length}
             </span>
           </div>
@@ -546,51 +424,39 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
                   </td>
                   {risks.map((risk) => {
                     const hasData = hasRiskData(entity.id, risk.id);
+                    const status = getGovernanceStatus(entity.id, risk.id);
                     
                     if (!hasData) {
                       return (
                         <td key={risk.id} style={disabledCellStyle}>
-                          <div style={{ fontSize: '12px', fontStyle: 'italic' }}>
-                            No data
+                          <div style={riskCellContentStyle}>
+                            <div style={statusBadgeStyle('No Risk')}>No Risk</div>
+                            <button
+                              style={disabledButtonStyle}
+                              disabled={true}
+                              title="No risk data available"
+                            >
+                              Details
+                            </button>
                           </div>
                         </td>
                       );
                     }
-
-                    const isResolved = riskStatus[entity.id]?.[risk.id] || false;
-                    const hasAnyGovernance = hasAnyGovernanceData(entity.id, risk.id);
                     
                     return (
                       <td key={risk.id} style={{...cellStyle, ...riskCellStyle}}>
                         <div style={riskCellContentStyle}>
-                          <button
-                            style={toggleSwitchStyle(isResolved)}
-                            onClick={() => handleToggleRisk(entity.id, risk.id)}
-                            disabled={isResolved}
-                            title={isResolved ? 'Already resolved' : 'Mark as resolved'}
-                          >
-                            <div style={toggleKnobStyle(isResolved)} />
-                          </button>
-                          
-                          <div style={{ display: 'flex', gap: '3px', flexWrap: 'wrap', justifyContent: 'center' }}>
-                            <button
-                              style={hasAnyGovernance ? actionButtonStyle : disabledButtonStyle}
-                              onClick={() => hasAnyGovernance && handleGovernanceClick(entity.id, risk.id)}
-                              disabled={!hasAnyGovernance}
-                              title={hasAnyGovernance ? "View current governance" : "No governance data"}
-                            >
-                              Current Governance
-                            </button>
-                            
-                            <button
-                              style={hasAnyGovernance ? actionButtonStyle : disabledButtonStyle}
-                              onClick={() => hasAnyGovernance && onEntityRiskHistory(entity.id, risk.id)}
-                              disabled={!hasAnyGovernance}
-                              title={hasAnyGovernance ? "View governance history" : "No governance data"}
-                            >
-                              Governance History
-                            </button>
+                          <div style={statusBadgeStyle(status)}>
+                            {status}
                           </div>
+                          
+                          <button
+                            style={actionButtonStyle}
+                            onClick={() => handleDetailsClick(entity.id, risk.id)}
+                            title="View details"
+                          >
+                            Details
+                          </button>
                         </div>
                       </td>
                     );
@@ -661,8 +527,8 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={cancelToggle}>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmToggle}>Confirm</AlertDialogAction>
+            <AlertDialogCancel onClick={() => setConfirmationOpen(false)}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={() => setConfirmationOpen(false)}>Confirm</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
