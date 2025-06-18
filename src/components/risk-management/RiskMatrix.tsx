@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../ThemeProvider';
@@ -29,18 +30,6 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
   const [selectedEntities, setSelectedEntities] = useState<Set<string>>(new Set());
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
-  const [confirmationOpen, setConfirmationOpen] = useState(false);
-  const [pendingToggle, setPendingToggle] = useState<{entityId: string, riskId: string} | null>(null);
-  const [riskStatus, setRiskStatus] = useState<Record<string, Record<string, boolean>>>(() => {
-    const initial: Record<string, Record<string, boolean>> = {};
-    entities.forEach(entity => {
-      initial[entity.id] = {};
-      risks.forEach(risk => {
-        initial[entity.id][risk.id] = entity.riskStatus[risk.id]?.isResolved || false;
-      });
-    });
-    return initial;
-  });
 
   // Pagination calculations
   const totalPages = Math.ceil(entities.length / itemsPerPage);
@@ -86,19 +75,6 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
     display: 'flex',
     alignItems: 'center',
     gap: '12px'
-  };
-
-  const batchButtonStyle: React.CSSProperties = {
-    background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
-    color: 'white',
-    border: 'none',
-    borderRadius: '8px',
-    padding: '6px 12px',
-    fontSize: '12px',
-    fontWeight: '600',
-    cursor: 'pointer',
-    transition: 'all 0.3s ease',
-    boxShadow: '0 2px 8px rgba(99, 102, 241, 0.3)'
   };
 
   const tableContainerStyle: React.CSSProperties = {
@@ -211,32 +187,6 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
     gap: '6px'
   };
 
-  const toggleSwitchStyle = (isOn: boolean): React.CSSProperties => ({
-    position: 'relative',
-    display: 'inline-block',
-    width: '40px',
-    height: '20px',
-    background: isOn ? '#10b981' : (theme === 'dark' ? '#475569' : '#cbd5e1'),
-    borderRadius: '10px',
-    cursor: isOn ? 'not-allowed' : 'pointer',
-    transition: 'all 0.3s ease',
-    border: 'none',
-    outline: 'none',
-    opacity: isOn ? 0.7 : 1
-  });
-
-  const toggleKnobStyle = (isOn: boolean): React.CSSProperties => ({
-    position: 'absolute',
-    top: '2px',
-    left: isOn ? '22px' : '2px',
-    width: '16px',
-    height: '16px',
-    background: 'white',
-    borderRadius: '50%',
-    transition: 'all 0.3s ease',
-    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)'
-  });
-
   const actionButtonStyle: React.CSSProperties = {
     background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
     color: 'white',
@@ -257,6 +207,17 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
     cursor: 'not-allowed',
     opacity: 0.5
   };
+
+  const statusStyle = (status: string): React.CSSProperties => ({
+    fontSize: '11px',
+    fontWeight: '600',
+    padding: '2px 6px',
+    borderRadius: '4px',
+    marginBottom: '4px',
+    color: 'white',
+    background: status === 'Compliant' ? '#10b981' : 
+               status === 'Non-Compliant' ? '#ef4444' : '#6b7280'
+  });
 
   const paginationStyle: React.CSSProperties = {
     padding: '12px 20px',
@@ -322,64 +283,22 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
     return entity && entity.riskStatus[riskId] !== undefined;
   };
 
-  const hasAnyGovernanceData = (entityId: string, riskId: string) => {
+  const getGovernanceStatus = (entityId: string, riskId: string) => {
     const entity = entities.find(e => e.id === entityId);
-    const riskData = entity?.riskStatus[riskId];
-    if (!riskData) return false;
-    
-    // Check if there's a valid current governance ID
-    const hasCurrentGovernance = !!(riskData.latestGovernanceId && riskData.latestGovernanceId.trim() !== '');
-    
-    // Check if there's valid governance history
-    const hasGovernanceHistory = !!(riskData.governanceHistory && 
-                                   riskData.governanceHistory.length > 0 &&
-                                   riskData.governanceHistory.some(g => g.id && g.id.trim() !== ''));
-    
-    return hasCurrentGovernance || hasGovernanceHistory;
-  };
-
-  const hasHistoryData = (entityId: string, riskId: string) => {
-    const entity = entities.find(e => e.id === entityId);
-    return entity?.riskStatus[riskId]?.governanceHistory && 
-           entity.riskStatus[riskId].governanceHistory!.length > 0;
-  };
-
-  const handleToggleRisk = (entityId: string, riskId: string) => {
-    if (!hasRiskData(entityId, riskId)) return;
-    
-    const currentState = riskStatus[entityId]?.[riskId] || false;
-    // Only allow turning on if it's currently off
-    if (!currentState) {
-      setPendingToggle({ entityId, riskId });
-      setConfirmationOpen(true);
+    if (!entity || !entity.riskStatus[riskId]) {
+      return 'No Risk';
     }
-  };
-
-  const confirmToggle = () => {
-    if (pendingToggle) {
-      setRiskStatus(prev => ({
-        ...prev,
-        [pendingToggle.entityId]: {
-          ...prev[pendingToggle.entityId],
-          [pendingToggle.riskId]: true
-        }
-      }));
+    
+    const riskData = entity.riskStatus[riskId];
+    if (riskData.isResolved) {
+      return 'Compliant';
     }
-    setConfirmationOpen(false);
-    setPendingToggle(null);
+    
+    return 'Non-Compliant';
   };
 
-  const cancelToggle = () => {
-    setConfirmationOpen(false);
-    setPendingToggle(null);
-  };
-
-  const handleGovernanceClick = (entityId: string, riskId: string) => {
-    const entity = entities.find(e => e.id === entityId);
-    const governanceId = entity?.riskStatus[riskId]?.latestGovernanceId;
-    if (governanceId) {
-      navigate(`/governance/${governanceId}`);
-    }
+  const handleDetailsClick = (entityId: string, riskId: string) => {
+    navigate(`/entity/${entityId}/risk/${riskId}`);
   };
 
   const handleEntitySelect = (entityId: string, selected: boolean) => {
@@ -401,27 +320,6 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
     }
   };
 
-  const handleBatchToggle = () => {
-    const selectedEntityIds = Array.from(selectedEntities);
-    if (selectedEntityIds.length === 0) return;
-
-    setRiskStatus(prev => {
-      const newStatus = { ...prev };
-      selectedEntityIds.forEach(entityId => {
-        risks.forEach(risk => {
-          if (hasRiskData(entityId, risk.id)) {
-            if (!newStatus[entityId]) newStatus[entityId] = {};
-            // Only turn on, never turn off
-            if (!newStatus[entityId][risk.id]) {
-              newStatus[entityId][risk.id] = true;
-            }
-          }
-        });
-      });
-      return newStatus;
-    });
-  };
-
   const goToPage = (page: number) => {
     setCurrentPage(Math.max(1, Math.min(page, totalPages)));
   };
@@ -432,240 +330,190 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
   };
 
   return (
-    <>
-      <div style={containerStyle}>
-        <div style={batchControlsStyle}>
-          <div style={batchControlsLeftStyle}>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: '500' }}>
-              <input
-                type="checkbox"
-                checked={selectedEntities.size === paginatedEntities.length && paginatedEntities.length > 0}
-                onChange={handleSelectAll}
-                style={checkboxStyle}
-              />
-              Select All
-            </label>
-            
-            <button
-              style={batchButtonStyle}
-              onClick={handleBatchToggle}
-              disabled={selectedEntities.size === 0}
-              onMouseEnter={(e) => {
-                if (selectedEntities.size > 0) {
-                  e.currentTarget.style.transform = 'translateY(-1px)';
-                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(99, 102, 241, 0.4)';
-                }
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 2px 8px rgba(99, 102, 241, 0.3)';
-              }}
-            >
-              🔄 Batch Toggle {selectedEntities.size > 0 && `(${selectedEntities.size} selected)`}
-            </button>
-          </div>
-
-          <div style={batchControlsRightStyle}>
-            <span style={pageInfoStyle}>
-              Showing {startIndex + 1}-{Math.min(endIndex, entities.length)} of {entities.length}
-            </span>
-          </div>
+    <div style={containerStyle}>
+      <div style={batchControlsStyle}>
+        <div style={batchControlsLeftStyle}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: '500' }}>
+            <input
+              type="checkbox"
+              checked={selectedEntities.size === paginatedEntities.length && paginatedEntities.length > 0}
+              onChange={handleSelectAll}
+              style={checkboxStyle}
+            />
+            Select All
+          </label>
         </div>
 
-        <div style={tableContainerStyle}>
-          <table style={tableStyle}>
-            <thead style={headerStyle}>
-              <tr>
-                <th style={{...headerCellStyle, width: '40px'}}>
-                  <input 
-                    type="checkbox" 
-                    style={checkboxStyle}
-                    checked={selectedEntities.size === paginatedEntities.length && paginatedEntities.length > 0}
-                    onChange={handleSelectAll}
-                  />
-                </th>
-                <th style={{...headerCellStyle, width: '100px'}}>P.S.M</th>
-                <th style={{...headerCellStyle, width: '200px'}}>Entity</th>
-                {risks.map((risk) => (
-                  <th 
-                    key={risk.id} 
-                    style={{
-                      ...headerCellStyle, 
-                      ...riskCellStyle,
-                      borderBottom: `3px solid ${getSeverityColor(risk.severity)}`
-                    }}
-                  >
-                    <div style={{ textAlign: 'center' }}>
-                      <div>{risk.name}</div>
-                      <div style={{
-                        fontSize: '9px',
-                        color: getSeverityColor(risk.severity),
-                        fontWeight: '700',
-                        textTransform: 'uppercase',
-                        marginTop: '2px'
-                      }}>
-                        {risk.severity}
-                      </div>
-                    </div>
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {paginatedEntities.map((entity, index) => (
-                <tr 
-                  key={entity.id} 
-                  style={rowStyle(index)}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = theme === 'dark' ? 'rgba(55, 65, 81, 0.3)' : 'rgba(226, 232, 240, 0.3)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = index % 2 === 0 
-                      ? (theme === 'dark' ? 'rgba(30, 41, 59, 0.3)' : 'rgba(248, 250, 252, 0.8)')
-                      : 'transparent';
-                  }}
-                >
-                  <td style={cellStyle}>
-                    <input 
-                      type="checkbox" 
-                      style={checkboxStyle}
-                      checked={selectedEntities.has(entity.id)}
-                      onChange={(e) => handleEntitySelect(entity.id, e.target.checked)}
-                    />
-                  </td>
-                  <td style={cellStyle}>
-                    <div style={psmStyle}>{entity.psm}</div>
-                  </td>
-                  <td style={cellStyle}>
-                    <div style={entityStyle}>
-                      <span style={apiPathStyle}>{entity.apiPath}</span>
-                      <span style={methodBadgeStyle(entity.method)}>
-                        {entity.method}
-                      </span>
-                    </div>
-                  </td>
-                  {risks.map((risk) => {
-                    const hasData = hasRiskData(entity.id, risk.id);
-                    
-                    if (!hasData) {
-                      return (
-                        <td key={risk.id} style={disabledCellStyle}>
-                          <div style={{ fontSize: '12px', fontStyle: 'italic' }}>
-                            No data
-                          </div>
-                        </td>
-                      );
-                    }
-
-                    const isResolved = riskStatus[entity.id]?.[risk.id] || false;
-                    const hasAnyGovernance = hasAnyGovernanceData(entity.id, risk.id);
-                    
-                    return (
-                      <td key={risk.id} style={{...cellStyle, ...riskCellStyle}}>
-                        <div style={riskCellContentStyle}>
-                          <button
-                            style={toggleSwitchStyle(isResolved)}
-                            onClick={() => handleToggleRisk(entity.id, risk.id)}
-                            disabled={isResolved}
-                            title={isResolved ? 'Already resolved' : 'Mark as resolved'}
-                          >
-                            <div style={toggleKnobStyle(isResolved)} />
-                          </button>
-                          
-                          <div style={{ display: 'flex', gap: '3px', flexWrap: 'wrap', justifyContent: 'center' }}>
-                            <button
-                              style={hasAnyGovernance ? actionButtonStyle : disabledButtonStyle}
-                              onClick={() => hasAnyGovernance && handleGovernanceClick(entity.id, risk.id)}
-                              disabled={!hasAnyGovernance}
-                              title={hasAnyGovernance ? "View current governance" : "No governance data"}
-                            >
-                              Current Governance
-                            </button>
-                            
-                            <button
-                              style={hasAnyGovernance ? actionButtonStyle : disabledButtonStyle}
-                              onClick={() => hasAnyGovernance && onEntityRiskHistory(entity.id, risk.id)}
-                              disabled={!hasAnyGovernance}
-                              title={hasAnyGovernance ? "View governance history" : "No governance data"}
-                            >
-                              Governance History
-                            </button>
-                          </div>
-                        </div>
-                      </td>
-                    );
-                  })}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        <div style={paginationStyle}>
-          <div style={pageInfoStyle}>
-            Page {currentPage} of {totalPages}
-          </div>
-          
-          <div style={paginationControlsStyle}>
-            <button 
-              style={pageButtonStyle}
-              onClick={() => goToPage(currentPage - 1)}
-              disabled={currentPage === 1}
-            >
-              Previous
-            </button>
-            
-            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-              const pageNum = Math.max(1, currentPage - 2) + i;
-              if (pageNum > totalPages) return null;
-              
-              return (
-                <button
-                  key={pageNum}
-                  style={pageNum === currentPage ? currentPageButtonStyle : pageButtonStyle}
-                  onClick={() => goToPage(pageNum)}
-                >
-                  {pageNum}
-                </button>
-              );
-            })}
-            
-            <button 
-              style={pageButtonStyle}
-              onClick={() => goToPage(currentPage + 1)}
-              disabled={currentPage === totalPages}
-            >
-              Next
-            </button>
-            
-            <select
-              style={selectStyle}
-              value={itemsPerPage}
-              onChange={(e) => changeItemsPerPage(Number(e.target.value))}
-            >
-              <option value={5}>5 per page</option>
-              <option value={10}>10 per page</option>
-              <option value={20}>20 per page</option>
-              <option value={50}>50 per page</option>
-            </select>
-          </div>
+        <div style={batchControlsRightStyle}>
+          <span style={pageInfoStyle}>
+            Showing {startIndex + 1}-{Math.min(endIndex, entities.length)} of {entities.length}
+          </span>
         </div>
       </div>
 
-      <AlertDialog open={confirmationOpen} onOpenChange={setConfirmationOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Confirm Risk Resolution</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to mark this risk as resolved? This action will update the governance status and cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={cancelToggle}>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmToggle}>Confirm</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </>
+      <div style={tableContainerStyle}>
+        <table style={tableStyle}>
+          <thead style={headerStyle}>
+            <tr>
+              <th style={{...headerCellStyle, width: '40px'}}>
+                <input 
+                  type="checkbox" 
+                  style={checkboxStyle}
+                  checked={selectedEntities.size === paginatedEntities.length && paginatedEntities.length > 0}
+                  onChange={handleSelectAll}
+                />
+              </th>
+              <th style={{...headerCellStyle, width: '100px'}}>P.S.M</th>
+              <th style={{...headerCellStyle, width: '200px'}}>Entity</th>
+              {risks.map((risk) => (
+                <th 
+                  key={risk.id} 
+                  style={{
+                    ...headerCellStyle, 
+                    ...riskCellStyle,
+                    borderBottom: `3px solid ${getSeverityColor(risk.severity)}`
+                  }}
+                >
+                  <div style={{ textAlign: 'center' }}>
+                    <div>{risk.name}</div>
+                    <div style={{
+                      fontSize: '9px',
+                      color: getSeverityColor(risk.severity),
+                      fontWeight: '700',
+                      textTransform: 'uppercase',
+                      marginTop: '2px'
+                    }}>
+                      {risk.severity}
+                    </div>
+                  </div>
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {paginatedEntities.map((entity, index) => (
+              <tr 
+                key={entity.id} 
+                style={rowStyle(index)}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = theme === 'dark' ? 'rgba(55, 65, 81, 0.3)' : 'rgba(226, 232, 240, 0.3)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = index % 2 === 0 
+                    ? (theme === 'dark' ? 'rgba(30, 41, 59, 0.3)' : 'rgba(248, 250, 252, 0.8)')
+                    : 'transparent';
+                }}
+              >
+                <td style={cellStyle}>
+                  <input 
+                    type="checkbox" 
+                    style={checkboxStyle}
+                    checked={selectedEntities.has(entity.id)}
+                    onChange={(e) => handleEntitySelect(entity.id, e.target.checked)}
+                  />
+                </td>
+                <td style={cellStyle}>
+                  <div style={psmStyle}>{entity.psm}</div>
+                </td>
+                <td style={cellStyle}>
+                  <div style={entityStyle}>
+                    <span style={apiPathStyle}>{entity.apiPath}</span>
+                    <span style={methodBadgeStyle(entity.method)}>
+                      {entity.method}
+                    </span>
+                  </div>
+                </td>
+                {risks.map((risk) => {
+                  const hasData = hasRiskData(entity.id, risk.id);
+                  const status = getGovernanceStatus(entity.id, risk.id);
+                  
+                  if (!hasData) {
+                    return (
+                      <td key={risk.id} style={disabledCellStyle}>
+                        <div style={riskCellContentStyle}>
+                          <div style={statusStyle('No Risk')}>No Risk</div>
+                          <button
+                            style={disabledButtonStyle}
+                            disabled={true}
+                            title="No risk data available"
+                          >
+                            Details
+                          </button>
+                        </div>
+                      </td>
+                    );
+                  }
+                  
+                  return (
+                    <td key={risk.id} style={{...cellStyle, ...riskCellStyle}}>
+                      <div style={riskCellContentStyle}>
+                        <div style={statusStyle(status)}>{status}</div>
+                        <button
+                          style={actionButtonStyle}
+                          onClick={() => handleDetailsClick(entity.id, risk.id)}
+                          title="View details"
+                        >
+                          Details
+                        </button>
+                      </div>
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div style={paginationStyle}>
+        <div style={pageInfoStyle}>
+          Page {currentPage} of {totalPages}
+        </div>
+        
+        <div style={paginationControlsStyle}>
+          <button 
+            style={pageButtonStyle}
+            onClick={() => goToPage(currentPage - 1)}
+            disabled={currentPage === 1}
+          >
+            Previous
+          </button>
+          
+          {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+            const pageNum = Math.max(1, currentPage - 2) + i;
+            if (pageNum > totalPages) return null;
+            
+            return (
+              <button
+                key={pageNum}
+                style={pageNum === currentPage ? currentPageButtonStyle : pageButtonStyle}
+                onClick={() => goToPage(pageNum)}
+              >
+                {pageNum}
+              </button>
+            );
+          })}
+          
+          <button 
+            style={pageButtonStyle}
+            onClick={() => goToPage(currentPage + 1)}
+            disabled={currentPage === totalPages}
+          >
+            Next
+          </button>
+          
+          <select
+            style={selectStyle}
+            value={itemsPerPage}
+            onChange={(e) => changeItemsPerPage(Number(e.target.value))}
+          >
+            <option value={5}>5 per page</option>
+            <option value={10}>10 per page</option>
+            <option value={20}>20 per page</option>
+            <option value={50}>50 per page</option>
+          </select>
+        </div>
+      </div>
+    </div>
   );
 };
