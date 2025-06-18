@@ -18,8 +18,7 @@ export const GovernanceSidebar: React.FC<GovernanceSidebarProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
 
   const filteredGroups = governanceGroups.filter(group =>
-    group.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    group.description?.toLowerCase().includes(searchQuery.toLowerCase())
+    group.name?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const sidebarStyle: React.CSSProperties = {
@@ -214,7 +213,6 @@ export const GovernanceSidebar: React.FC<GovernanceSidebarProps> = ({
                 }}
               >
                 <div style={groupTitleStyle}>{group.name}</div>
-                <div style={groupDescriptionStyle}>{group.description}</div>
                 <div style={groupMetaStyle}>
                   <span>ID: {group.id}</span>
                   <div style={statusBadgeStyle(group.status)}>
