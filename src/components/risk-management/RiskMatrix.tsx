@@ -327,21 +327,28 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
     const riskData = entity?.riskStatus[riskId];
     if (!riskData) return false;
     
-    // Check if there's a valid current governance ID
-    const hasCurrentGovernance = !!(riskData.latestGovernanceId && riskData.latestGovernanceId.trim() !== '');
+    // Check if there's a valid current governance ID (not empty or just whitespace)
+    const hasCurrentGovernance = !!(riskData.latestGovernanceId && 
+                                   riskData.latestGovernanceId.trim() !== '' &&
+                                   riskData.latestGovernanceId !== 'N/A');
     
-    // Check if there's valid governance history
+    // Check if there's valid governance history with actual IDs
     const hasGovernanceHistory = !!(riskData.governanceHistory && 
                                    riskData.governanceHistory.length > 0 &&
-                                   riskData.governanceHistory.some(g => g.id && g.id.trim() !== ''));
+                                   riskData.governanceHistory.some(g => 
+                                     typeof g === 'object' && g.id && g.id.trim() !== '' && g.id !== 'N/A'
+                                   ));
     
     return hasCurrentGovernance || hasGovernanceHistory;
   };
 
-  const hasHistoryData = (entityId: string, riskId: string) => {
+  const getGovernanceStatus = (entityId: string, riskId: string) => {
     const entity = entities.find(e => e.id === entityId);
-    return entity?.riskStatus[riskId]?.governanceHistory && 
-           entity.riskStatus[riskId].governanceHistory!.length > 0;
+    const riskData = entity?.riskStatus[riskId];
+    
+    if (!riskData) return 'No Risk';
+    if (riskData.isResolved) return 'Compliant';
+    return 'Non-Compliant';
   };
 
   const handleToggleRisk = (entityId: string, riskId: string) => {
@@ -546,51 +553,54 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
                   </td>
                   {risks.map((risk) => {
                     const hasData = hasRiskData(entity.id, risk.id);
+                    const status = getGovernanceStatus(entity.id, risk.id);
                     
                     if (!hasData) {
                       return (
                         <td key={risk.id} style={disabledCellStyle}>
-                          <div style={{ fontSize: '12px', fontStyle: 'italic' }}>
-                            No data
+                          <div style={riskCellContentStyle}>
+                            <div style={{ 
+                              fontSize: '12px', 
+                              fontWeight: '500',
+                              marginBottom: '6px',
+                              color: theme === 'dark' ? '#94a3b8' : '#64748b'
+                            }}>
+                              No Risk
+                            </div>
+                            <button
+                              style={disabledButtonStyle}
+                              disabled={true}
+                              title="No risk data available"
+                            >
+                              Details
+                            </button>
                           </div>
                         </td>
                       );
                     }
 
-                    const isResolved = riskStatus[entity.id]?.[risk.id] || false;
-                    const hasAnyGovernance = hasAnyGovernanceData(entity.id, risk.id);
+                    const statusColor = status === 'Compliant' ? '#10b981' : 
+                                      status === 'Non-Compliant' ? '#ef4444' : '#6b7280';
                     
                     return (
                       <td key={risk.id} style={{...cellStyle, ...riskCellStyle}}>
                         <div style={riskCellContentStyle}>
-                          <button
-                            style={toggleSwitchStyle(isResolved)}
-                            onClick={() => handleToggleRisk(entity.id, risk.id)}
-                            disabled={isResolved}
-                            title={isResolved ? 'Already resolved' : 'Mark as resolved'}
-                          >
-                            <div style={toggleKnobStyle(isResolved)} />
-                          </button>
-                          
-                          <div style={{ display: 'flex', gap: '3px', flexWrap: 'wrap', justifyContent: 'center' }}>
-                            <button
-                              style={hasAnyGovernance ? actionButtonStyle : disabledButtonStyle}
-                              onClick={() => hasAnyGovernance && handleGovernanceClick(entity.id, risk.id)}
-                              disabled={!hasAnyGovernance}
-                              title={hasAnyGovernance ? "View current governance" : "No governance data"}
-                            >
-                              Current Governance
-                            </button>
-                            
-                            <button
-                              style={hasAnyGovernance ? actionButtonStyle : disabledButtonStyle}
-                              onClick={() => hasAnyGovernance && onEntityRiskHistory(entity.id, risk.id)}
-                              disabled={!hasAnyGovernance}
-                              title={hasAnyGovernance ? "View governance history" : "No governance data"}
-                            >
-                              Governance History
-                            </button>
+                          <div style={{ 
+                            fontSize: '12px', 
+                            fontWeight: '500',
+                            marginBottom: '6px',
+                            color: statusColor
+                          }}>
+                            {status}
                           </div>
+                          
+                          <button
+                            style={actionButtonStyle}
+                            onClick={() => navigate(`/entity/${entity.id}/risk/${risk.id}`)}
+                            title="View API-Risk details"
+                          >
+                            Details
+                          </button>
                         </div>
                       </td>
                     );
