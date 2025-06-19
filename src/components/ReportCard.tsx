@@ -15,7 +15,7 @@ export const ReportCard: React.FC<ReportCardProps> = ({ report, viewMode, onSubs
   const { theme } = useTheme();
   const [isHovered, setIsHovered] = useState(false);
   const [timeRange, setTimeRange] = useState<{ start: Date; end: Date } | null>(null);
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>();
+  const [selectedDateRange, setSelectedDateRange] = useState<{ start: Date; end: Date } | undefined>();
 
   const getStatusConfig = (status: string) => {
     switch (status) {
@@ -275,9 +275,9 @@ export const ReportCard: React.FC<ReportCardProps> = ({ report, viewMode, onSubs
     console.log('Time range selected:', range);
   };
 
-  const handleDateChange = (date: Date | undefined) => {
-    setSelectedDate(date);
-    console.log('Date selected:', date);
+  const handleDateRangeChange = (dateRange: { start: Date; end: Date } | undefined) => {
+    setSelectedDateRange(dateRange);
+    console.log('Date range selected:', dateRange);
   };
 
   const formatTimeAgo = (date: Date) => {
@@ -311,7 +311,7 @@ export const ReportCard: React.FC<ReportCardProps> = ({ report, viewMode, onSubs
         <p style={descriptionStyle}>{report.description}</p>
         
         <TimeRangeSelector onTimeRangeChange={handleTimeRangeChange} />
-        <DateSelector onDateChange={handleDateChange} />
+        <DateSelector onDateChange={handleDateRangeChange} />
         
         <div style={metaRowStyle}>
           <div style={contactStyle}>
