@@ -6,12 +6,12 @@ import { useTheme } from './ThemeProvider';
 import dayjs, { Dayjs } from 'dayjs';
 
 interface DateSelectorProps {
-  onDateChange: (date: Date | undefined) => void;
+  onDateChange: (dateRange: { start: Date; end: Date } | undefined) => void;
 }
 
 export const DateSelector: React.FC<DateSelectorProps> = ({ onDateChange }) => {
   const { theme } = useTheme();
-  const [selectedDate, setSelectedDate] = useState<Dayjs | undefined>();
+  const [selectedDateRange, setSelectedDateRange] = useState<[Dayjs, Dayjs] | undefined>();
 
   const containerStyle: React.CSSProperties = {
     position: 'relative',
@@ -19,23 +19,30 @@ export const DateSelector: React.FC<DateSelectorProps> = ({ onDateChange }) => {
   };
 
   const datePickerStyle: React.CSSProperties = {
-    width: '200px'
+    width: '300px'
   };
 
-  const handleDateChange = (dateString: string, date: Dayjs) => {
-    const newDate = date || undefined;
-    setSelectedDate(newDate);
-    // Convert Dayjs to Date for the parent component
-    onDateChange(newDate ? newDate.toDate() : undefined);
+  const handleDateRangeChange = (dateStrings: string[], dates: [Dayjs, Dayjs]) => {
+    const newDateRange = dates || undefined;
+    setSelectedDateRange(newDateRange);
+    // Convert Dayjs array to Date range for the parent component
+    if (newDateRange && newDateRange[0] && newDateRange[1]) {
+      onDateChange({
+        start: newDateRange[0].toDate(),
+        end: newDateRange[1].toDate()
+      });
+    } else {
+      onDateChange(undefined);
+    }
   };
 
   return (
     <div style={containerStyle}>
-      <DatePicker
+      <DatePicker.RangePicker
         style={datePickerStyle}
-        placeholder="Select date"
-        value={selectedDate}
-        onChange={handleDateChange}
+        placeholder={['Start date', 'End date']}
+        value={selectedDateRange}
+        onChange={handleDateRangeChange}
         allowClear
         prefix={<CalendarIcon size={16} />}
       />
