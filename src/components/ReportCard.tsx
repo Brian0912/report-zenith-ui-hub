@@ -1,5 +1,6 @@
-
 import React, { useState } from 'react';
+import { Button } from '@arco-design/web-react';
+import { IconDownload } from '@arco-design/web-react/icon';
 import { useTheme } from './ThemeProvider';
 import { Report } from './mockData';
 import { TimeRangeSelector } from './TimeRangeSelector';
@@ -8,6 +9,8 @@ import { ReportHeader } from './ReportHeader';
 import { ReportMetadata } from './ReportMetadata';
 import { ReportProgress } from './ReportProgress';
 import { ReportFooter } from './ReportFooter';
+import { DownloadProgressModal } from './DownloadProgressModal';
+import { useDownload } from '../hooks/useDownload';
 
 interface ReportCardProps {
   report: Report;
@@ -21,6 +24,7 @@ export const ReportCard: React.FC<ReportCardProps> = ({ report, viewMode, onSubs
   const [isHovered, setIsHovered] = useState(false);
   const [timeRange, setTimeRange] = useState<{ start: Date; end: Date } | null>(null);
   const [selectedDateRange, setSelectedDateRange] = useState<{ start: Date; end: Date } | undefined>();
+  const { downloadProgress, startDownload, cancelDownload } = useDownload();
 
   const getStatusGradient = (status: string) => {
     switch (status) {
@@ -84,6 +88,26 @@ export const ReportCard: React.FC<ReportCardProps> = ({ report, viewMode, onSubs
     marginBottom: '1rem'
   };
 
+  const downloadButtonStyle: React.CSSProperties = {
+    background: theme === 'dark'
+      ? 'linear-gradient(135deg, #10B981 0%, #14B8A6 100%)'
+      : 'linear-gradient(135deg, #059669 0%, #0D9488 100%)',
+    border: 'none',
+    borderRadius: '8px',
+    color: 'white',
+    fontSize: '0.875rem',
+    fontWeight: '500',
+    padding: '0.5rem 1rem',
+    marginBottom: '1rem',
+    width: '100%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '0.5rem',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease'
+  };
+
   const handleTimeRangeChange = (range: { start: Date; end: Date }) => {
     setTimeRange(range);
     console.log('Time range selected:', range);
@@ -98,37 +122,58 @@ export const ReportCard: React.FC<ReportCardProps> = ({ report, viewMode, onSubs
     onSubscribe(report.id);
   };
 
+  const handleDownload = () => {
+    startDownload(report.title, report.id);
+  };
+
   return (
-    <div
-      style={cardStyle}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      <div style={statusHeaderStyle} />
-      <div style={contentStyle}>
-        <ReportHeader title={report.title} status={report.status} />
-        
-        <p style={descriptionStyle}>{report.description}</p>
-        
-        <TimeRangeSelector onTimeRangeChange={handleTimeRangeChange} />
-        <DateSelector onDateChange={handleDateRangeChange} />
-        
-        <ReportMetadata 
-          pointOfContact={report.pointOfContact}
-          version={report.version}
-          status={report.status}
-        />
+    <>
+      <div
+        style={cardStyle}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
+        <div style={statusHeaderStyle} />
+        <div style={contentStyle}>
+          <ReportHeader title={report.title} status={report.status} />
+          
+          <p style={descriptionStyle}>{report.description}</p>
+          
+          <Button
+            style={downloadButtonStyle}
+            onClick={handleDownload}
+            disabled={downloadProgress.isDownloading}
+          >
+            <IconDownload />
+            {downloadProgress.isDownloading ? 'Downloading...' : 'Download Report'}
+          </Button>
+          
+          <TimeRangeSelector onTimeRangeChange={handleTimeRangeChange} />
+          <DateSelector onDateChange={handleDateRangeChange} />
+          
+          <ReportMetadata 
+            pointOfContact={report.pointOfContact}
+            version={report.version}
+            status={report.status}
+          />
 
-        <ReportProgress progress={report.progress} status={report.status} />
+          <ReportProgress progress={report.progress} status={report.status} />
 
-        <ReportFooter 
-          tags={report.tags}
-          isSubscribed={report.isSubscribed}
-          subscriberCount={report.subscriberCount}
-          onSubscribe={handleSubscribe}
-          status={report.status}
-        />
+          <ReportFooter 
+            tags={report.tags}
+            isSubscribed={report.isSubscribed}
+            subscriberCount={report.subscriberCount}
+            onSubscribe={handleSubscribe}
+            status={report.status}
+          />
+        </div>
       </div>
-    </div>
+
+      <DownloadProgressModal
+        visible={downloadProgress.isDownloading || downloadProgress.progress === 100}
+        progress={downloadProgress}
+        onCancel={cancelDownload}
+      />
+    </>
   );
 };
