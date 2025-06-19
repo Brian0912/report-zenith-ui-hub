@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { DatePicker } from '@arco-design/web-react';
 import { Calendar as CalendarIcon } from 'lucide-react';
 import { useTheme } from './ThemeProvider';
+import dayjs, { Dayjs } from 'dayjs';
 
 interface DateSelectorProps {
   onDateChange: (date: Date | undefined) => void;
@@ -10,7 +11,7 @@ interface DateSelectorProps {
 
 export const DateSelector: React.FC<DateSelectorProps> = ({ onDateChange }) => {
   const { theme } = useTheme();
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>();
+  const [selectedDate, setSelectedDate] = useState<Dayjs | undefined>();
 
   const containerStyle: React.CSSProperties = {
     position: 'relative',
@@ -21,10 +22,11 @@ export const DateSelector: React.FC<DateSelectorProps> = ({ onDateChange }) => {
     width: '200px'
   };
 
-  const handleDateChange = (dateString: string, date: Date) => {
+  const handleDateChange = (dateString: string, date: Dayjs) => {
     const newDate = date || undefined;
     setSelectedDate(newDate);
-    onDateChange(newDate);
+    // Convert Dayjs to Date for the parent component
+    onDateChange(newDate ? newDate.toDate() : undefined);
   };
 
   return (
