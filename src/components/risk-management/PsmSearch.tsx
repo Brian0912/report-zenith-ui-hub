@@ -18,7 +18,7 @@ export const PsmSearch: React.FC<PsmSearchProps> = ({
   const [psmQuery, setPsmQuery] = useState('');
   const [psmResults, setPsmResults] = useState<string[]>([]);
   const [showPsmResults, setShowPsmResults] = useState(false);
-  const psmTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const psmTimeoutRef = useRef<number | null>(null);
 
   // Get unique PSMs from entities
   const uniquePsms = Array.from(new Set(entities.map(e => e.psm)));
@@ -29,7 +29,7 @@ export const PsmSearch: React.FC<PsmSearchProps> = ({
       clearTimeout(psmTimeoutRef.current);
     }
 
-    psmTimeoutRef.current = setTimeout(() => {
+    psmTimeoutRef.current = window.setTimeout(() => {
       if (psmQuery.trim()) {
         const filtered = uniquePsms.filter(psm => 
           psm.toLowerCase().includes(psmQuery.toLowerCase())

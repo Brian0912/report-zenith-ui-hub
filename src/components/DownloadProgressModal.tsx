@@ -26,7 +26,8 @@ export const DownloadProgressModal: React.FC<DownloadProgressModalProps> = ({
     border: theme === 'dark'
       ? '1px solid rgba(255, 255, 255, 0.1)'
       : '1px solid rgba(0, 0, 0, 0.1)',
-    borderRadius: '12px'
+    borderRadius: '12px',
+    width: '400px'
   };
 
   const headerStyle: React.CSSProperties = {
@@ -55,7 +56,6 @@ export const DownloadProgressModal: React.FC<DownloadProgressModalProps> = ({
       visible={visible}
       onCancel={onCancel}
       footer={null}
-      width={400}
       style={modalStyle}
       maskStyle={{ backdropFilter: 'blur(4px)' }}
     >
@@ -73,10 +73,8 @@ export const DownloadProgressModal: React.FC<DownloadProgressModalProps> = ({
         
         <Progress
           percent={progress.progress}
-          status={progress.isDownloading ? 'active' : 'success'}
+          status={progress.isDownloading ? 'normal' : 'success'}
           style={{ marginBottom: '1.5rem' }}
-          strokeColor={theme === 'dark' ? '#3B82F6' : '#2563EB'}
-          trailColor={theme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'}
         />
         
         <div style={{ textAlign: 'right' }}>

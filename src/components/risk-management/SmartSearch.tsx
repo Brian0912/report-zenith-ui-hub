@@ -20,7 +20,7 @@ export const SmartSearch: React.FC<SmartSearchProps> = ({
   const [psmResults, setPsmResults] = useState<string[]>([]);
   const [showPsmResults, setShowPsmResults] = useState(false);
   const [fuzzySearchEnabled, setFuzzySearchEnabled] = useState(false);
-  const psmTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const psmTimeoutRef = useRef<number | null>(null);
   const psmInputRef = useRef<HTMLInputElement>(null);
   const apiInputRef = useRef<HTMLInputElement>(null);
 
@@ -33,7 +33,7 @@ export const SmartSearch: React.FC<SmartSearchProps> = ({
       clearTimeout(psmTimeoutRef.current);
     }
 
-    psmTimeoutRef.current = setTimeout(() => {
+    psmTimeoutRef.current = window.setTimeout(() => {
       if (psmQuery.trim()) {
         const filtered = uniquePsms.filter(psm => 
           psm.toLowerCase().includes(psmQuery.toLowerCase())
