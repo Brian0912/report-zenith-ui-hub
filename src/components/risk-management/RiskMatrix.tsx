@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../ThemeProvider';
@@ -152,17 +151,18 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
     color: theme === 'dark' ? '#f1f5f9' : '#1e293b'
   };
 
+  // Muted method badge colors
   const methodBadgeStyle = (method: string): React.CSSProperties => {
     const colorMap: Record<string, string> = {
-      'GET': '#3b82f6',
-      'POST': '#10b981',
-      'PUT': '#f59e0b',
-      'DELETE': '#ef4444',
-      'PATCH': '#8b5cf6'
+      'GET': '#1e40af',      // Muted blue
+      'POST': '#047857',     // Muted green  
+      'PUT': '#b45309',      // Muted amber
+      'DELETE': '#b91c1c',   // Muted red
+      'PATCH': '#7c2d12'     // Muted purple
     };
 
     return {
-      background: colorMap[method] || '#6b7280',
+      background: colorMap[method] || '#4b5563',
       color: 'white',
       padding: '2px 6px',
       borderRadius: '4px',
@@ -183,15 +183,16 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
     gap: '6px'
   };
 
+  // Muted status badge colors
   const statusBadgeStyle = (status: string): React.CSSProperties => {
     const colorMap: Record<string, string> = {
-      'Compliant': '#10b981',
-      'Non-Compliant': '#ef4444',
-      'No Risk': '#6b7280'
+      'Compliant': '#047857',      // Muted green
+      'Non-Compliant': '#b91c1c',  // Muted red
+      'No Risk': '#4b5563'         // Muted gray
     };
 
     return {
-      background: colorMap[status] || '#6b7280',
+      background: colorMap[status] || '#4b5563',
       color: 'white',
       padding: '4px 8px',
       borderRadius: '12px',
@@ -270,14 +271,15 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
     color: theme === 'dark' ? '#f1f5f9' : '#334155'
   };
 
+  // Muted severity colors for risk headers
   const getSeverityColor = (severity: string) => {
     const colorMap: Record<string, string> = {
-      low: '#10b981',
-      medium: '#f59e0b',
-      high: '#ef4444',
-      critical: '#dc2626'
+      low: '#047857',      // Muted green
+      medium: '#b45309',   // Muted amber
+      high: '#b91c1c',     // Muted red
+      critical: '#991b1b'  // Muted dark red
     };
-    return colorMap[severity] || '#6b7280';
+    return colorMap[severity] || '#4b5563';
   };
 
   const hasRiskData = (entityId: string, riskId: string) => {

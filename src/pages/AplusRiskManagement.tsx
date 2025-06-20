@@ -1,5 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useTheme } from '../components/ThemeProvider';
 import { PsmSearch } from '../components/risk-management/PsmSearch';
 import { ApiSearch } from '../components/risk-management/ApiSearch';
@@ -14,6 +14,7 @@ import { Entity, Risk, GovernanceGroup } from '../components/risk-management/moc
 
 export const AplusRiskManagement: React.FC = () => {
   const { theme } = useTheme();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [entities, setEntities] = useState<Entity[]>([]);
   const [risks, setRisks] = useState<Risk[]>([]);
   const [governanceGroups, setGovernanceGroups] = useState<GovernanceGroup[]>([]);
@@ -24,7 +25,40 @@ export const AplusRiskManagement: React.FC = () => {
   const [showGovernanceList, setShowGovernanceList] = useState(false);
   const [selectedPsms, setSelectedPsms] = useState<string[]>([]);
   const [selectedApis, setSelectedApis] = useState<string[]>([]);
+  const [selectedServiceTrees, setSelectedServiceTrees] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Initialize filters from URL on load
+  useEffect(() => {
+    const psmParams = searchParams.get('psms');
+    const serviceTreeParams = searchParams.get('serviceTrees');
+    
+    if (psmParams) {
+      setSelectedPsms(psmParams.split(',').filter(Boolean));
+    }
+    if (serviceTreeParams) {
+      setSelectedServiceTrees(serviceTreeParams.split(',').filter(Boolean));
+    }
+  }, [searchParams]);
+
+  // Update URL when filters change
+  useEffect(() => {
+    const newParams = new URLSearchParams(searchParams);
+    
+    if (selectedPsms.length > 0) {
+      newParams.set('psms', selectedPsms.join(','));
+    } else {
+      newParams.delete('psms');
+    }
+    
+    if (selectedServiceTrees.length > 0) {
+      newParams.set('serviceTrees', selectedServiceTrees.join(','));
+    } else {
+      newParams.delete('serviceTrees');
+    }
+    
+    setSearchParams(newParams, { replace: true });
+  }, [selectedPsms, selectedServiceTrees, setSearchParams]);
 
   // Load data from services
   useEffect(() => {
@@ -50,6 +84,33 @@ export const AplusRiskManagement: React.FC = () => {
 
     loadData();
   }, []);
+
+  // Apply all filters when any filter changes
+  useEffect(() => {
+    let filtered = entities;
+
+    // Apply PSM filter
+    if (selectedPsms.length > 0) {
+      filtered = filtered.filter(entity => selectedPsms.includes(entity.psm));
+    }
+
+    // Apply API filter
+    if (selectedApis.length > 0) {
+      filtered = filtered.filter(entity => selectedApis.includes(entity.apiPath));
+    }
+
+    // Apply Service Tree filter
+    if (selectedServiceTrees.length > 0) {
+      filtered = filtered.filter(entity => {
+        const entityString = `${entity.apiPath} ${entity.method}`;
+        return selectedServiceTrees.some(st => 
+          entity.psm.includes(st) || entityString.includes(st)
+        );
+      });
+    }
+
+    setFilteredEntities(filtered);
+  }, [entities, selectedPsms, selectedApis, selectedServiceTrees]);
 
   const containerStyle: React.CSSProperties = {
     minHeight: '100vh',
@@ -144,21 +205,8 @@ export const AplusRiskManagement: React.FC = () => {
     setShowGovernanceHistory(true);
   };
 
-  const handleSmartSearchFilterChange = (filtered: Entity[]) => {
-    // Apply smart search filter first, then apply other filters
-    const finalFiltered = filtered.filter(entity => {
-      // Apply PSM filter
-      const psmMatch = selectedPsms.length === 0 || selectedPsms.includes(entity.psm);
-      // Apply API filter
-      const apiMatch = selectedApis.length === 0 || selectedApis.includes(entity.apiPath);
-      
-      return psmMatch && apiMatch;
-    });
-    setFilteredEntities(finalFiltered);
-  };
-
   const handleOtherFiltersChange = (filtered: Entity[]) => {
-    // This handles the Service Tree and Risk Categories filters
+    // This handles the Risk Categories filters
     setFilteredEntities(filtered);
   };
 
@@ -215,6 +263,8 @@ export const AplusRiskManagement: React.FC = () => {
             <RiskFilters
               entities={entities}
               risks={risks}
+              selectedServiceTrees={selectedServiceTrees}
+              onServiceTreeChange={setSelectedServiceTrees}
               onFilterChange={handleOtherFiltersChange}
               onRiskVisibilityChange={setVisibleRisks}
             />
