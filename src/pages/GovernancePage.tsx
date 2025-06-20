@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useTheme } from '../components/ThemeProvider';
 import { mockGovernanceGroups, mockEntities, mockRisks } from '../components/risk-management/mockRiskData';
 import { PsmSearch } from '../components/risk-management/PsmSearch';
@@ -20,6 +20,7 @@ export const GovernancePage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { theme } = useTheme();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [selectedEntities, setSelectedEntities] = useState<Set<string>>(new Set());
   const [filteredEntities, setFilteredEntities] = useState(mockEntities);
   const [entityStates, setEntityStates] = useState<Record<string, boolean>>({});
@@ -29,12 +30,36 @@ export const GovernancePage: React.FC = () => {
   const [pendingToggle, setPendingToggle] = useState<{entityId: string} | null>(null);
   const [selectedPsms, setSelectedPsms] = useState<string[]>([]);
   const [selectedApis, setSelectedApis] = useState<string[]>([]);
+  const [selectedServiceTrees, setSelectedServiceTrees] = useState<string[]>([]);
   const [visibleRisks, setVisibleRisks] = useState<string[]>([]);
 
   const governance = mockGovernanceGroups.find(g => g.id === id);
   const governanceEntities = governance 
     ? mockEntities.filter(entity => governance.entityIds.includes(entity.id))
     : [];
+
+  // Initialize filters from URL parameters
+  useEffect(() => {
+    const psmParams = searchParams.getAll('psm');
+    const serviceTreeParams = searchParams.getAll('serviceTree');
+    
+    if (psmParams.length > 0) {
+      setSelectedPsms(psmParams);
+    }
+    if (serviceTreeParams.length > 0) {
+      setSelectedServiceTrees(serviceTreeParams);
+    }
+  }, [searchParams]);
+
+  // Update URL when filters change
+  useEffect(() => {
+    const newParams = new URLSearchParams();
+    
+    selectedPsms.forEach(psm => newParams.append('psm', psm));
+    selectedServiceTrees.forEach(serviceTree => newParams.append('serviceTree', serviceTree));
+    
+    setSearchParams(newParams, { replace: true });
+  }, [selectedPsms, selectedServiceTrees, setSearchParams]);
 
   useEffect(() => {
     let filtered = [...governanceEntities];
@@ -48,6 +73,15 @@ export const GovernancePage: React.FC = () => {
     if (selectedApis.length > 0) {
       filtered = filtered.filter(entity => selectedApis.includes(entity.apiPath));
     }
+
+    // Apply Service Tree filter
+    if (selectedServiceTrees.length > 0) {
+      filtered = filtered.filter(entity => 
+        selectedServiceTrees.some(serviceTree => 
+          entity.serviceTree && entity.serviceTree.toLowerCase().includes(serviceTree.toLowerCase())
+        )
+      );
+    }
     
     setFilteredEntities(filtered);
     
@@ -58,7 +92,7 @@ export const GovernancePage: React.FC = () => {
       initialStates[entity.id] = riskStatus?.isResolved || false;
     });
     setEntityStates(initialStates);
-  }, [governance, selectedPsms, selectedApis]);
+  }, [governance, selectedPsms, selectedApis, selectedServiceTrees]);
 
   // Pagination calculations
   const totalPages = Math.ceil(filteredEntities.length / itemsPerPage);
@@ -357,6 +391,8 @@ export const GovernancePage: React.FC = () => {
           <RiskFilters
             entities={governanceEntities}
             risks={risk ? [risk] : []}
+            selectedServiceTrees={selectedServiceTrees}
+            onServiceTreeChange={setSelectedServiceTrees}
             onFilterChange={handleOtherFiltersChange}
             onRiskVisibilityChange={setVisibleRisks}
           />
