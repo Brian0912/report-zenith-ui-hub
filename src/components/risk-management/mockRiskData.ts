@@ -4,6 +4,7 @@ export interface Entity {
   psm: string;
   apiPath: string;
   method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
+  serviceTree?: string;
   riskStatus: Record<string, {
     isResolved: boolean;
     latestGovernanceId?: string;
@@ -86,6 +87,7 @@ export const mockEntities: Entity[] = [
     psm: 'UserService',
     apiPath: '/api/users',
     method: 'GET',
+    serviceTree: 'User Management Service',
     riskStatus: {
       risk1: { isResolved: true, latestGovernanceId: 'gov1', governanceHistory: ['gov1', 'gov50', 'gov49'] },
       risk2: { isResolved: false, latestGovernanceId: 'gov2', governanceHistory: ['gov2'] },
@@ -102,6 +104,7 @@ export const mockEntities: Entity[] = [
     psm: 'UserService',
     apiPath: '/api/users',
     method: 'POST',
+    serviceTree: 'User Management Service',
     riskStatus: {
       risk1: { isResolved: false, latestGovernanceId: 'gov6', governanceHistory: ['gov6', 'gov34'] },
       risk2: { isResolved: true, latestGovernanceId: 'gov1', governanceHistory: ['gov1', 'gov17', 'gov35'] },
@@ -118,6 +121,7 @@ export const mockEntities: Entity[] = [
     psm: 'UserService',
     apiPath: '/api/users/profile',
     method: 'GET',
+    serviceTree: 'User Profile Service',
     riskStatus: {
       risk1: { isResolved: true, governanceHistory: ['gov44', 'gov16', 'gov59'] },
       risk2: { isResolved: false, latestGovernanceId: 'gov9', governanceHistory: ['gov9', 'gov51'] },
@@ -134,6 +138,7 @@ export const mockEntities: Entity[] = [
     psm: 'UserService',
     apiPath: '/api/users/preferences',
     method: 'PUT',
+    serviceTree: 'User Preferences Service',
     riskStatus: {
       risk1: { isResolved: false, governanceHistory: ['gov55'] },
       risk2: { isResolved: true, governanceHistory: ['gov63'] },
@@ -151,6 +156,7 @@ export const mockEntities: Entity[] = [
     psm: 'PaymentService',
     apiPath: '/api/payments',
     method: 'POST',
+    serviceTree: 'Payment Processing Service',
     riskStatus: {
       risk1: { isResolved: true, latestGovernanceId: 'gov16', governanceHistory: ['gov16', 'gov26', 'gov67'] },
       risk2: { isResolved: true, latestGovernanceId: 'gov17', governanceHistory: ['gov17', 'gov30'] },
@@ -167,6 +173,7 @@ export const mockEntities: Entity[] = [
     psm: 'PaymentService',
     apiPath: '/api/payments',
     method: 'GET',
+    serviceTree: 'Payment Retrieval Service',
     riskStatus: {
       risk1: { isResolved: false, latestGovernanceId: 'gov21', governanceHistory: ['gov21', 'gov48'] },
       risk2: { isResolved: false, governanceHistory: ['gov40'] },
@@ -183,6 +190,7 @@ export const mockEntities: Entity[] = [
     psm: 'PaymentService',
     apiPath: '/api/payments/refund',
     method: 'POST',
+    serviceTree: 'Payment Refund Service',
     riskStatus: {
       risk1: { isResolved: true, latestGovernanceId: 'gov26', governanceHistory: ['gov26', 'gov44', 'gov59'] },
       risk2: { isResolved: false, governanceHistory: ['gov51'] },
@@ -199,6 +207,7 @@ export const mockEntities: Entity[] = [
     psm: 'PaymentService',
     apiPath: '/api/payments/history',
     method: 'GET',
+    serviceTree: 'Payment History Service',
     riskStatus: {
       risk1: { isResolved: false, governanceHistory: ['gov55'] },
       risk2: { isResolved: true, latestGovernanceId: 'gov30', governanceHistory: ['gov30', 'gov63'] },
@@ -216,6 +225,7 @@ export const mockEntities: Entity[] = [
     psm: 'AuthService',
     apiPath: '/api/auth/login',
     method: 'POST',
+    serviceTree: 'Authentication Service',
     riskStatus: {
       risk1: { isResolved: true, latestGovernanceId: 'gov34', governanceHistory: ['gov34', 'gov1', 'gov6'] },
       risk2: { isResolved: true, latestGovernanceId: 'gov35', governanceHistory: ['gov35', 'gov2', 'gov9'] },
@@ -232,6 +242,7 @@ export const mockEntities: Entity[] = [
     psm: 'AuthService',
     apiPath: '/api/auth/logout',
     method: 'POST',
+    serviceTree: 'Authentication Service',
     riskStatus: {
       risk1: { isResolved: false, governanceHistory: ['gov16'] },
       risk2: { isResolved: true, latestGovernanceId: 'gov40', governanceHistory: ['gov40', 'gov17'] },
@@ -248,6 +259,7 @@ export const mockEntities: Entity[] = [
     psm: 'AuthService',
     apiPath: '/api/auth/refresh',
     method: 'POST',
+    serviceTree: 'Token Management Service',
     riskStatus: {
       risk1: { isResolved: true, latestGovernanceId: 'gov44', governanceHistory: ['gov44', 'gov24'] },
       risk2: { isResolved: false, governanceHistory: ['gov25'] },
@@ -264,6 +276,7 @@ export const mockEntities: Entity[] = [
     psm: 'AuthService',
     apiPath: '/api/auth/verify',
     method: 'GET',
+    serviceTree: 'Token Verification Service',
     riskStatus: {
       risk1: { isResolved: false, latestGovernanceId: 'gov48', governanceHistory: ['gov48', 'gov32'] },
       risk2: { isResolved: true, governanceHistory: ['gov33'] },
@@ -281,6 +294,7 @@ export const mockEntities: Entity[] = [
     psm: 'NotificationService',
     apiPath: '/api/notifications',
     method: 'GET',
+    serviceTree: 'Notification Service',
     riskStatus: {
       risk1: { isResolved: true, governanceHistory: ['gov40'] },
       risk2: { isResolved: false, latestGovernanceId: 'gov51', governanceHistory: ['gov51', 'gov41'] },
@@ -297,6 +311,7 @@ export const mockEntities: Entity[] = [
     psm: 'NotificationService',
     apiPath: '/api/notifications/send',
     method: 'POST',
+    serviceTree: 'Notification Delivery Service',
     riskStatus: {
       risk1: { isResolved: false, latestGovernanceId: 'gov55', governanceHistory: ['gov55', 'gov48'] },
       risk2: { isResolved: true, governanceHistory: ['gov49'] },
@@ -313,6 +328,7 @@ export const mockEntities: Entity[] = [
     psm: 'NotificationService',
     apiPath: '/api/notifications/preferences',
     method: 'PUT',
+    serviceTree: 'Notification Preferences Service',
     riskStatus: {
       risk1: { isResolved: true, latestGovernanceId: 'gov59', governanceHistory: ['gov59', 'gov56'] },
       risk2: { isResolved: false, governanceHistory: ['gov57'] },
@@ -330,6 +346,7 @@ export const mockEntities: Entity[] = [
     psm: 'AnalyticsService',
     apiPath: '/api/analytics/events',
     method: 'POST',
+    serviceTree: 'Analytics Event Service',
     riskStatus: {
       risk1: { isResolved: false, governanceHistory: ['gov64'] },
       risk2: { isResolved: true, latestGovernanceId: 'gov63', governanceHistory: ['gov63', 'gov65'] },
@@ -346,6 +363,7 @@ export const mockEntities: Entity[] = [
     psm: 'AnalyticsService',
     apiPath: '/api/analytics/reports',
     method: 'GET',
+    serviceTree: 'Analytics Reporting Service',
     riskStatus: {
       risk1: { isResolved: true, latestGovernanceId: 'gov67', governanceHistory: ['gov67', 'gov68'] },
       risk2: { isResolved: false, governanceHistory: ['gov69'] },
