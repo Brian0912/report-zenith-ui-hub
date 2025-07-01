@@ -25,6 +25,13 @@ export const Sidebar: React.FC<SidebarProps> = () => {
       icon: '⚡',
       path: '/aplus',
       description: 'API Risk Dashboard'
+    },
+    {
+      id: 'risk-finding',
+      label: 'Risk & Finding Management',
+      icon: '🔍',
+      path: '/risk-finding',
+      description: 'Security Finding Tracker'
     }
   ];
 

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -9,6 +10,7 @@ import { GovernancePage } from './pages/GovernancePage';
 import { EntityDetailPage } from './pages/EntityDetailPage';
 import { NotFound } from './pages/NotFound';
 import { EntityRiskDetailPage } from './pages/EntityRiskDetailPage';
+import { RiskFindingDashboard } from './pages/RiskFindingDashboard';
 
 const queryClient = new QueryClient();
 
@@ -23,6 +25,7 @@ const App: React.FC = () => {
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/aplus" element={<AplusRiskManagement />} />
+                <Route path="/risk-finding" element={<RiskFindingDashboard />} />
                 <Route path="/governance/:id" element={<GovernancePage />} />
                 <Route path="/entity/:id" element={<EntityDetailPage />} />
                 <Route path="/entity/:entityId/risk/:riskId" element={<EntityRiskDetailPage />} />
