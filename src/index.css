@@ -1,6 +1,89 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
+:root {
+  /* Clean Color System */
+  --background: 0 0% 100%;
+  --foreground: 220 15% 15%;
+  
+  /* Surface Colors */
+  --card: 0 0% 100%;
+  --card-foreground: 220 15% 15%;
+  
+  --popover: 0 0% 100%;
+  --popover-foreground: 220 15% 15%;
+  
+  /* Primary Colors - Single accent system */
+  --primary: 221 83% 53%;
+  --primary-foreground: 0 0% 98%;
+  
+  /* Secondary Colors */
+  --secondary: 220 14% 96%;
+  --secondary-foreground: 220 15% 25%;
+  
+  /* Muted Colors for backgrounds */
+  --muted: 220 13% 97%;
+  --muted-foreground: 220 9% 46%;
+  
+  /* Accent Colors */
+  --accent: 220 14% 96%;
+  --accent-foreground: 220 15% 25%;
+  
+  /* Status Colors - Clean and consistent */
+  --success: 142 76% 36%;
+  --success-foreground: 0 0% 98%;
+  
+  --warning: 43 96% 56%;
+  --warning-foreground: 0 0% 9%;
+  
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 98%;
+  
+  /* Border Colors */
+  --border: 220 13% 91%;
+  --input: 220 13% 91%;
+  --ring: 221 83% 53%;
+  
+  /* Clean radius system */
+  --radius: 0.75rem;
+}
+
+[data-theme="dark"] {
+  --background: 220 15% 7%;
+  --foreground: 220 15% 95%;
+  
+  --card: 220 15% 9%;
+  --card-foreground: 220 15% 95%;
+  
+  --popover: 220 15% 9%;
+  --popover-foreground: 220 15% 95%;
+  
+  --primary: 221 83% 53%;
+  --primary-foreground: 0 0% 98%;
+  
+  --secondary: 220 15% 12%;
+  --secondary-foreground: 220 15% 85%;
+  
+  --muted: 220 15% 10%;
+  --muted-foreground: 220 9% 65%;
+  
+  --accent: 220 15% 12%;
+  --accent-foreground: 220 15% 85%;
+  
+  --success: 142 76% 45%;
+  --success-foreground: 0 0% 98%;
+  
+  --warning: 43 96% 56%;
+  --warning-foreground: 0 0% 9%;
+  
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 98%;
+  
+  --border: 220 15% 18%;
+  --input: 220 15% 18%;
+  --ring: 221 83% 53%;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -14,17 +97,20 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 #root {
   min-height: 100vh;
 }
 
-/* Animations */
+/* Clean animations */
 @keyframes fade-in {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(8px);
   }
   to {
     opacity: 1;
@@ -46,7 +132,7 @@ body {
     opacity: 1;
   }
   50% {
-    opacity: 0.7;
+    opacity: 0.8;
   }
 }
 
@@ -55,61 +141,51 @@ body {
     transform: translateY(0);
   }
   50% {
-    transform: translateY(-5px);
+    transform: translateY(-2px);
   }
 }
 
-@keyframes glow {
-  0%, 100% {
-    box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
-  }
-  50% {
-    box-shadow: 0 0 30px rgba(59, 130, 246, 0.5);
-  }
-}
-
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0px) rotate(0deg);
-  }
-  33% {
-    transform: translateY(-20px) rotate(1deg);
-  }
-  66% {
-    transform: translateY(-10px) rotate(-1deg);
-  }
-}
-
-/* Scrollbar styles */
+/* Clean scrollbar styles */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.1);
+  background: hsl(var(--muted));
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.3);
-  border-radius: 4px;
+  background: hsl(var(--muted-foreground) / 0.3);
+  border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.5);
+  background: hsl(var(--muted-foreground) / 0.5);
 }
 
 /* Focus styles for accessibility */
 *:focus {
-  outline: 2px solid #10B981;
+  outline: 2px solid hsl(var(--ring));
   outline-offset: 2px;
 }
 
 button:focus {
-  outline: 2px solid #10B981;
+  outline: 2px solid hsl(var(--ring));
   outline-offset: 2px;
 }
 
-/* Responsive design */
+/* Selection styles */
+::selection {
+  background: hsl(var(--primary) / 0.2);
+  color: inherit;
+}
+
+::-moz-selection {
+  background: hsl(var(--primary) / 0.2);
+  color: inherit;
+}
+
+/* Responsive design helpers */
 @media (max-width: 768px) {
   body {
     font-size: 14px;
@@ -121,13 +197,19 @@ html {
   scroll-behavior: smooth;
 }
 
-/* Selection styles */
-::selection {
-  background: rgba(16, 185, 129, 0.3);
-  color: inherit;
+/* Status indicator colors */
+.status-completed {
+  color: hsl(var(--success));
 }
 
-::-moz-selection {
-  background: rgba(16, 185, 129, 0.3);
-  color: inherit;
+.status-running {
+  color: hsl(var(--primary));
+}
+
+.status-error {
+  color: hsl(var(--destructive));
+}
+
+.status-queued {
+  color: hsl(var(--warning));
 }

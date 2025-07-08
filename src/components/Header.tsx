@@ -11,47 +11,41 @@ export const Header: React.FC<HeaderProps> = ({ onCreateTask }) => {
   const { theme, toggleTheme } = useTheme();
 
   const headerStyle: React.CSSProperties = {
-    background: theme === 'dark' 
-      ? 'rgba(15, 15, 16, 0.8)'
-      : 'rgba(255, 255, 255, 0.8)',
-    backdropFilter: 'blur(20px)',
-    borderBottom: theme === 'dark' 
-      ? '1px solid rgba(255, 255, 255, 0.1)'
-      : '1px solid rgba(0, 0, 0, 0.1)',
+    backgroundColor: theme === 'dark' 
+      ? 'hsl(220 15% 9%)'
+      : 'hsl(0 0% 100%)',
+    borderBottom: `1px solid ${theme === 'dark' 
+      ? 'hsl(220 15% 18%)'
+      : 'hsl(220 13% 91%)'}`,
     padding: '1rem 2rem',
     position: 'sticky',
     top: 0,
     zIndex: 100,
-    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+    transition: 'all 0.3s ease'
   };
 
   const titleStyle: React.CSSProperties = {
     fontSize: '1.75rem',
     fontWeight: '700',
-    background: theme === 'dark'
-      ? 'linear-gradient(135deg, #10B981 0%, #14B8A6 50%, #3B82F6 100%)'
-      : 'linear-gradient(135deg, #059669 0%, #0D9488 50%, #2563EB 100%)',
-    WebkitBackgroundClip: 'text',
-    WebkitTextFillColor: 'transparent',
-    backgroundClip: 'text',
+    color: theme === 'dark' ? 'hsl(220 15% 95%)' : 'hsl(220 15% 15%)',
     margin: 0
   };
 
   const themeToggleStyle: React.CSSProperties = {
-    background: theme === 'dark'
-      ? 'rgba(255, 255, 255, 0.1)'
-      : 'rgba(0, 0, 0, 0.1)',
-    border: 'none',
-    borderRadius: '50%',
-    width: '48px',
-    height: '48px',
+    backgroundColor: theme === 'dark'
+      ? 'hsl(220 15% 12%)'
+      : 'hsl(220 13% 97%)',
+    border: `1px solid ${theme === 'dark' ? 'hsl(220 15% 18%)' : 'hsl(220 13% 91%)'}`,
+    borderRadius: '8px',
+    width: '40px',
+    height: '40px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     cursor: 'pointer',
-    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-    color: theme === 'dark' ? '#F3F4F6' : '#374151',
-    fontSize: '1.25rem'
+    transition: 'all 0.2s ease',
+    color: theme === 'dark' ? 'hsl(220 15% 85%)' : 'hsl(220 15% 25%)',
+    fontSize: '1.125rem'
   };
 
   const containerStyle: React.CSSProperties = {
@@ -78,16 +72,14 @@ export const Header: React.FC<HeaderProps> = ({ onCreateTask }) => {
             style={themeToggleStyle}
             onClick={toggleTheme}
             onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'scale(1.1)';
-              e.currentTarget.style.background = theme === 'dark'
-                ? 'rgba(255, 255, 255, 0.2)'
-                : 'rgba(0, 0, 0, 0.2)';
+              e.currentTarget.style.backgroundColor = theme === 'dark'
+                ? 'hsl(220 15% 18%)'
+                : 'hsl(220 13% 94%)';
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'scale(1)';
-              e.currentTarget.style.background = theme === 'dark'
-                ? 'rgba(255, 255, 255, 0.1)'
-                : 'rgba(0, 0, 0, 0.1)';
+              e.currentTarget.style.backgroundColor = theme === 'dark'
+                ? 'hsl(220 15% 12%)'
+                : 'hsl(220 13% 97%)';
             }}
             aria-label="Toggle theme"
           >

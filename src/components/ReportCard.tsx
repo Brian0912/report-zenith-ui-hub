@@ -32,55 +32,34 @@ export const ReportCard: React.FC<ReportCardProps> = ({
   const [showExportDropdown, setShowExportDropdown] = useState(false);
   const { downloadProgress, startDownload, cancelDownload } = useDownload();
 
-  const getStatusGradient = (status: string) => {
-    switch (status) {
-      case 'completed':
-        return theme === 'dark' 
-          ? 'linear-gradient(135deg, #10B981 0%, #14B8A6 100%)'
-          : 'linear-gradient(135deg, #059669 0%, #0D9488 100%)';
-      case 'running':
-        return theme === 'dark'
-          ? 'linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%)'
-          : 'linear-gradient(135deg, #2563EB 0%, #7C3AED 100%)';
-      case 'error':
-        return theme === 'dark'
-          ? 'linear-gradient(135deg, #F43F5E 0%, #DC2626 100%)'
-          : 'linear-gradient(135deg, #E11D48 0%, #B91C1C 100%)';
-      case 'queued':
-        return theme === 'dark'
-          ? 'linear-gradient(135deg, #F59E0B 0%, #EA580C 100%)'
-          : 'linear-gradient(135deg, #D97706 0%, #C2410C 100%)';
-      default:
-        return theme === 'dark'
-          ? 'linear-gradient(135deg, #6B7280 0%, #4B5563 100%)'
-          : 'linear-gradient(135deg, #4B5563 0%, #374151 100%)';
-    }
-  };
-
   const cardStyle: React.CSSProperties = {
-    background: theme === 'dark'
-      ? 'rgba(255, 255, 255, 0.05)'
-      : 'rgba(255, 255, 255, 0.9)',
-    backdropFilter: 'blur(20px)',
-    borderRadius: '16px',
-    border: theme === 'dark'
-      ? '1px solid rgba(255, 255, 255, 0.1)'
-      : '1px solid rgba(0, 0, 0, 0.1)',
+    backgroundColor: theme === 'dark' 
+      ? 'hsl(220 15% 9%)'
+      : 'hsl(0 0% 100%)',
+    border: `1px solid ${theme === 'dark' 
+      ? 'hsl(220 15% 18%)'
+      : 'hsl(220 13% 91%)'}`,
+    borderRadius: '12px',
     boxShadow: theme === 'dark'
-      ? '0 8px 32px rgba(0, 0, 0, 0.3)'
-      : '0 8px 32px rgba(0, 0, 0, 0.1)',
-    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+      ? '0 1px 3px rgba(0, 0, 0, 0.3)'
+      : '0 1px 3px rgba(0, 0, 0, 0.1)',
+    transition: 'all 0.2s ease',
     overflow: 'hidden',
     position: 'relative' as const,
-    transform: isHovered ? 'translateY(-8px) scale(1.02)' : 'translateY(0) scale(1)',
-    animation: `fade-in 0.5s ease-out ${animationDelay}ms both`,
+    transform: isHovered ? 'translateY(-2px)' : 'translateY(0)',
+    animation: `fade-in 0.4s ease-out ${animationDelay}ms both`,
     cursor: 'pointer'
   };
 
-  const statusHeaderStyle: React.CSSProperties = {
-    background: getStatusGradient(report.status),
-    height: '4px',
-    width: '100%'
+  const statusBorderStyle: React.CSSProperties = {
+    height: '3px',
+    width: '100%',
+    backgroundColor: 
+      report.status === 'completed' ? 'hsl(142 76% 36%)' :
+      report.status === 'running' ? 'hsl(221 83% 53%)' :
+      report.status === 'error' ? 'hsl(0 84% 60%)' :
+      report.status === 'queued' ? 'hsl(43 96% 56%)' :
+      'hsl(220 9% 46%)'
   };
 
   const contentStyle: React.CSSProperties = {
@@ -88,17 +67,17 @@ export const ReportCard: React.FC<ReportCardProps> = ({
   };
 
   const descriptionStyle: React.CSSProperties = {
-    color: theme === 'dark' ? '#D1D5DB' : '#6B7280',
+    color: theme === 'dark' ? 'hsl(220 9% 65%)' : 'hsl(220 9% 46%)',
     fontSize: '0.875rem',
     lineHeight: '1.5',
-    marginBottom: '1rem'
+    marginBottom: '1.5rem'
   };
 
   const actionButtonsStyle: React.CSSProperties = {
     display: 'flex',
     gap: '8px',
     justifyContent: 'flex-end',
-    marginBottom: '1rem',
+    marginBottom: '1.5rem',
     flexWrap: 'wrap' as const
   };
 
@@ -106,7 +85,7 @@ export const ReportCard: React.FC<ReportCardProps> = ({
     height: '36px',
     padding: '0 12px',
     borderRadius: '8px',
-    border: 'none',
+    border: `1px solid ${theme === 'dark' ? 'hsl(220 15% 18%)' : 'hsl(220 13% 91%)'}`,
     display: 'flex',
     alignItems: 'center',
     gap: '6px',
@@ -114,18 +93,17 @@ export const ReportCard: React.FC<ReportCardProps> = ({
     fontWeight: '500',
     cursor: 'pointer',
     transition: 'all 0.2s ease',
-    background: theme === 'dark'
-      ? 'rgba(255, 255, 255, 0.1)'
-      : 'rgba(0, 0, 0, 0.05)',
-    color: theme === 'dark' ? '#F3F4F6' : '#374151'
+    backgroundColor: theme === 'dark' 
+      ? 'hsl(220 15% 12%)'
+      : 'hsl(220 13% 97%)',
+    color: theme === 'dark' ? 'hsl(220 15% 85%)' : 'hsl(220 15% 25%)'
   };
 
   const primaryButtonStyle: React.CSSProperties = {
     ...buttonStyle,
-    background: theme === 'dark'
-      ? 'linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%)'
-      : 'linear-gradient(135deg, #2563EB 0%, #1E40AF 100%)',
-    color: 'white'
+    backgroundColor: 'hsl(221 83% 53%)',
+    color: 'hsl(0 0% 98%)',
+    border: 'none'
   };
 
   const exportDropdownStyle: React.CSSProperties = {
@@ -136,17 +114,14 @@ export const ReportCard: React.FC<ReportCardProps> = ({
     position: 'absolute' as const,
     top: '40px',
     right: '0',
-    background: theme === 'dark'
-      ? 'rgba(30, 30, 30, 0.95)'
-      : 'rgba(255, 255, 255, 0.95)',
-    backdropFilter: 'blur(20px)',
-    border: theme === 'dark'
-      ? '1px solid rgba(255, 255, 255, 0.1)'
-      : '1px solid rgba(0, 0, 0, 0.1)',
+    backgroundColor: theme === 'dark'
+      ? 'hsl(220 15% 9%)'
+      : 'hsl(0 0% 100%)',
+    border: `1px solid ${theme === 'dark' ? 'hsl(220 15% 18%)' : 'hsl(220 13% 91%)'}`,
     borderRadius: '8px',
     boxShadow: theme === 'dark'
-      ? '0 8px 32px rgba(0, 0, 0, 0.3)'
-      : '0 8px 32px rgba(0, 0, 0, 0.1)',
+      ? '0 4px 12px rgba(0, 0, 0, 0.4)'
+      : '0 4px 12px rgba(0, 0, 0, 0.15)',
     zIndex: 10,
     minWidth: '200px',
     padding: '8px'
@@ -157,8 +132,8 @@ export const ReportCard: React.FC<ReportCardProps> = ({
     borderRadius: '4px',
     cursor: 'pointer',
     fontSize: '0.875rem',
-    color: theme === 'dark' ? '#F3F4F6' : '#374151',
-    transition: 'background 0.2s ease'
+    color: theme === 'dark' ? 'hsl(220 15% 85%)' : 'hsl(220 15% 25%)',
+    transition: 'background-color 0.2s ease'
   };
 
   const handleViewDetails = (e: React.MouseEvent) => {
@@ -192,7 +167,7 @@ export const ReportCard: React.FC<ReportCardProps> = ({
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        <div style={statusHeaderStyle} />
+        <div style={statusBorderStyle} />
         <div style={contentStyle}>
           <ReportHeader title={report.title} status={report.status} />
           
@@ -203,6 +178,12 @@ export const ReportCard: React.FC<ReportCardProps> = ({
               style={primaryButtonStyle}
               onClick={handleViewDetails}
               title="View full report details"
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = 'hsl(221 83% 48%)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'hsl(221 83% 53%)';
+              }}
             >
               <Eye size={16} />
               View Details
@@ -213,6 +194,16 @@ export const ReportCard: React.FC<ReportCardProps> = ({
                 style={buttonStyle}
                 onClick={handleExportClick}
                 title="Export report and evidences"
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = theme === 'dark' 
+                    ? 'hsl(220 15% 18%)' 
+                    : 'hsl(220 13% 94%)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = theme === 'dark'
+                    ? 'hsl(220 15% 12%)'
+                    : 'hsl(220 13% 97%)';
+                }}
               >
                 <Download size={16} />
                 Export
@@ -225,12 +216,12 @@ export const ReportCard: React.FC<ReportCardProps> = ({
                     style={dropdownItemStyle}
                     onClick={() => handleExportOption('Complete Package')}
                     onMouseEnter={(e) => {
-                      (e.target as HTMLElement).style.background = theme === 'dark' 
-                        ? 'rgba(255, 255, 255, 0.1)' 
-                        : 'rgba(0, 0, 0, 0.05)';
+                      (e.target as HTMLElement).style.backgroundColor = theme === 'dark' 
+                        ? 'hsl(220 15% 18%)' 
+                        : 'hsl(220 13% 94%)';
                     }}
                     onMouseLeave={(e) => {
-                      (e.target as HTMLElement).style.background = 'transparent';
+                      (e.target as HTMLElement).style.backgroundColor = 'transparent';
                     }}
                   >
                     Download Complete Package
@@ -239,12 +230,12 @@ export const ReportCard: React.FC<ReportCardProps> = ({
                     style={dropdownItemStyle}
                     onClick={() => handleExportOption('PDF Report')}
                     onMouseEnter={(e) => {
-                      (e.target as HTMLElement).style.background = theme === 'dark' 
-                        ? 'rgba(255, 255, 255, 0.1)' 
-                        : 'rgba(0, 0, 0, 0.05)';
+                      (e.target as HTMLElement).style.backgroundColor = theme === 'dark' 
+                        ? 'hsl(220 15% 18%)' 
+                        : 'hsl(220 13% 94%)';
                     }}
                     onMouseLeave={(e) => {
-                      (e.target as HTMLElement).style.background = 'transparent';
+                      (e.target as HTMLElement).style.backgroundColor = 'transparent';
                     }}
                   >
                     Download PDF Report Only
@@ -253,12 +244,12 @@ export const ReportCard: React.FC<ReportCardProps> = ({
                     style={dropdownItemStyle}
                     onClick={() => handleExportOption('Support Evidences')}
                     onMouseEnter={(e) => {
-                      (e.target as HTMLElement).style.background = theme === 'dark' 
-                        ? 'rgba(255, 255, 255, 0.1)' 
-                        : 'rgba(0, 0, 0, 0.05)';
+                      (e.target as HTMLElement).style.backgroundColor = theme === 'dark' 
+                        ? 'hsl(220 15% 18%)' 
+                        : 'hsl(220 13% 94%)';
                     }}
                     onMouseLeave={(e) => {
-                      (e.target as HTMLElement).style.background = 'transparent';
+                      (e.target as HTMLElement).style.backgroundColor = 'transparent';
                     }}
                   >
                     Download Support Evidences
@@ -271,6 +262,16 @@ export const ReportCard: React.FC<ReportCardProps> = ({
               style={buttonStyle}
               onClick={handleViewLogs}
               title="View task execution logs"
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = theme === 'dark' 
+                  ? 'hsl(220 15% 18%)' 
+                  : 'hsl(220 13% 94%)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = theme === 'dark'
+                  ? 'hsl(220 15% 12%)'
+                  : 'hsl(220 13% 97%)';
+              }}
             >
               <List size={16} />
               View Logs

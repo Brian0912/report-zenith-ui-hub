@@ -38,21 +38,21 @@ export const Sidebar: React.FC<SidebarProps> = () => {
   const sidebarStyle: React.CSSProperties = {
     width: isCollapsed ? '70px' : '280px',
     height: '100vh',
-    background: theme === 'dark' 
-      ? 'linear-gradient(180deg, #1a1a2e 0%, #16213e 100%)'
-      : 'linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)',
-    borderRight: `1px solid ${theme === 'dark' ? '#2d3748' : '#e2e8f0'}`,
-    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+    backgroundColor: theme === 'dark' 
+      ? 'hsl(220 15% 9%)'
+      : 'hsl(0 0% 100%)',
+    borderRight: `1px solid ${theme === 'dark' ? 'hsl(220 15% 18%)' : 'hsl(220 13% 91%)'}`,
+    transition: 'all 0.3s ease',
     position: 'relative',
     boxShadow: theme === 'dark' 
-      ? '4px 0 20px rgba(0, 0, 0, 0.3)'
-      : '4px 0 20px rgba(0, 0, 0, 0.1)',
+      ? '2px 0 8px rgba(0, 0, 0, 0.2)'
+      : '2px 0 8px rgba(0, 0, 0, 0.05)',
     zIndex: 1000
   };
 
   const headerStyle: React.CSSProperties = {
     padding: '24px 20px',
-    borderBottom: `1px solid ${theme === 'dark' ? '#2d3748' : '#e2e8f0'}`,
+    borderBottom: `1px solid ${theme === 'dark' ? 'hsl(220 15% 18%)' : 'hsl(220 13% 91%)'}`,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between'
@@ -60,8 +60,8 @@ export const Sidebar: React.FC<SidebarProps> = () => {
 
   const logoStyle: React.CSSProperties = {
     fontSize: isCollapsed ? '20px' : '24px',
-    fontWeight: 'bold',
-    color: theme === 'dark' ? '#ffffff' : '#1a202c',
+    fontWeight: '700',
+    color: theme === 'dark' ? 'hsl(220 15% 95%)' : 'hsl(220 15% 15%)',
     transition: 'all 0.3s ease'
   };
 
@@ -73,32 +73,28 @@ export const Sidebar: React.FC<SidebarProps> = () => {
   const menuItemStyle = (isActive: boolean): React.CSSProperties => ({
     display: 'flex',
     alignItems: 'center',
-    padding: '16px 20px',
+    padding: '14px 20px',
     margin: '4px 12px',
-    borderRadius: '12px',
+    borderRadius: '8px',
     cursor: 'pointer',
-    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-    background: isActive 
-      ? (theme === 'dark' ? 'rgba(99, 102, 241, 0.2)' : 'rgba(99, 102, 241, 0.1)')
+    transition: 'all 0.2s ease',
+    backgroundColor: isActive 
+      ? 'hsl(221 83% 53%)'
       : 'transparent',
-    border: isActive 
-      ? `1px solid ${theme === 'dark' ? 'rgba(99, 102, 241, 0.4)' : 'rgba(99, 102, 241, 0.3)'}`
-      : '1px solid transparent',
-    boxShadow: isActive 
-      ? (theme === 'dark' ? '0 4px 12px rgba(99, 102, 241, 0.2)' : '0 4px 12px rgba(99, 102, 241, 0.15)')
-      : 'none'
+    color: isActive
+      ? 'hsl(0 0% 98%)'
+      : (theme === 'dark' ? 'hsl(220 15% 85%)' : 'hsl(220 15% 25%)')
   });
 
   const iconStyle: React.CSSProperties = {
-    fontSize: '20px',
-    marginRight: isCollapsed ? '0' : '16px',
+    fontSize: '18px',
+    marginRight: isCollapsed ? '0' : '12px',
     transition: 'all 0.3s ease'
   };
 
   const labelStyle: React.CSSProperties = {
-    fontSize: '16px',
+    fontSize: '14px',
     fontWeight: '500',
-    color: theme === 'dark' ? '#ffffff' : '#2d3748',
     opacity: isCollapsed ? 0 : 1,
     transition: 'all 0.3s ease',
     whiteSpace: 'nowrap',
@@ -107,8 +103,7 @@ export const Sidebar: React.FC<SidebarProps> = () => {
 
   const descriptionStyle: React.CSSProperties = {
     fontSize: '12px',
-    color: theme === 'dark' ? '#a0aec0' : '#718096',
-    opacity: isCollapsed ? 0 : 1,
+    opacity: isCollapsed ? 0 : 0.7,
     transition: 'all 0.3s ease',
     marginTop: '2px'
   };
@@ -120,15 +115,16 @@ export const Sidebar: React.FC<SidebarProps> = () => {
     width: '30px',
     height: '30px',
     borderRadius: '50%',
-    background: theme === 'dark' ? '#4a5568' : '#ffffff',
-    border: `1px solid ${theme === 'dark' ? '#2d3748' : '#e2e8f0'}`,
+    backgroundColor: theme === 'dark' ? 'hsl(220 15% 12%)' : 'hsl(0 0% 100%)',
+    border: `1px solid ${theme === 'dark' ? 'hsl(220 15% 18%)' : 'hsl(220 13% 91%)'}`,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     cursor: 'pointer',
     boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-    transition: 'all 0.3s ease',
-    zIndex: 1001
+    transition: 'all 0.2s ease',
+    zIndex: 1001,
+    color: theme === 'dark' ? 'hsl(220 15% 85%)' : 'hsl(220 15% 25%)'
   };
 
   const themeToggleStyle: React.CSSProperties = {
@@ -137,12 +133,12 @@ export const Sidebar: React.FC<SidebarProps> = () => {
     left: '50%',
     transform: 'translateX(-50%)',
     padding: '12px',
-    borderRadius: '12px',
-    background: theme === 'dark' ? 'rgba(74, 85, 104, 0.3)' : 'rgba(237, 242, 247, 0.8)',
-    border: 'none',
+    borderRadius: '8px',
+    backgroundColor: theme === 'dark' ? 'hsl(220 15% 12%)' : 'hsl(220 13% 97%)',
+    border: `1px solid ${theme === 'dark' ? 'hsl(220 15% 18%)' : 'hsl(220 13% 91%)'}`,
     cursor: 'pointer',
-    fontSize: '20px',
-    transition: 'all 0.3s ease'
+    fontSize: '18px',
+    transition: 'all 0.2s ease'
   };
 
   return (
@@ -151,7 +147,7 @@ export const Sidebar: React.FC<SidebarProps> = () => {
         style={toggleButtonStyle}
         onClick={() => setIsCollapsed(!isCollapsed)}
         onMouseEnter={(e) => {
-          e.currentTarget.style.transform = 'scale(1.1)';
+          e.currentTarget.style.transform = 'scale(1.05)';
         }}
         onMouseLeave={(e) => {
           e.currentTarget.style.transform = 'scale(1)';
@@ -176,14 +172,14 @@ export const Sidebar: React.FC<SidebarProps> = () => {
               onClick={() => navigate(item.path)}
               onMouseEnter={(e) => {
                 if (!isActive) {
-                  e.currentTarget.style.background = theme === 'dark' 
-                    ? 'rgba(74, 85, 104, 0.3)' 
-                    : 'rgba(237, 242, 247, 0.8)';
+                  e.currentTarget.style.backgroundColor = theme === 'dark' 
+                    ? 'hsl(220 15% 12%)' 
+                    : 'hsl(220 13% 97%)';
                 }
               }}
               onMouseLeave={(e) => {
                 if (!isActive) {
-                  e.currentTarget.style.background = 'transparent';
+                  e.currentTarget.style.backgroundColor = 'transparent';
                 }
               }}
             >
