@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { X, ChevronDown, ChevronUp, Check, Loader2, Plus, Minus } from 'lucide-react';
+import { X, ChevronDown, ChevronUp, Check, Loader2, Plus, Minus, Copy, Trash2, Info } from 'lucide-react';
 import { useTheme } from './ThemeProvider';
 
 interface TaskCreationModalProps {
@@ -14,37 +14,44 @@ interface MetadataOption {
   category: string;
   inputType: 'text' | 'number' | 'dropdown';
   dropdownOptions?: string[];
+  description?: string;
 }
 
 interface MetadataValue {
   id: string;
+  optionId: string;
   label: string;
   value: string;
+  category: string;
+  inputType: 'text' | 'number' | 'dropdown';
+  dropdownOptions?: string[];
+  isValid: boolean;
+  error?: string;
 }
 
 const metadataOptions: MetadataOption[] = [
   // Employee Category
-  { id: 'username', label: 'Username', category: 'Employee', inputType: 'text' },
-  { id: 'department', label: 'Department', category: 'Employee', inputType: 'dropdown', dropdownOptions: ['Engineering', 'Security', 'Operations', 'Product'] },
-  { id: 'baseCountry', label: 'Base Country', category: 'Employee', inputType: 'text' },
-  { id: 'physicalCountry', label: 'Physical Country', category: 'Employee', inputType: 'text' },
-  { id: 'employeeId', label: 'Employee ID', category: 'Employee', inputType: 'text' },
-  { id: 'rolePosition', label: 'Role/Position', category: 'Employee', inputType: 'text' },
+  { id: 'username', label: 'Username', category: 'Employee', inputType: 'text', description: 'Employee username or login ID' },
+  { id: 'department', label: 'Department', category: 'Employee', inputType: 'dropdown', dropdownOptions: ['Engineering', 'Security', 'Operations', 'Product'], description: 'Employee department' },
+  { id: 'baseCountry', label: 'Base Country', category: 'Employee', inputType: 'text', description: 'Employee base country' },
+  { id: 'physicalCountry', label: 'Physical Country', category: 'Employee', inputType: 'text', description: 'Current physical location' },
+  { id: 'employeeId', label: 'Employee ID', category: 'Employee', inputType: 'text', description: 'Unique employee identifier' },
+  { id: 'rolePosition', label: 'Role/Position', category: 'Employee', inputType: 'text', description: 'Job title or role' },
   
   // Traffic Category
-  { id: 'psm', label: 'PSM (Product Service Management)', category: 'Traffic', inputType: 'text' },
-  { id: 'api', label: 'API', category: 'Traffic', inputType: 'text' },
-  { id: 'host', label: 'Host', category: 'Traffic', inputType: 'text' },
-  { id: 'trafficVolume', label: 'Traffic Volume', category: 'Traffic', inputType: 'number' },
-  { id: 'protocol', label: 'Protocol', category: 'Traffic', inputType: 'dropdown', dropdownOptions: ['HTTP', 'HTTPS', 'TCP', 'UDP'] },
-  { id: 'port', label: 'Port', category: 'Traffic', inputType: 'number' },
+  { id: 'psm', label: 'PSM (Product Service Management)', category: 'Traffic', inputType: 'text', description: 'Product service management identifier' },
+  { id: 'api', label: 'API', category: 'Traffic', inputType: 'text', description: 'API endpoint or service' },
+  { id: 'host', label: 'Host', category: 'Traffic', inputType: 'text', description: 'Host server or domain' },
+  { id: 'trafficVolume', label: 'Traffic Volume', category: 'Traffic', inputType: 'number', description: 'Traffic volume in requests/sec' },
+  { id: 'protocol', label: 'Protocol', category: 'Traffic', inputType: 'dropdown', dropdownOptions: ['HTTP', 'HTTPS', 'TCP', 'UDP'], description: 'Network protocol' },
+  { id: 'port', label: 'Port', category: 'Traffic', inputType: 'number', description: 'Network port number' },
   
   // Policy Category
-  { id: 'policyAction', label: 'Policy Action', category: 'Policy', inputType: 'dropdown', dropdownOptions: ['Allow', 'Block', 'Monitor', 'Alert'] },
-  { id: 'policyId', label: 'Policy ID', category: 'Policy', inputType: 'text' },
-  { id: 'policyType', label: 'Policy Type', category: 'Policy', inputType: 'dropdown', dropdownOptions: ['Security', 'Compliance', 'Access', 'Network'] },
-  { id: 'complianceLevel', label: 'Compliance Level', category: 'Policy', inputType: 'dropdown', dropdownOptions: ['Low', 'Medium', 'High', 'Critical'] },
-  { id: 'approvalStatus', label: 'Approval Status', category: 'Policy', inputType: 'dropdown', dropdownOptions: ['Pending', 'Approved', 'Rejected', 'Under Review'] },
+  { id: 'policyAction', label: 'Policy Action', category: 'Policy', inputType: 'dropdown', dropdownOptions: ['Allow', 'Block', 'Monitor', 'Alert'], description: 'Policy enforcement action' },
+  { id: 'policyId', label: 'Policy ID', category: 'Policy', inputType: 'text', description: 'Unique policy identifier' },
+  { id: 'policyType', label: 'Policy Type', category: 'Policy', inputType: 'dropdown', dropdownOptions: ['Security', 'Compliance', 'Access', 'Network'], description: 'Type of policy' },
+  { id: 'complianceLevel', label: 'Compliance Level', category: 'Policy', inputType: 'dropdown', dropdownOptions: ['Low', 'Medium', 'High', 'Critical'], description: 'Compliance requirement level' },
+  { id: 'approvalStatus', label: 'Approval Status', category: 'Policy', inputType: 'dropdown', dropdownOptions: ['Pending', 'Approved', 'Rejected', 'Under Review'], description: 'Current approval status' },
 ];
 
 export const TaskCreationModal: React.FC<TaskCreationModalProps> = ({ isOpen, onClose }) => {
@@ -94,6 +101,12 @@ export const TaskCreationModal: React.FC<TaskCreationModalProps> = ({ isOpen, on
     e.preventDefault();
     if (!goal.trim() || !background.trim()) return;
 
+    // Validate all metadata fields
+    const invalidFields = selectedMetadata.filter(field => !field.isValid);
+    if (invalidFields.length > 0) {
+      return;
+    }
+
     setIsSubmitting(true);
     
     // Simulate API call
@@ -113,11 +126,39 @@ export const TaskCreationModal: React.FC<TaskCreationModalProps> = ({ isOpen, on
     }, 2000);
   };
 
+  const validateMetadataValue = (value: string, inputType: string): { isValid: boolean; error?: string } => {
+    if (!value.trim()) {
+      return { isValid: false, error: 'This field is required' };
+    }
+
+    switch (inputType) {
+      case 'number':
+        const num = parseFloat(value);
+        if (isNaN(num) || num < 0) {
+          return { isValid: false, error: 'Please enter a valid positive number' };
+        }
+        break;
+      case 'text':
+        if (value.length < 2) {
+          return { isValid: false, error: 'Please enter at least 2 characters' };
+        }
+        break;
+    }
+
+    return { isValid: true };
+  };
+
   const addMetadata = (option: MetadataOption) => {
     const newMetadata: MetadataValue = {
-      id: `${option.id}-${Date.now()}`,
+      id: `${option.id}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      optionId: option.id,
       label: option.label,
       value: '',
+      category: option.category,
+      inputType: option.inputType,
+      dropdownOptions: option.dropdownOptions,
+      isValid: false,
+      error: 'This field is required'
     };
     setSelectedMetadata(prev => [...prev, newMetadata]);
   };
@@ -127,13 +168,41 @@ export const TaskCreationModal: React.FC<TaskCreationModalProps> = ({ isOpen, on
   };
 
   const updateMetadataValue = (id: string, value: string) => {
-    setSelectedMetadata(prev => prev.map(item => 
-      item.id === id ? { ...item, value } : item
-    ));
+    setSelectedMetadata(prev => prev.map(item => {
+      if (item.id === id) {
+        const validation = validateMetadataValue(value, item.inputType);
+        return {
+          ...item,
+          value,
+          isValid: validation.isValid,
+          error: validation.error
+        };
+      }
+      return item;
+    }));
+  };
+
+  const duplicateMetadata = (id: string) => {
+    const existingItem = selectedMetadata.find(item => item.id === id);
+    if (existingItem) {
+      const option = metadataOptions.find(opt => opt.id === existingItem.optionId);
+      if (option) {
+        addMetadata(option);
+      }
+    }
+  };
+
+  const clearAllMetadata = () => {
+    setSelectedMetadata([]);
+  };
+
+  const getMetadataCountByType = (optionId: string) => {
+    return selectedMetadata.filter(item => item.optionId === optionId).length;
   };
 
   const filteredMetadata = metadataOptions.filter(option =>
-    option.label.toLowerCase().includes(metadataSearch.toLowerCase())
+    option.label.toLowerCase().includes(metadataSearch.toLowerCase()) ||
+    option.category.toLowerCase().includes(metadataSearch.toLowerCase())
   );
 
   const groupedMetadata = filteredMetadata.reduce((acc, option) => {
@@ -143,6 +212,14 @@ export const TaskCreationModal: React.FC<TaskCreationModalProps> = ({ isOpen, on
     acc[option.category].push(option);
     return acc;
   }, {} as Record<string, MetadataOption[]>);
+
+  const groupedSelectedMetadata = selectedMetadata.reduce((acc, item) => {
+    if (!acc[item.category]) {
+      acc[item.category] = [];
+    }
+    acc[item.category].push(item);
+    return acc;
+  }, {} as Record<string, MetadataValue[]>);
 
   if (!isOpen) return null;
 
@@ -221,74 +298,148 @@ export const TaskCreationModal: React.FC<TaskCreationModalProps> = ({ isOpen, on
 
   const MetadataInput: React.FC<{
     metadata: MetadataValue;
-    option: MetadataOption;
     onUpdate: (id: string, value: string) => void;
     onRemove: (id: string) => void;
-  }> = ({ metadata, option, onUpdate, onRemove }) => {
+    onDuplicate: (id: string) => void;
+  }> = ({ metadata, onUpdate, onRemove, onDuplicate }) => {
     const containerStyle: React.CSSProperties = {
       display: 'flex',
-      alignItems: 'center',
+      alignItems: 'flex-start',
       gap: '8px',
-      marginBottom: '8px',
-      padding: '8px',
-      background: theme === 'dark' ? 'rgba(45, 55, 72, 0.3)' : 'rgba(248, 250, 252, 0.8)',
-      borderRadius: '6px',
+      marginBottom: '12px',
+      padding: '12px',
+      background: theme === 'dark' ? 'rgba(45, 55, 72, 0.4)' : 'rgba(248, 250, 252, 0.9)',
+      borderRadius: '8px',
+      border: metadata.isValid ? 'none' : `1px solid ${theme === 'dark' ? '#f56565' : '#e53e3e'}`,
+      position: 'relative',
+    };
+
+    const labelContainerStyle: React.CSSProperties = {
+      display: 'flex',
+      flexDirection: 'column',
+      minWidth: '120px',
+      gap: '4px',
     };
 
     const labelStyle: React.CSSProperties = {
-      fontSize: '12px',
-      color: theme === 'dark' ? '#a0aec0' : '#718096',
-      minWidth: '100px',
+      fontSize: '13px',
+      fontWeight: '500',
+      color: theme === 'dark' ? '#e2e8f0' : '#374151',
+    };
+
+    const typeStyle: React.CSSProperties = {
+      fontSize: '11px',
+      color: theme === 'dark' ? '#a0aec0' : '#6b7280',
+      padding: '2px 6px',
+      background: theme === 'dark' ? 'rgba(59, 130, 246, 0.2)' : 'rgba(59, 130, 246, 0.1)',
+      borderRadius: '4px',
+      fontWeight: '500',
     };
 
     const inputContainerStyle: React.CSSProperties = {
       flex: 1,
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '4px',
     };
 
     const smallInputStyle: React.CSSProperties = {
       ...inputStyle,
-      padding: '8px',
-      fontSize: '13px',
+      padding: '10px',
+      fontSize: '14px',
+      borderColor: metadata.isValid ? (theme === 'dark' ? '#4a5568' : '#d1d5db') : (theme === 'dark' ? '#f56565' : '#e53e3e'),
+    };
+
+    const errorStyle: React.CSSProperties = {
+      fontSize: '11px',
+      color: theme === 'dark' ? '#f56565' : '#e53e3e',
+      marginTop: '2px',
+    };
+
+    const actionsStyle: React.CSSProperties = {
+      display: 'flex',
+      gap: '4px',
+    };
+
+    const actionButtonStyle: React.CSSProperties = {
+      background: 'none',
+      border: 'none',
+      cursor: 'pointer',
+      padding: '6px',
+      borderRadius: '4px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      transition: 'all 0.2s ease',
     };
 
     return (
       <div style={containerStyle}>
-        <div style={labelStyle}>{metadata.label}</div>
+        <div style={labelContainerStyle}>
+          <div style={labelStyle}>{metadata.label}</div>
+          <div style={typeStyle}>{metadata.inputType.toUpperCase()}</div>
+        </div>
         <div style={inputContainerStyle}>
-          {option.inputType === 'dropdown' ? (
+          {metadata.inputType === 'dropdown' ? (
             <select
               style={smallInputStyle}
               value={metadata.value}
               onChange={(e) => onUpdate(metadata.id, e.target.value)}
             >
-              <option value="">Select...</option>
-              {option.dropdownOptions?.map(opt => (
+              <option value="">Select {metadata.label.toLowerCase()}...</option>
+              {metadata.dropdownOptions?.map(opt => (
                 <option key={opt} value={opt}>{opt}</option>
               ))}
             </select>
           ) : (
             <input
-              type={option.inputType}
+              type={metadata.inputType}
               style={smallInputStyle}
               value={metadata.value}
               onChange={(e) => onUpdate(metadata.id, e.target.value)}
               placeholder={`Enter ${metadata.label.toLowerCase()}`}
             />
           )}
+          {!metadata.isValid && metadata.error && (
+            <div style={errorStyle}>{metadata.error}</div>
+          )}
         </div>
-        <button
-          type="button"
-          onClick={() => onRemove(metadata.id)}
-          style={{
-            background: 'none',
-            border: 'none',
-            color: theme === 'dark' ? '#f56565' : '#e53e3e',
-            cursor: 'pointer',
-            padding: '4px',
-          }}
-        >
-          <Minus size={16} />
-        </button>
+        <div style={actionsStyle}>
+          <button
+            type="button"
+            onClick={() => onDuplicate(metadata.id)}
+            style={{
+              ...actionButtonStyle,
+              color: theme === 'dark' ? '#60a5fa' : '#2563eb',
+            }}
+            title="Duplicate this field"
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = theme === 'dark' ? 'rgba(96, 165, 250, 0.1)' : 'rgba(37, 99, 235, 0.1)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'none';
+            }}
+          >
+            <Copy size={14} />
+          </button>
+          <button
+            type="button"
+            onClick={() => onRemove(metadata.id)}
+            style={{
+              ...actionButtonStyle,
+              color: theme === 'dark' ? '#f56565' : '#e53e3e',
+            }}
+            title="Remove this field"
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = theme === 'dark' ? 'rgba(245, 101, 101, 0.1)' : 'rgba(229, 62, 62, 0.1)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'none';
+            }}
+          >
+            <Trash2 size={14} />
+          </button>
+        </div>
       </div>
     );
   };
@@ -397,71 +548,189 @@ export const TaskCreationModal: React.FC<TaskCreationModalProps> = ({ isOpen, on
 
             {isMetadataExpanded && (
               <div style={{ marginTop: '16px' }}>
+                <div style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: '8px', 
+                  marginBottom: '16px',
+                  padding: '12px',
+                  background: theme === 'dark' ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.05)',
+                  borderRadius: '6px',
+                  border: `1px solid ${theme === 'dark' ? 'rgba(59, 130, 246, 0.3)' : 'rgba(59, 130, 246, 0.2)'}`
+                }}>
+                  <Info size={16} style={{ color: theme === 'dark' ? '#60a5fa' : '#2563eb' }} />
+                  <div style={{ fontSize: '13px', color: theme === 'dark' ? '#e2e8f0' : '#374151' }}>
+                    <strong>Tip:</strong> You can add multiple instances of the same field type. Use the duplicate button to quickly add another instance.
+                  </div>
+                </div>
+
                 {selectedMetadata.length > 0 && (
-                  <div style={{ marginBottom: '16px' }}>
-                    <h4 style={{ fontSize: '12px', fontWeight: '600', color: theme === 'dark' ? '#a0aec0' : '#718096', marginBottom: '8px' }}>
-                      SELECTED METADATA
-                    </h4>
-                    {selectedMetadata.map(metadata => {
-                      const option = metadataOptions.find(opt => opt.id === metadata.label.toLowerCase().replace(/[^a-z0-9]/g, ''));
-                      return option ? (
-                        <MetadataInput
-                          key={metadata.id}
-                          metadata={metadata}
-                          option={option}
-                          onUpdate={updateMetadataValue}
-                          onRemove={removeMetadata}
-                        />
-                      ) : null;
-                    })}
+                  <div style={{ marginBottom: '20px' }}>
+                    <div style={{ 
+                      display: 'flex', 
+                      justifyContent: 'space-between', 
+                      alignItems: 'center',
+                      marginBottom: '12px'
+                    }}>
+                      <h4 style={{ 
+                        fontSize: '13px', 
+                        fontWeight: '600', 
+                        color: theme === 'dark' ? '#a0aec0' : '#718096',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px'
+                      }}>
+                        Selected Metadata ({selectedMetadata.length})
+                      </h4>
+                      <button
+                        type="button"
+                        onClick={clearAllMetadata}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          cursor: 'pointer',
+                          color: theme === 'dark' ? '#f56565' : '#e53e3e',
+                          fontSize: '12px',
+                          fontWeight: '500',
+                          padding: '4px 8px',
+                          borderRadius: '4px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '4px',
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = theme === 'dark' ? 'rgba(245, 101, 101, 0.1)' : 'rgba(229, 62, 62, 0.1)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = 'none';
+                        }}
+                      >
+                        <Trash2 size={12} />
+                        Clear All
+                      </button>
+                    </div>
+                    
+                    {Object.entries(groupedSelectedMetadata).map(([category, items]) => (
+                      <div key={category} style={{ marginBottom: '16px' }}>
+                        <h5 style={{ 
+                          fontSize: '12px', 
+                          fontWeight: '500', 
+                          color: theme === 'dark' ? '#9ca3af' : '#6b7280',
+                          marginBottom: '8px',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.5px'
+                        }}>
+                          {category}
+                        </h5>
+                        {items.map(metadata => (
+                          <MetadataInput
+                            key={metadata.id}
+                            metadata={metadata}
+                            onUpdate={updateMetadataValue}
+                            onRemove={removeMetadata}
+                            onDuplicate={duplicateMetadata}
+                          />
+                        ))}
+                      </div>
+                    ))}
                   </div>
                 )}
 
                 <input
                   type="text"
                   style={inputStyle}
-                  placeholder="Search metadata..."
+                  placeholder="Search metadata fields..."
                   value={metadataSearch}
                   onChange={(e) => setMetadataSearch(e.target.value)}
                 />
                 
-                <div style={{ maxHeight: '200px', overflowY: 'auto', marginTop: '12px' }}>
+                <div style={{ maxHeight: '300px', overflowY: 'auto', marginTop: '12px' }}>
                   {Object.entries(groupedMetadata).map(([category, options]) => (
-                    <div key={category} style={{ marginBottom: '16px' }}>
-                      <h4 style={{ fontSize: '12px', fontWeight: '600', color: theme === 'dark' ? '#a0aec0' : '#718096', marginBottom: '8px', textTransform: 'uppercase' }}>
+                    <div key={category} style={{ marginBottom: '20px' }}>
+                      <h4 style={{ 
+                        fontSize: '12px', 
+                        fontWeight: '600', 
+                        color: theme === 'dark' ? '#a0aec0' : '#718096',
+                        marginBottom: '8px', 
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px'
+                      }}>
                         {category}
                       </h4>
-                      {options.map(option => (
-                        <button
-                          key={option.id}
-                          type="button"
-                          onClick={() => addMetadata(option)}
-                          style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px',
-                            padding: '8px',
-                            cursor: 'pointer',
-                            borderRadius: '4px',
-                            marginBottom: '4px',
-                            background: 'transparent',
-                            border: 'none',
-                            color: theme === 'dark' ? '#ffffff' : '#1a202c',
-                            fontSize: '14px',
-                            width: '100%',
-                            textAlign: 'left',
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.background = theme === 'dark' ? 'rgba(74, 85, 104, 0.3)' : 'rgba(237, 242, 247, 0.8)';
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.background = 'transparent';
-                          }}
-                        >
-                          <Plus size={16} />
-                          <span>{option.label}</span>
-                        </button>
-                      ))}
+                      {options.map(option => {
+                        const count = getMetadataCountByType(option.id);
+                        return (
+                          <div key={option.id} style={{ marginBottom: '6px' }}>
+                            <button
+                              type="button"
+                              onClick={() => addMetadata(option)}
+                              style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                gap: '8px',
+                                padding: '10px 12px',
+                                cursor: 'pointer',
+                                borderRadius: '6px',
+                                background: 'transparent',
+                                border: `1px solid ${theme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'}`,
+                                color: theme === 'dark' ? '#ffffff' : '#1a202c',
+                                fontSize: '14px',
+                                width: '100%',
+                                textAlign: 'left',
+                                transition: 'all 0.2s ease',
+                              }}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.background = theme === 'dark' ? 'rgba(74, 85, 104, 0.3)' : 'rgba(237, 242, 247, 0.8)';
+                                e.currentTarget.style.borderColor = theme === 'dark' ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.2)';
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.background = 'transparent';
+                                e.currentTarget.style.borderColor = theme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+                              }}
+                            >
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <Plus size={16} />
+                                <div>
+                                  <div style={{ fontWeight: '500' }}>{option.label}</div>
+                                  {option.description && (
+                                    <div style={{ 
+                                      fontSize: '12px', 
+                                      color: theme === 'dark' ? '#a0aec0' : '#6b7280',
+                                      marginTop: '2px'
+                                    }}>
+                                      {option.description}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <span style={{ 
+                                  fontSize: '11px', 
+                                  color: theme === 'dark' ? '#60a5fa' : '#2563eb',
+                                  fontWeight: '500',
+                                  padding: '2px 6px',
+                                  background: theme === 'dark' ? 'rgba(96, 165, 250, 0.1)' : 'rgba(37, 99, 235, 0.1)',
+                                  borderRadius: '4px'
+                                }}>
+                                  {option.inputType.toUpperCase()}
+                                </span>
+                                {count > 0 && (
+                                  <span style={{ 
+                                    fontSize: '11px', 
+                                    color: '#ffffff',
+                                    fontWeight: '600',
+                                    padding: '2px 6px',
+                                    background: theme === 'dark' ? '#10b981' : '#059669',
+                                    borderRadius: '10px'
+                                  }}>
+                                    {count}
+                                  </span>
+                                )}
+                              </div>
+                            </button>
+                          </div>
+                        );
+                      })}
                     </div>
                   ))}
                 </div>
