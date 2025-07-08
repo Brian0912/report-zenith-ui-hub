@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useTheme } from './ThemeProvider';
 import { Report } from './mockData';
@@ -8,9 +7,15 @@ interface ReportGridProps {
   reports: Report[];
   viewMode: 'grid' | 'list';
   onSubscribe: (reportId: string) => void;
+  onViewLogs: (reportId: string) => void;
 }
 
-export const ReportGrid: React.FC<ReportGridProps> = ({ reports, viewMode, onSubscribe }) => {
+export const ReportGrid: React.FC<ReportGridProps> = ({ 
+  reports, 
+  viewMode, 
+  onSubscribe,
+  onViewLogs 
+}) => {
   const { theme } = useTheme();
 
   const gridStyle: React.CSSProperties = {
@@ -76,6 +81,7 @@ export const ReportGrid: React.FC<ReportGridProps> = ({ reports, viewMode, onSub
           report={report}
           viewMode={viewMode}
           onSubscribe={onSubscribe}
+          onViewLogs={onViewLogs}
           animationDelay={index * 100}
         />
       ))}

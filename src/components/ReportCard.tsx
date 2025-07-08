@@ -1,10 +1,9 @@
+
 import React, { useState } from 'react';
-import { Button } from '@arco-design/web-react';
-import { IconDownload } from '@arco-design/web-react/icon';
+import { useNavigate } from 'react-router-dom';
+import { Eye, Download, List, ChevronDown } from 'lucide-react';
 import { useTheme } from './ThemeProvider';
 import { Report } from './mockData';
-import { TimeRangeSelector } from './TimeRangeSelector';
-import { DateSelector } from './DateSelector';
 import { ReportHeader } from './ReportHeader';
 import { ReportMetadata } from './ReportMetadata';
 import { ReportProgress } from './ReportProgress';
@@ -17,13 +16,20 @@ interface ReportCardProps {
   viewMode: 'grid' | 'list';
   onSubscribe: (reportId: string) => void;
   animationDelay: number;
+  onViewLogs: (reportId: string) => void;
 }
 
-export const ReportCard: React.FC<ReportCardProps> = ({ report, viewMode, onSubscribe, animationDelay }) => {
+export const ReportCard: React.FC<ReportCardProps> = ({ 
+  report, 
+  viewMode, 
+  onSubscribe, 
+  animationDelay,
+  onViewLogs 
+}) => {
   const { theme } = useTheme();
+  const navigate = useNavigate();
   const [isHovered, setIsHovered] = useState(false);
-  const [timeRange, setTimeRange] = useState<{ start: Date; end: Date } | null>(null);
-  const [selectedDateRange, setSelectedDateRange] = useState<{ start: Date; end: Date } | undefined>();
+  const [showExportDropdown, setShowExportDropdown] = useState(false);
   const { downloadProgress, startDownload, cancelDownload } = useDownload();
 
   const getStatusGradient = (status: string) => {
@@ -88,42 +94,95 @@ export const ReportCard: React.FC<ReportCardProps> = ({ report, viewMode, onSubs
     marginBottom: '1rem'
   };
 
-  const downloadButtonStyle: React.CSSProperties = {
-    background: theme === 'dark'
-      ? 'linear-gradient(135deg, #10B981 0%, #14B8A6 100%)'
-      : 'linear-gradient(135deg, #059669 0%, #0D9488 100%)',
-    border: 'none',
-    borderRadius: '8px',
-    color: 'white',
-    fontSize: '0.875rem',
-    fontWeight: '500',
-    padding: '0.5rem 1rem',
+  const actionButtonsStyle: React.CSSProperties = {
+    display: 'flex',
+    gap: '8px',
+    justifyContent: 'flex-end',
     marginBottom: '1rem',
-    width: '100%',
+    flexWrap: 'wrap' as const
+  };
+
+  const buttonStyle: React.CSSProperties = {
+    height: '36px',
+    padding: '0 12px',
+    borderRadius: '8px',
+    border: 'none',
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'center',
-    gap: '0.5rem',
+    gap: '6px',
+    fontSize: '0.875rem',
+    fontWeight: '500',
     cursor: 'pointer',
-    transition: 'all 0.2s ease'
+    transition: 'all 0.2s ease',
+    background: theme === 'dark'
+      ? 'rgba(255, 255, 255, 0.1)'
+      : 'rgba(0, 0, 0, 0.05)',
+    color: theme === 'dark' ? '#F3F4F6' : '#374151'
   };
 
-  const handleTimeRangeChange = (range: { start: Date; end: Date }) => {
-    setTimeRange(range);
-    console.log('Time range selected:', range);
+  const primaryButtonStyle: React.CSSProperties = {
+    ...buttonStyle,
+    background: theme === 'dark'
+      ? 'linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%)'
+      : 'linear-gradient(135deg, #2563EB 0%, #1E40AF 100%)',
+    color: 'white'
   };
 
-  const handleDateRangeChange = (dateRange: { start: Date; end: Date } | undefined) => {
-    setSelectedDateRange(dateRange);
-    console.log('Date range selected:', dateRange);
+  const exportDropdownStyle: React.CSSProperties = {
+    position: 'relative' as const
+  };
+
+  const dropdownContentStyle: React.CSSProperties = {
+    position: 'absolute' as const,
+    top: '40px',
+    right: '0',
+    background: theme === 'dark'
+      ? 'rgba(30, 30, 30, 0.95)'
+      : 'rgba(255, 255, 255, 0.95)',
+    backdropFilter: 'blur(20px)',
+    border: theme === 'dark'
+      ? '1px solid rgba(255, 255, 255, 0.1)'
+      : '1px solid rgba(0, 0, 0, 0.1)',
+    borderRadius: '8px',
+    boxShadow: theme === 'dark'
+      ? '0 8px 32px rgba(0, 0, 0, 0.3)'
+      : '0 8px 32px rgba(0, 0, 0, 0.1)',
+    zIndex: 10,
+    minWidth: '200px',
+    padding: '8px'
+  };
+
+  const dropdownItemStyle: React.CSSProperties = {
+    padding: '8px 12px',
+    borderRadius: '4px',
+    cursor: 'pointer',
+    fontSize: '0.875rem',
+    color: theme === 'dark' ? '#F3F4F6' : '#374151',
+    transition: 'background 0.2s ease'
+  };
+
+  const handleViewDetails = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    navigate(`/tasks/${report.id}/report`);
+  };
+
+  const handleExportClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowExportDropdown(!showExportDropdown);
+  };
+
+  const handleExportOption = (option: string) => {
+    startDownload(`${report.title} - ${option}`, report.id);
+    setShowExportDropdown(false);
+  };
+
+  const handleViewLogs = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onViewLogs(report.id);
   };
 
   const handleSubscribe = () => {
     onSubscribe(report.id);
-  };
-
-  const handleDownload = () => {
-    startDownload(report.title, report.id);
   };
 
   return (
@@ -139,17 +198,84 @@ export const ReportCard: React.FC<ReportCardProps> = ({ report, viewMode, onSubs
           
           <p style={descriptionStyle}>{report.description}</p>
           
-          <Button
-            style={downloadButtonStyle}
-            onClick={handleDownload}
-            disabled={downloadProgress.isDownloading}
-          >
-            <IconDownload />
-            {downloadProgress.isDownloading ? 'Downloading...' : 'Download Report'}
-          </Button>
-          
-          <TimeRangeSelector onTimeRangeChange={handleTimeRangeChange} />
-          <DateSelector onDateChange={handleDateRangeChange} />
+          <div style={actionButtonsStyle}>
+            <button
+              style={primaryButtonStyle}
+              onClick={handleViewDetails}
+              title="View full report details"
+            >
+              <Eye size={16} />
+              View Details
+            </button>
+            
+            <div style={exportDropdownStyle}>
+              <button
+                style={buttonStyle}
+                onClick={handleExportClick}
+                title="Export report and evidences"
+              >
+                <Download size={16} />
+                Export
+                <ChevronDown size={14} />
+              </button>
+              
+              {showExportDropdown && (
+                <div style={dropdownContentStyle}>
+                  <div 
+                    style={dropdownItemStyle}
+                    onClick={() => handleExportOption('Complete Package')}
+                    onMouseEnter={(e) => {
+                      (e.target as HTMLElement).style.background = theme === 'dark' 
+                        ? 'rgba(255, 255, 255, 0.1)' 
+                        : 'rgba(0, 0, 0, 0.05)';
+                    }}
+                    onMouseLeave={(e) => {
+                      (e.target as HTMLElement).style.background = 'transparent';
+                    }}
+                  >
+                    Download Complete Package
+                  </div>
+                  <div 
+                    style={dropdownItemStyle}
+                    onClick={() => handleExportOption('PDF Report')}
+                    onMouseEnter={(e) => {
+                      (e.target as HTMLElement).style.background = theme === 'dark' 
+                        ? 'rgba(255, 255, 255, 0.1)' 
+                        : 'rgba(0, 0, 0, 0.05)';
+                    }}
+                    onMouseLeave={(e) => {
+                      (e.target as HTMLElement).style.background = 'transparent';
+                    }}
+                  >
+                    Download PDF Report Only
+                  </div>
+                  <div 
+                    style={dropdownItemStyle}
+                    onClick={() => handleExportOption('Support Evidences')}
+                    onMouseEnter={(e) => {
+                      (e.target as HTMLElement).style.background = theme === 'dark' 
+                        ? 'rgba(255, 255, 255, 0.1)' 
+                        : 'rgba(0, 0, 0, 0.05)';
+                    }}
+                    onMouseLeave={(e) => {
+                      (e.target as HTMLElement).style.background = 'transparent';
+                    }}
+                  >
+                    Download Support Evidences
+                  </div>
+                </div>
+              )}
+            </div>
+            
+            <button
+              style={buttonStyle}
+              onClick={handleViewLogs}
+              title="View task execution logs"
+            >
+              <List size={16} />
+              View Logs
+            </button>
+          </div>
           
           <ReportMetadata 
             pointOfContact={report.pointOfContact}

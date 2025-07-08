@@ -1,8 +1,10 @@
+
 import React, { useState, useEffect } from 'react';
 import { Header } from './Header';
 import { MetricsDashboard } from './MetricsDashboard';
 import { SearchAndFilters } from './SearchAndFilters';
 import { ReportGrid } from './ReportGrid';
+import { TaskLogsSidebar } from './TaskLogsSidebar';
 import { ThemeProvider, useTheme } from './ThemeProvider';
 import { mockReports, Report } from './mockData';
 
@@ -20,6 +22,8 @@ const ReportCenterContent: React.FC<ReportCenterProps> = ({
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+  const [isLogsSidebarOpen, setIsLogsSidebarOpen] = useState(false);
 
   const filteredReports = reports.filter(report => {
     const matchesSearch = report.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -40,14 +44,25 @@ const ReportCenterContent: React.FC<ReportCenterProps> = ({
     setIsTaskModalOpen(true);
   };
 
-  const backgroundStyle: React.CSSProperties = {
+  const handleViewLogs = (reportId: string) => {
+    setSelectedTaskId(reportId);
+    setIsLogsSidebarOpen(true);
+  };
+
+  const handleCloseLogs = () => {
+    setIsLogsSidebarOpen(false);
+    setSelectedTaskId(null);
+  };
+
+  const containerStyle: React.CSSProperties = {
     minHeight: '100vh',
     background: theme === 'dark' 
       ? 'linear-gradient(135deg, #0A0A0B 0%, #1A1A1B 50%, #0F0F10 100%)'
       : 'linear-gradient(135deg, #FAFAFA 0%, #FFFFFF 50%, #F8F9FA 100%)',
     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
     position: 'relative',
-    overflow: 'hidden'
+    overflow: 'hidden',
+    marginRight: isLogsSidebarOpen ? '600px' : '0'
   };
 
   const overlayStyle: React.CSSProperties = {
@@ -63,8 +78,10 @@ const ReportCenterContent: React.FC<ReportCenterProps> = ({
     animation: 'float 20s ease-in-out infinite'
   };
 
+  const selectedTask = selectedTaskId ? reports.find(r => r.id === selectedTaskId) : null;
+
   return (
-    <div style={backgroundStyle}>
+    <div style={containerStyle}>
       <div style={overlayStyle} />
       <div style={{ position: 'relative', zIndex: 1 }}>
         <Header onCreateTask={handleCreateTask} />
@@ -82,9 +99,19 @@ const ReportCenterContent: React.FC<ReportCenterProps> = ({
             reports={filteredReports}
             viewMode={viewMode}
             onSubscribe={handleSubscribe}
+            onViewLogs={handleViewLogs}
           />
         </div>
       </div>
+
+      {isLogsSidebarOpen && selectedTask && (
+        <TaskLogsSidebar
+          task={selectedTask}
+          isOpen={isLogsSidebarOpen}
+          onClose={handleCloseLogs}
+        />
+      )}
+
       <style>{`
         @keyframes float {
           0%, 100% { transform: translateY(0px) rotate(0deg); }
