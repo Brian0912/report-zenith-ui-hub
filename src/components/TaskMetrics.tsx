@@ -7,8 +7,8 @@ export const TaskMetrics: React.FC = () => {
 
   const containerStyle: React.CSSProperties = {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-    gap: '16px',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
+    gap: '12px',
     marginTop: '16px',
   };
 
@@ -23,24 +23,24 @@ export const TaskMetrics: React.FC = () => {
         ? 'rgba(45, 55, 72, 0.6)'
         : 'rgba(255, 255, 255, 0.8)',
       backdropFilter: 'blur(10px)',
-      borderRadius: '12px',
-      padding: '16px',
+      borderRadius: '8px',
+      padding: '12px',
       border: `1px solid ${theme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'}`,
       display: 'flex',
       alignItems: 'center',
-      gap: '12px',
+      gap: '8px',
       transition: 'all 0.2s ease',
     };
 
     const iconStyle: React.CSSProperties = {
-      width: '40px',
-      height: '40px',
-      borderRadius: '8px',
+      width: '32px',
+      height: '32px',
+      borderRadius: '6px',
       background: color,
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      fontSize: '18px',
+      fontSize: '14px',
     };
 
     const contentStyle: React.CSSProperties = {
@@ -48,14 +48,14 @@ export const TaskMetrics: React.FC = () => {
     };
 
     const valueStyle: React.CSSProperties = {
-      fontSize: '24px',
+      fontSize: '18px',
       fontWeight: '700',
       color: theme === 'dark' ? '#ffffff' : '#1a202c',
       margin: 0,
     };
 
     const titleStyle: React.CSSProperties = {
-      fontSize: '12px',
+      fontSize: '10px',
       fontWeight: '500',
       color: theme === 'dark' ? '#a0aec0' : '#718096',
       textTransform: 'uppercase',
@@ -67,10 +67,10 @@ export const TaskMetrics: React.FC = () => {
       <div 
         style={cardStyle}
         onMouseEnter={(e) => {
-          e.currentTarget.style.transform = 'translateY(-2px)';
+          e.currentTarget.style.transform = 'translateY(-1px)';
           e.currentTarget.style.boxShadow = theme === 'dark'
-            ? '0 8px 20px rgba(0, 0, 0, 0.4)'
-            : '0 8px 20px rgba(0, 0, 0, 0.15)';
+            ? '0 4px 12px rgba(0, 0, 0, 0.3)'
+            : '0 4px 12px rgba(0, 0, 0, 0.1)';
         }}
         onMouseLeave={(e) => {
           e.currentTarget.style.transform = 'translateY(0)';
