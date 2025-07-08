@@ -54,8 +54,8 @@ export const MetricsDashboard: React.FC<MetricsDashboardProps> = ({ reports }) =
 
   const containerStyle: React.CSSProperties = {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-    gap: '1.5rem',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+    gap: '1rem',
     marginBottom: '2rem'
   };
 
@@ -64,14 +64,14 @@ export const MetricsDashboard: React.FC<MetricsDashboardProps> = ({ reports }) =
       ? `linear-gradient(135deg, ${gradientColors[0]} 0%, ${gradientColors[1]} 100%)`
       : `linear-gradient(135deg, ${gradientColors[2]} 0%, ${gradientColors[3]} 100%)`,
     backdropFilter: 'blur(20px)',
-    borderRadius: '16px',
-    padding: '1.5rem',
+    borderRadius: '12px',
+    padding: '1rem',
     border: theme === 'dark' 
       ? '1px solid rgba(255, 255, 255, 0.1)'
       : '1px solid rgba(0, 0, 0, 0.1)',
     boxShadow: theme === 'dark'
-      ? '0 8px 32px rgba(0, 0, 0, 0.3)'
-      : '0 8px 32px rgba(0, 0, 0, 0.1)',
+      ? '0 6px 24px rgba(0, 0, 0, 0.25)'
+      : '0 6px 24px rgba(0, 0, 0, 0.08)',
     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
     position: 'relative' as const,
     overflow: 'hidden'
@@ -88,16 +88,16 @@ export const MetricsDashboard: React.FC<MetricsDashboardProps> = ({ reports }) =
     const cardStyle = createMetricCardStyle(gradientColors);
     
     const valueStyle: React.CSSProperties = {
-      fontSize: '2.5rem',
+      fontSize: '2rem',
       fontWeight: '800',
       color: 'white',
-      margin: '0.5rem 0',
+      margin: '0.4rem 0',
       textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
       animation: isAnimated ? 'pulse 2s ease-in-out infinite' : 'none'
     };
 
     const titleStyle: React.CSSProperties = {
-      fontSize: '0.875rem',
+      fontSize: '0.75rem',
       fontWeight: '600',
       color: 'rgba(255, 255, 255, 0.9)',
       textTransform: 'uppercase' as const,
@@ -106,8 +106,8 @@ export const MetricsDashboard: React.FC<MetricsDashboardProps> = ({ reports }) =
     };
 
     const iconStyle: React.CSSProperties = {
-      fontSize: '2rem',
-      marginBottom: '0.5rem',
+      fontSize: '1.5rem',
+      marginBottom: '0.4rem',
       display: 'block'
     };
 
@@ -115,16 +115,16 @@ export const MetricsDashboard: React.FC<MetricsDashboardProps> = ({ reports }) =
       <div 
         style={cardStyle}
         onMouseEnter={(e) => {
-          e.currentTarget.style.transform = 'translateY(-4px) scale(1.02)';
+          e.currentTarget.style.transform = 'translateY(-2px) scale(1.01)';
           e.currentTarget.style.boxShadow = theme === 'dark'
-            ? '0 12px 48px rgba(0, 0, 0, 0.4)'
-            : '0 12px 48px rgba(0, 0, 0, 0.15)';
+            ? '0 8px 32px rgba(0, 0, 0, 0.35)'
+            : '0 8px 32px rgba(0, 0, 0, 0.12)';
         }}
         onMouseLeave={(e) => {
           e.currentTarget.style.transform = 'translateY(0) scale(1)';
           e.currentTarget.style.boxShadow = theme === 'dark'
-            ? '0 8px 32px rgba(0, 0, 0, 0.3)'
-            : '0 8px 32px rgba(0, 0, 0, 0.1)';
+            ? '0 6px 24px rgba(0, 0, 0, 0.25)'
+            : '0 6px 24px rgba(0, 0, 0, 0.08)';
         }}
       >
         <div style={iconStyle}>{icon}</div>

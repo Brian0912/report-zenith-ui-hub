@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import { ReportCenter } from '../components/ReportCenter';
 import { TaskCreationButton } from '../components/TaskCreationButton';
 import { TaskCreationModal } from '../components/TaskCreationModal';
-import { TaskMetrics } from '../components/TaskMetrics';
 import { useTheme } from '../components/ThemeProvider';
 
 export const Index: React.FC = () => {
@@ -32,7 +31,6 @@ export const Index: React.FC = () => {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: '24px',
   };
 
   const titleStyle: React.CSSProperties = {
@@ -49,7 +47,6 @@ export const Index: React.FC = () => {
           <h1 style={titleStyle}>Sentinel Dashboard</h1>
           <TaskCreationButton onClick={() => setIsTaskModalOpen(true)} />
         </div>
-        <TaskMetrics />
       </div>
       
       <ReportCenter />
