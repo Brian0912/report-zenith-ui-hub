@@ -1,8 +1,13 @@
 
 import React from 'react';
 import { useTheme } from './ThemeProvider';
+import { TaskCreationButton } from './TaskCreationButton';
 
-export const Header: React.FC = () => {
+interface HeaderProps {
+  onCreateTask: () => void;
+}
+
+export const Header: React.FC<HeaderProps> = ({ onCreateTask }) => {
   const { theme, toggleTheme } = useTheme();
 
   const headerStyle: React.CSSProperties = {
@@ -57,29 +62,38 @@ export const Header: React.FC = () => {
     margin: '0 auto'
   };
 
+  const rightSectionStyle: React.CSSProperties = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px'
+  };
+
   return (
     <header style={headerStyle}>
       <div style={containerStyle}>
         <h1 style={titleStyle}>Report Center</h1>
-        <button
-          style={themeToggleStyle}
-          onClick={toggleTheme}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = 'scale(1.1)';
-            e.currentTarget.style.background = theme === 'dark'
-              ? 'rgba(255, 255, 255, 0.2)'
-              : 'rgba(0, 0, 0, 0.2)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'scale(1)';
-            e.currentTarget.style.background = theme === 'dark'
-              ? 'rgba(255, 255, 255, 0.1)'
-              : 'rgba(0, 0, 0, 0.1)';
-          }}
-          aria-label="Toggle theme"
-        >
-          {theme === 'dark' ? '☀️' : '🌙'}
-        </button>
+        <div style={rightSectionStyle}>
+          <TaskCreationButton onClick={onCreateTask} />
+          <button
+            style={themeToggleStyle}
+            onClick={toggleTheme}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'scale(1.1)';
+              e.currentTarget.style.background = theme === 'dark'
+                ? 'rgba(255, 255, 255, 0.2)'
+                : 'rgba(0, 0, 0, 0.2)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'scale(1)';
+              e.currentTarget.style.background = theme === 'dark'
+                ? 'rgba(255, 255, 255, 0.1)'
+                : 'rgba(0, 0, 0, 0.1)';
+            }}
+            aria-label="Toggle theme"
+          >
+            {theme === 'dark' ? '☀️' : '🌙'}
+          </button>
+        </div>
       </div>
     </header>
   );

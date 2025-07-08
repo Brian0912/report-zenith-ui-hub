@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Header } from './Header';
 import { MetricsDashboard } from './MetricsDashboard';
@@ -7,7 +6,15 @@ import { ReportGrid } from './ReportGrid';
 import { ThemeProvider, useTheme } from './ThemeProvider';
 import { mockReports, Report } from './mockData';
 
-const ReportCenterContent: React.FC = () => {
+interface ReportCenterProps {
+  isTaskModalOpen?: boolean;
+  setIsTaskModalOpen?: (isOpen: boolean) => void;
+}
+
+const ReportCenterContent: React.FC<ReportCenterProps> = ({ 
+  isTaskModalOpen = false, 
+  setIsTaskModalOpen = () => {} 
+}) => {
   const { theme } = useTheme();
   const [reports, setReports] = useState<Report[]>(mockReports);
   const [searchTerm, setSearchTerm] = useState('');
@@ -27,6 +34,10 @@ const ReportCenterContent: React.FC = () => {
         ? { ...report, isSubscribed: !report.isSubscribed, subscriberCount: report.isSubscribed ? report.subscriberCount - 1 : report.subscriberCount + 1 }
         : report
     ));
+  };
+
+  const handleCreateTask = () => {
+    setIsTaskModalOpen(true);
   };
 
   const backgroundStyle: React.CSSProperties = {
@@ -56,7 +67,7 @@ const ReportCenterContent: React.FC = () => {
     <div style={backgroundStyle}>
       <div style={overlayStyle} />
       <div style={{ position: 'relative', zIndex: 1 }}>
-        <Header />
+        <Header onCreateTask={handleCreateTask} />
         <div style={{ padding: '2rem', maxWidth: '1400px', margin: '0 auto' }}>
           <MetricsDashboard reports={reports} />
           <SearchAndFilters 
@@ -105,10 +116,10 @@ const ReportCenterContent: React.FC = () => {
   );
 };
 
-export const ReportCenter: React.FC = () => {
+export const ReportCenter: React.FC<ReportCenterProps> = (props) => {
   return (
     <ThemeProvider>
-      <ReportCenterContent />
+      <ReportCenterContent {...props} />
     </ThemeProvider>
   );
 };
