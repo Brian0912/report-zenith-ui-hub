@@ -40,44 +40,47 @@ export const SlideOutPanel: React.FC<SlideOutPanelProps> = ({
 
   const panelStyle: React.CSSProperties = {
     position: 'fixed',
-    top: '80px', // Below the header
+    top: '80px',
     right: 0,
-    width: '45%',
-    minWidth: '500px',
+    width: '100%',
+    maxWidth: '480px',
+    minWidth: '400px',
     height: 'calc(100vh - 80px)',
     backgroundColor: theme === 'dark' ? '#1a1a2e' : '#ffffff',
     borderTopLeftRadius: '16px',
     borderBottomLeftRadius: '16px',
     boxShadow: theme === 'dark' 
-      ? '-8px 0 32px rgba(0, 0, 0, 0.4)' 
-      : '-8px 0 32px rgba(0, 0, 0, 0.15)',
+      ? '-6px 0 32px rgba(0, 0, 0, 0.4)' 
+      : '-6px 0 32px rgba(0, 0, 0, 0.12)',
     transform: isOpen ? 'translateX(0)' : 'translateX(100%)',
-    transition: 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+    transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
     zIndex: 1000,
     display: 'flex',
     flexDirection: 'column',
     overflow: 'hidden',
-    border: theme === 'dark' ? '1px solid #2d3748' : '1px solid #e2e8f0',
-    borderRight: 'none'
+    border: 'none'
   };
 
   const headerStyle: React.CSSProperties = {
-    padding: '24px',
+    padding: '24px 24px 16px 24px',
     borderBottom: theme === 'dark' ? '1px solid #2d3748' : '1px solid #e2e8f0',
     display: 'flex',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     backgroundColor: theme === 'dark' ? '#1a1a2e' : '#ffffff',
     position: 'sticky',
     top: 0,
-    zIndex: 10
+    zIndex: 10,
+    minHeight: '80px'
   };
 
   const titleStyle: React.CSSProperties = {
-    fontSize: '20px',
-    fontWeight: '600',
+    fontSize: '24px',
+    fontWeight: '700',
     color: theme === 'dark' ? '#ffffff' : '#1a202c',
-    margin: 0
+    margin: 0,
+    lineHeight: '1.3',
+    paddingRight: '16px'
   };
 
   const closeButtonStyle: React.CSSProperties = {
@@ -90,27 +93,42 @@ export const SlideOutPanel: React.FC<SlideOutPanelProps> = ({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    transition: 'all 0.2s ease'
+    transition: 'all 0.2s ease',
+    width: '36px',
+    height: '36px',
+    flexShrink: 0
   };
 
   const contentStyle: React.CSSProperties = {
     flex: 1,
     overflow: 'auto',
-    backgroundColor: theme === 'dark' ? '#1a1a2e' : '#ffffff'
+    backgroundColor: theme === 'dark' ? '#1a1a2e' : '#fafafa',
+    padding: '0'
   };
 
   const overlayStyle: React.CSSProperties = {
     position: 'fixed',
-    top: '80px', // Below the header
+    top: '80px',
     left: 0,
     right: 0,
     bottom: 0,
     backgroundColor: 'rgba(0, 0, 0, 0.2)',
     opacity: isOpen ? 1 : 0,
     visibility: isOpen ? 'visible' : 'hidden',
-    transition: 'opacity 0.4s ease, visibility 0.4s ease',
-    zIndex: 999
+    transition: 'opacity 0.3s ease, visibility 0.3s ease',
+    zIndex: 999,
+    backdropFilter: 'blur(2px)'
   };
+
+  // Responsive adjustments
+  const mediaQuery = window.matchMedia('(max-width: 768px)');
+  if (mediaQuery.matches) {
+    panelStyle.width = '100%';
+    panelStyle.minWidth = '100%';
+    panelStyle.maxWidth = '100%';
+    panelStyle.borderTopLeftRadius = '0';
+    panelStyle.borderBottomLeftRadius = '0';
+  }
 
   return (
     <>
