@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Eye, Download, List, MoreHorizontal } from 'lucide-react';
@@ -28,10 +29,10 @@ export const ReportCard: React.FC<ReportCardProps> = ({
   const [showMoreActions, setShowMoreActions] = useState(false);
   const { downloadProgress, startDownload, cancelDownload } = useDownload();
 
-  // Card container styles with increased height and flexbox
+  // Card container styles following design system
   const cardStyle: React.CSSProperties = {
     width: '400px',
-    height: '280px', // Increased from 200px to 280px
+    height: '200px',
     backgroundColor: '#FFFFFF',
     borderRadius: '12px',
     padding: '24px',
@@ -44,14 +45,7 @@ export const ReportCard: React.FC<ReportCardProps> = ({
     position: 'relative',
     display: 'flex',
     flexDirection: 'column',
-    justifyContent: 'space-between' // This ensures footer stays at bottom
-  };
-
-  // Content container to allow for proper flex layout
-  const contentStyle: React.CSSProperties = {
-    display: 'flex',
-    flexDirection: 'column',
-    flex: 1
+    justifyContent: 'space-between'
   };
 
   // Header section with title and status
@@ -100,7 +94,7 @@ export const ReportCard: React.FC<ReportCardProps> = ({
     color: '#6B7280'
   };
 
-  // Description with more space due to increased height
+  // Description with truncation
   const descriptionStyle: React.CSSProperties = {
     fontSize: '14px',
     lineHeight: '20px',
@@ -108,10 +102,9 @@ export const ReportCard: React.FC<ReportCardProps> = ({
     color: '#374151',
     marginBottom: '16px',
     display: '-webkit-box',
-    WebkitLineClamp: 3, // Increased from 2 to 3 lines
+    WebkitLineClamp: 2,
     WebkitBoxOrient: 'vertical',
-    overflow: 'hidden',
-    flex: 1 // This takes available space
+    overflow: 'hidden'
   };
 
   // Metrics chips
@@ -131,12 +124,11 @@ export const ReportCard: React.FC<ReportCardProps> = ({
     color: '#6B7280'
   };
 
-  // Footer with actions - now properly positioned at bottom
+  // Footer with actions
   const footerStyle: React.CSSProperties = {
     display: 'flex',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: 'auto' // This pushes footer to bottom
+    alignItems: 'center'
   };
 
   const primaryButtonStyle: React.CSSProperties = {
@@ -264,8 +256,8 @@ export const ReportCard: React.FC<ReportCardProps> = ({
         }}
         onClick={() => navigate(`/tasks/${report.id}/report`)}
       >
-        <div style={contentStyle}>
-          {/* Header */}
+        {/* Header */}
+        <div>
           <div style={headerStyle}>
             <h3 style={titleStyle}>{report.title}</h3>
             <ReportStatusBadge status={report.status} />
@@ -290,7 +282,7 @@ export const ReportCard: React.FC<ReportCardProps> = ({
           </div>
         </div>
 
-        {/* Footer - now properly at bottom */}
+        {/* Footer */}
         <div style={footerStyle}>
           <button
             style={primaryButtonStyle}

@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { SentinelHeader } from '../components/SentinelHeader';
 import { SearchAndFilters } from '../components/SearchAndFilters';
@@ -17,65 +18,25 @@ export const Index: React.FC = () => {
   const containerStyle: React.CSSProperties = {
     minHeight: '100vh',
     backgroundColor: '#fafafa',
-    display: 'flex',
-    flexDirection: 'column'
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
   };
 
   const contentContainerStyle: React.CSSProperties = {
     display: 'flex',
-    flex: 1,
-    height: 'calc(100vh - 80px)', // Full height minus header
+    gap: '32px',
     maxWidth: '1400px',
     margin: '0 auto',
     padding: '32px 24px',
-    gap: '24px', // 24px gap between task list and sidebar
-    overflow: 'hidden' // Prevent main container scroll
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
   };
 
   const mainContentStyle: React.CSSProperties = {
-    width: isPanelOpen ? '60%' : '100%', // 60% when panel is open, 100% when closed
-    display: 'flex',
-    flexDirection: 'column',
-    overflow: 'hidden', // Prevent overflow, let child scroll
-    transition: 'width 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
-  };
-
-  const scrollableContentStyle: React.CSSProperties = {
     flex: 1,
-    overflowY: 'auto', // Independent scroll for task list
-    paddingRight: '8px' // Space for scrollbar
+    minWidth: '0', // Prevents flex item from overflowing
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
   };
 
-  const sidebarStyle: React.CSSProperties = {
-    width: '40%', // 40% width for sidebar
-    height: '100%',
-    backgroundColor: '#ffffff',
-    borderRadius: '20px',
-    boxShadow: '0 4px 24px rgba(0, 0, 0, 0.10)',
-    display: 'flex',
-    flexDirection: 'column',
-    overflow: 'hidden',
-    animation: 'slideInFromRight 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
-  };
-
-  const sidebarHeaderStyle: React.CSSProperties = {
-    padding: '32px 32px 24px 32px',
-    borderBottom: '1px solid #f0f0f0',
-    backgroundColor: '#ffffff',
-    position: 'sticky',
-    top: 0,
-    zIndex: 10,
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start'
-  };
-
-  const sidebarContentStyle: React.CSSProperties = {
-    flex: 1,
-    overflowY: 'auto', // Independent scroll for sidebar
-    backgroundColor: '#fafafa'
-  };
-
+  // Filter reports based on search and status
   const filteredReports = useMemo(() => {
     return mockReports.filter(report => {
       const matchesSearch = searchTerm === '' || 
@@ -94,12 +55,12 @@ export const Index: React.FC = () => {
 
   const handleViewLogs = (reportId: string) => {
     setSelectedTaskId(reportId);
-    setIsTaskPanelOpen(false);
+    setIsTaskPanelOpen(false); // Close create task panel if open
   };
 
   const handleCreateTask = () => {
     setIsTaskPanelOpen(true);
-    setSelectedTaskId(null);
+    setSelectedTaskId(null); // Close logs panel if open
   };
 
   const handleCloseTaskPanel = () => {
@@ -119,32 +80,55 @@ export const Index: React.FC = () => {
 
   return (
     <div style={containerStyle}>
-      <SentinelHeader onCreateTask={handleCreateTask} />
+      <SentinelHeader 
+        onCreateTask={handleCreateTask}
+      />
       
       <div style={contentContainerStyle}>
-        {/* Main Content Area - Task List */}
-        <div style={mainContentStyle}>
-          <div style={scrollableContentStyle}>
-            {dateFilter && (
-              <SearchAndFilters 
-                dateFilter={dateFilter} 
-                setDateFilter={setDateFilter} 
-              />
-            )}
-            
-            <ReportGrid 
-              reports={filteredReports} 
-              onSubscribe={handleSubscribe} 
-              onViewLogs={handleViewLogs} 
+        <div style={mainContentStyle}>        
+          {dateFilter && (
+            <SearchAndFilters 
+              dateFilter={dateFilter} 
+              setDateFilter={setDateFilter} 
             />
-          </div>
+          )}
+          
+          <ReportGrid 
+            reports={filteredReports} 
+            onSubscribe={handleSubscribe} 
+            onViewLogs={handleViewLogs} 
+          />
         </div>
 
-        {/* Side Panel/Card - 40% width with independent scroll */}
+        {/* Embedded Card Panel */}
         {isPanelOpen && (
-          <div style={sidebarStyle}>
+          <div style={{
+            width: '520px',
+            minWidth: '480px',
+            maxWidth: '560px',
+            height: 'calc(100vh - 80px - 64px)', // Full height minus header and padding
+            backgroundColor: '#ffffff',
+            borderRadius: '20px',
+            boxShadow: '0 4px 24px rgba(0, 0, 0, 0.10)',
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden',
+            animation: 'slideInFromRight 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+            position: 'sticky',
+            top: '32px'
+          }}>
             {/* Panel Header */}
-            <div style={sidebarHeaderStyle}>
+            <div style={{
+              padding: '32px 32px 24px 32px',
+              borderBottom: '1px solid #f0f0f0',
+              backgroundColor: '#ffffff',
+              position: 'sticky',
+              top: 0,
+              zIndex: 10,
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'flex-start'
+            }}>
               <h2 style={{
                 fontSize: '28px',
                 fontWeight: '700',
@@ -186,8 +170,12 @@ export const Index: React.FC = () => {
               </button>
             </div>
 
-            {/* Panel Content with independent scroll */}
-            <div style={sidebarContentStyle}>
+            {/* Panel Content */}
+            <div style={{
+              flex: 1,
+              overflow: 'auto',
+              backgroundColor: '#fafafa'
+            }}>
               {isTaskPanelOpen ? (
                 <TaskCreationPanel onSuccess={handleTaskCreated} />
               ) : selectedTask ? (
@@ -218,38 +206,16 @@ export const Index: React.FC = () => {
           .content-container {
             flex-direction: column !important;
             gap: 24px !important;
-            height: auto !important;
           }
           
-          .main-content {
+          .panel-card {
             width: 100% !important;
-          }
-          
-          .sidebar {
-            width: 100% !important;
+            min-width: unset !important;
+            max-width: unset !important;
             height: auto !important;
             position: static !important;
             border-radius: 16px !important;
           }
-        }
-
-        /* Custom scrollbar styling */
-        ::-webkit-scrollbar {
-          width: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-          background: #f1f1f1;
-          border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb {
-          background: #c1c1c1;
-          border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-          background: #a8a8a8;
         }
       `}</style>
     </div>
