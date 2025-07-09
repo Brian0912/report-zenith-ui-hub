@@ -31,7 +31,7 @@ export const Sidebar: React.FC<SidebarProps> = () => {
       label: 'Risk & Finding Management',
       icon: '🔍',
       path: '/risk-finding',
-      description: 'Security Finding Tracker'
+      description: 'Aplus Finding Tracker'
     }
   ];
 
