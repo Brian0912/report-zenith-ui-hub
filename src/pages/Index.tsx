@@ -53,10 +53,6 @@ export const Index: React.FC = () => {
     <div style={containerStyle}>
       <SentinelHeader 
         onCreateTask={() => setIsTaskModalOpen(true)}
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
-        statusFilter={statusFilter}
-        setStatusFilter={setStatusFilter}
       />
       
       <div style={mainContentStyle}>
