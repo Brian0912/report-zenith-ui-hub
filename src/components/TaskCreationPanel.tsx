@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { ChevronDown, ChevronUp, Check, Loader2, Plus, Copy, Trash2, Info } from 'lucide-react';
 import { useTheme } from './ThemeProvider';
@@ -32,7 +33,7 @@ const metadataOptions: MetadataOption[] = [
   { id: 'username', label: 'Username', category: 'Employee', inputType: 'text', description: 'Employee username or login ID' },
   { id: 'department', label: 'Department', category: 'Employee', inputType: 'dropdown', dropdownOptions: ['Engineering', 'Security', 'Operations', 'Product'], description: 'Employee department' },
   { id: 'baseCountry', label: 'Base Country', category: 'Employee', inputType: 'text', description: 'Employee base country' },
-  { id: 'physicalCountry', label: 'Physical Country', inputType: 'text', description: 'Current physical location' },
+  { id: 'physicalCountry', label: 'Physical Country', category: 'Employee', inputType: 'text', description: 'Current physical location' },
   { id: 'employeeId', label: 'Employee ID', category: 'Employee', inputType: 'text', description: 'Unique employee identifier' },
   { id: 'rolePosition', label: 'Role/Position', category: 'Employee', inputType: 'text', description: 'Job title or role' },
   
@@ -278,7 +279,7 @@ export const TaskCreationPanel: React.FC<TaskCreationPanelProps> = ({ onSuccess 
       ...inputStyle,
       padding: '10px',
       fontSize: '14px',
-      borderColor: metadata.isValid ? (theme === 'dark' ? '#4a5568' : '#d1d5db') : (theme === 'dark' ? '#f56565' : '#e53e3e'}),
+      borderColor: metadata.isValid ? (theme === 'dark' ? '#4a5568' : '#d1d5db') : (theme === 'dark' ? '#f56565' : '#e53e3e'),
     };
 
     const errorStyle: React.CSSProperties = {
