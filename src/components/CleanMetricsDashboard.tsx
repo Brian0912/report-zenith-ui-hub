@@ -1,8 +1,11 @@
+
 import React from 'react';
 import { Report } from './mockData';
+
 interface CleanMetricsDashboardProps {
   reports: Report[];
 }
+
 export const CleanMetricsDashboard: React.FC<CleanMetricsDashboardProps> = ({
   reports
 }) => {
@@ -27,12 +30,14 @@ export const CleanMetricsDashboard: React.FC<CleanMetricsDashboardProps> = ({
     color: 'hsl(var(--warning))',
     icon: '⏳'
   }];
+
   const containerStyle: React.CSSProperties = {
     display: 'grid',
     gridTemplateColumns: 'repeat(4, 1fr)',
     gap: '24px',
     marginBottom: '32px'
   };
+
   const cardStyle: React.CSSProperties = {
     backgroundColor: 'hsl(var(--card))',
     borderRadius: '12px',
@@ -42,6 +47,7 @@ export const CleanMetricsDashboard: React.FC<CleanMetricsDashboardProps> = ({
     position: 'relative',
     overflow: 'hidden'
   };
+
   const accentBarStyle = (color: string): React.CSSProperties => ({
     position: 'absolute',
     top: 0,
@@ -50,6 +56,7 @@ export const CleanMetricsDashboard: React.FC<CleanMetricsDashboardProps> = ({
     height: '4px',
     backgroundColor: color
   });
+
   const iconStyle = (color: string): React.CSSProperties => ({
     width: '48px',
     height: '48px',
@@ -61,6 +68,7 @@ export const CleanMetricsDashboard: React.FC<CleanMetricsDashboardProps> = ({
     fontSize: '20px',
     marginBottom: '16px'
   });
+
   const valueStyle = (color: string): React.CSSProperties => ({
     fontSize: '32px',
     fontWeight: '700',
@@ -68,11 +76,30 @@ export const CleanMetricsDashboard: React.FC<CleanMetricsDashboardProps> = ({
     margin: 0,
     lineHeight: '1'
   });
+
   const labelStyle: React.CSSProperties = {
     fontSize: '14px',
     color: 'hsl(var(--muted-foreground))',
     fontWeight: '500',
     marginTop: '4px'
   };
-  return;
+
+  return (
+    <div style={containerStyle}>
+      {metrics.map((metric, index) => (
+        <div key={metric.label} style={cardStyle}>
+          <div style={accentBarStyle(metric.color)} />
+          <div style={iconStyle(metric.color)}>
+            {metric.icon}
+          </div>
+          <div style={valueStyle(metric.color)}>
+            {metric.value}
+          </div>
+          <div style={labelStyle}>
+            {metric.label}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
 };
