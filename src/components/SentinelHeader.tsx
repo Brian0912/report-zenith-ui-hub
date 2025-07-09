@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useTheme } from './ThemeProvider';
 import { Button } from './ui/button';
@@ -214,7 +215,6 @@ export const SentinelHeader: React.FC<SentinelHeaderProps> = ({
         </div>
 
         <div style={rightSectionStyle}>
-          <Button variant="ghost">Dashboard</Button>
           <Button onClick={onCreateTask}>
             Create Task
           </Button>

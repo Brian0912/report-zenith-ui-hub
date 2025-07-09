@@ -2,7 +2,6 @@
 import React, { useState } from 'react';
 import { RiskFindingPageHeader } from '../components/risk-finding/RiskFindingPageHeader';
 import { StatusSummaryCards } from '../components/risk-finding/StatusSummaryCards';
-import { SearchFilterBar } from '../components/risk-finding/SearchFilterBar';
 import { FindingsList } from '../components/risk-finding/FindingsList';
 import { FindingSubmissionModal } from '../components/risk-finding/FindingSubmissionModal';
 import { FindingDetailModal } from '../components/risk-finding/FindingDetailModal';
@@ -62,18 +61,14 @@ export const RiskFindingDashboard: React.FC = () => {
     <div style={containerStyle}>
       <RiskFindingPageHeader 
         onSubmitFinding={() => setIsSubmissionModalOpen(true)}
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
+        statusFilter={statusFilter}
+        onStatusChange={setStatusFilter}
       />
       
       <div style={mainContentStyle}>
         <StatusSummaryCards findings={filteredFindings} />
-        
-        <SearchFilterBar
-          searchTerm={searchTerm}
-          onSearchChange={setSearchTerm}
-          statusFilter={statusFilter}
-          onStatusChange={setStatusFilter}
-          onSubmitFinding={() => setIsSubmissionModalOpen(true)}
-        />
 
         <FindingsList
           findings={filteredFindings}

@@ -41,7 +41,7 @@ export const CleanMetricsDashboard: React.FC<CleanMetricsDashboardProps> = ({
   const cardStyle: React.CSSProperties = {
     backgroundColor: 'hsl(var(--card))',
     borderRadius: '12px',
-    padding: '24px',
+    padding: '16px',
     border: '1px solid hsl(var(--border))',
     boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
     position: 'relative',
@@ -58,19 +58,19 @@ export const CleanMetricsDashboard: React.FC<CleanMetricsDashboardProps> = ({
   });
 
   const iconStyle = (color: string): React.CSSProperties => ({
-    width: '48px',
-    height: '48px',
-    borderRadius: '12px',
+    width: '36px',
+    height: '36px',
+    borderRadius: '8px',
     backgroundColor: `${color}15`,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    fontSize: '20px',
-    marginBottom: '16px'
+    fontSize: '16px',
+    marginBottom: '12px'
   });
 
   const valueStyle = (color: string): React.CSSProperties => ({
-    fontSize: '32px',
+    fontSize: '24px',
     fontWeight: '700',
     color: color,
     margin: 0,
@@ -78,7 +78,7 @@ export const CleanMetricsDashboard: React.FC<CleanMetricsDashboardProps> = ({
   });
 
   const labelStyle: React.CSSProperties = {
-    fontSize: '14px',
+    fontSize: '12px',
     color: 'hsl(var(--muted-foreground))',
     fontWeight: '500',
     marginTop: '4px'
