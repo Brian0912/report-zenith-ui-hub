@@ -1,7 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { Header } from './Header';
-import { MetricsDashboard } from './MetricsDashboard';
 import { SearchAndFilters } from './SearchAndFilters';
 import { ReportGrid } from './ReportGrid';
 import { TaskLogsSidebar } from './TaskLogsSidebar';
@@ -78,7 +77,6 @@ const ReportCenterContent: React.FC<ReportCenterProps> = ({
       <div style={{ position: 'relative', zIndex: 1 }}>
         <Header onCreateTask={handleCreateTask} />
         <div style={mainContentStyle}>
-          <MetricsDashboard reports={reports} />
           <SearchAndFilters 
             dateFilter={dateFilter}
             setDateFilter={setDateFilter}

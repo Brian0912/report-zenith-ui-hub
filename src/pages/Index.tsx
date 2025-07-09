@@ -1,7 +1,6 @@
 
 import React, { useState, useMemo } from 'react';
 import { SentinelHeader } from '../components/SentinelHeader';
-import { CleanMetricsDashboard } from '../components/CleanMetricsDashboard';
 import { SearchAndFilters } from '../components/SearchAndFilters';
 import { ReportGrid } from '../components/ReportGrid';
 import { TaskCreationModal } from '../components/TaskCreationModal';
@@ -55,9 +54,7 @@ export const Index: React.FC = () => {
         onCreateTask={() => setIsTaskModalOpen(true)}
       />
       
-      <div style={mainContentStyle}>
-        <CleanMetricsDashboard reports={mockReports} />
-        
+      <div style={mainContentStyle}>        
         {dateFilter && (
           <SearchAndFilters 
             dateFilter={dateFilter} 
