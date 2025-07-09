@@ -26,7 +26,7 @@ export const RiskFindingDashboard: React.FC = () => {
 
   const containerStyle: React.CSSProperties = {
     minHeight: '100vh',
-    backgroundColor: '#f9fafb'
+    backgroundColor: 'hsl(var(--muted))'
   };
 
   const mainContentStyle: React.CSSProperties = {
@@ -42,14 +42,14 @@ export const RiskFindingDashboard: React.FC = () => {
   const titleStyle: React.CSSProperties = {
     fontSize: '28px',
     fontWeight: '700',
-    color: '#1f2937',
+    color: 'hsl(var(--foreground))',
     margin: 0,
     marginBottom: '8px'
   };
 
   const subtitleStyle: React.CSSProperties = {
     fontSize: '16px',
-    color: '#6b7280',
+    color: 'hsl(var(--muted-foreground))',
     margin: 0
   };
 

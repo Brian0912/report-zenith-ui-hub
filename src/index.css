@@ -2,86 +2,86 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 :root {
-  /* Clean Color System - Inspired by the reference design */
+  /* Clean Color System - Matching reference design */
   --background: 0 0% 100%;
-  --foreground: 220 8% 20%;
+  --foreground: 222 84% 4.9%;
   
   /* Surface Colors */
   --card: 0 0% 100%;
-  --card-foreground: 220 8% 20%;
+  --card-foreground: 222 84% 4.9%;
   
   --popover: 0 0% 100%;
-  --popover-foreground: 220 8% 20%;
+  --popover-foreground: 222 84% 4.9%;
   
-  /* Primary Colors - Professional blue system */
-  --primary: 217 91% 60%;
-  --primary-foreground: 0 0% 100%;
+  /* Primary Colors - Clean blue system */
+  --primary: 221 83% 53%;
+  --primary-foreground: 210 40% 98%;
   
   /* Secondary Colors */
-  --secondary: 220 14% 96%;
-  --secondary-foreground: 220 8% 35%;
+  --secondary: 210 40% 96%;
+  --secondary-foreground: 222 47% 11%;
   
   /* Muted Colors for subtle backgrounds */
-  --muted: 220 13% 97%;
-  --muted-foreground: 220 8% 46%;
+  --muted: 210 40% 98%;
+  --muted-foreground: 215 16% 47%;
   
   /* Accent Colors */
-  --accent: 220 14% 96%;
-  --accent-foreground: 220 8% 35%;
+  --accent: 210 40% 96%;
+  --accent-foreground: 222 47% 11%;
   
   /* Status Colors - Clean and professional */
-  --success: 142 70% 45%;
-  --success-foreground: 0 0% 100%;
+  --success: 142 76% 36%;
+  --success-foreground: 355 100% 97%;
   
-  --warning: 38 92% 50%;
-  --warning-foreground: 0 0% 100%;
+  --warning: 32 95% 44%;
+  --warning-foreground: 48 96% 89%;
   
   --destructive: 0 84% 60%;
-  --destructive-foreground: 0 0% 100%;
+  --destructive-foreground: 210 40% 98%;
   
   /* Border Colors */
-  --border: 220 13% 91%;
-  --input: 220 13% 91%;
-  --ring: 217 91% 60%;
+  --border: 214 32% 91%;
+  --input: 214 32% 91%;
+  --ring: 221 83% 53%;
   
   /* Clean radius system */
-  --radius: 0.5rem;
+  --radius: 0.75rem;
 }
 
 [data-theme="dark"] {
-  --background: 220 15% 7%;
-  --foreground: 220 15% 95%;
+  --background: 222 84% 4.9%;
+  --foreground: 210 40% 98%;
   
-  --card: 220 15% 9%;
-  --card-foreground: 220 15% 95%;
+  --card: 222 84% 4.9%;
+  --card-foreground: 210 40% 98%;
   
-  --popover: 220 15% 9%;
-  --popover-foreground: 220 15% 95%;
+  --popover: 222 84% 4.9%;
+  --popover-foreground: 210 40% 98%;
   
-  --primary: 217 91% 60%;
-  --primary-foreground: 0 0% 100%;
+  --primary: 221 83% 53%;
+  --primary-foreground: 222 84% 4.9%;
   
-  --secondary: 220 15% 12%;
-  --secondary-foreground: 220 15% 85%;
+  --secondary: 217 32% 17%;
+  --secondary-foreground: 210 40% 98%;
   
-  --muted: 220 15% 10%;
-  --muted-foreground: 220 9% 65%;
+  --muted: 217 32% 17%;
+  --muted-foreground: 215 20% 65%;
   
-  --accent: 220 15% 12%;
-  --accent-foreground: 220 15% 85%;
+  --accent: 217 32% 17%;
+  --accent-foreground: 210 40% 98%;
   
-  --success: 142 70% 45%;
-  --success-foreground: 0 0% 100%;
+  --success: 142 76% 36%;
+  --success-foreground: 142 76% 36%;
   
-  --warning: 38 92% 50%;
-  --warning-foreground: 0 0% 100%;
+  --warning: 32 95% 44%;
+  --warning-foreground: 32 95% 44%;
   
   --destructive: 0 84% 60%;
-  --destructive-foreground: 0 0% 100%;
+  --destructive-foreground: 210 40% 98%;
   
-  --border: 220 15% 18%;
-  --input: 220 15% 18%;
-  --ring: 217 91% 60%;
+  --border: 217 32% 17%;
+  --input: 217 32% 17%;
+  --ring: 221 83% 53%;
 }
 
 /* Reset and base styles */
@@ -98,36 +98,13 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
-  background-color: hsl(var(--background));
+  background-color: hsl(var(--muted));
   color: hsl(var(--foreground));
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 #root {
   min-height: 100vh;
-}
-
-/* Refined animations */
-@keyframes fade-in {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes slide-up {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 /* Clean scrollbar styles */
@@ -177,41 +154,4 @@ body {
 
 .card-shadow-lg {
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-}
-
-/* Status indicator styles */
-.status-indicator {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.25rem 0.75rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.025em;
-}
-
-.status-pending {
-  background-color: hsl(38 92% 50% / 0.1);
-  color: hsl(38 92% 35%);
-  border: 1px solid hsl(38 92% 50% / 0.2);
-}
-
-.status-testing {
-  background-color: hsl(142 70% 45% / 0.1);
-  color: hsl(142 70% 35%);
-  border: 1px solid hsl(142 70% 45% / 0.2);
-}
-
-.status-closed {
-  background-color: hsl(220 8% 46% / 0.1);
-  color: hsl(220 8% 35%);
-  border: 1px solid hsl(220 8% 46% / 0.2);
-}
-
-.status-active {
-  background-color: hsl(217 91% 60% / 0.1);
-  color: hsl(217 91% 45%);
-  border: 1px solid hsl(217 91% 60% / 0.2);
 }

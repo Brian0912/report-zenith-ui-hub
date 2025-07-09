@@ -19,15 +19,15 @@ export const StatusSummaryCards: React.FC<StatusSummaryCardsProps> = ({ findings
     marginBottom: '32px'
   };
 
-  const cardStyle = (accentColor: string): React.CSSProperties => ({
-    backgroundColor: 'white',
+  const cardStyle: React.CSSProperties = {
+    backgroundColor: 'hsl(var(--card))',
     borderRadius: '12px',
     padding: '24px',
-    border: '1px solid #e5e7eb',
+    border: '1px solid hsl(var(--border))',
     boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
     position: 'relative',
     overflow: 'hidden'
-  });
+  };
 
   const accentBarStyle = (color: string): React.CSSProperties => ({
     position: 'absolute',
@@ -38,11 +38,11 @@ export const StatusSummaryCards: React.FC<StatusSummaryCardsProps> = ({ findings
     backgroundColor: color
   });
 
-  const iconStyle = (bgColor: string): React.CSSProperties => ({
+  const iconStyle = (color: string): React.CSSProperties => ({
     width: '48px',
     height: '48px',
     borderRadius: '12px',
-    backgroundColor: bgColor,
+    backgroundColor: `${color}15`,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -50,48 +50,48 @@ export const StatusSummaryCards: React.FC<StatusSummaryCardsProps> = ({ findings
     marginBottom: '16px'
   });
 
-  const valueStyle: React.CSSProperties = {
+  const valueStyle = (color: string): React.CSSProperties => ({
     fontSize: '32px',
     fontWeight: '700',
-    color: '#1f2937',
+    color: color,
     margin: 0,
     lineHeight: '1'
-  };
+  });
 
   const labelStyle: React.CSSProperties = {
     fontSize: '14px',
-    color: '#6b7280',
+    color: 'hsl(var(--muted-foreground))',
     fontWeight: '500',
     marginTop: '4px'
   };
 
   return (
     <div style={containerStyle}>
-      <div style={cardStyle('#3b82f6')}>
-        <div style={accentBarStyle('#3b82f6')} />
-        <div style={iconStyle('#eff6ff')}>📊</div>
-        <div style={valueStyle}>{totalFindings}</div>
+      <div style={cardStyle}>
+        <div style={accentBarStyle('hsl(var(--primary))')} />
+        <div style={iconStyle('hsl(var(--primary))')}>📊</div>
+        <div style={valueStyle('hsl(var(--primary))')}>{totalFindings}</div>
         <div style={labelStyle}>Total Findings</div>
       </div>
 
-      <div style={cardStyle('#f59e0b')}>
-        <div style={accentBarStyle('#f59e0b')} />
-        <div style={iconStyle('#fffbeb')}>⏳</div>
-        <div style={valueStyle}>{pendingReview}</div>
+      <div style={cardStyle}>
+        <div style={accentBarStyle('hsl(var(--warning))')} />
+        <div style={iconStyle('hsl(var(--warning))')}>⏳</div>
+        <div style={valueStyle('hsl(var(--warning))')}>{pendingReview}</div>
         <div style={labelStyle}>Pending Review</div>
       </div>
 
-      <div style={cardStyle('#10b981')}>
-        <div style={accentBarStyle('#10b981')} />
-        <div style={iconStyle('#ecfdf5')}>🧪</div>
-        <div style={valueStyle}>{inTesting}</div>
+      <div style={cardStyle}>
+        <div style={accentBarStyle('hsl(var(--success))')} />
+        <div style={iconStyle('hsl(var(--success))')}>🧪</div>
+        <div style={valueStyle('hsl(var(--success))')}>{inTesting}</div>
         <div style={labelStyle}>In Testing</div>
       </div>
 
-      <div style={cardStyle('#6b7280')}>
-        <div style={accentBarStyle('#6b7280')} />
-        <div style={iconStyle('#f3f4f6')}>✅</div>
-        <div style={valueStyle}>{closed}</div>
+      <div style={cardStyle}>
+        <div style={accentBarStyle('hsl(var(--muted-foreground))')} />
+        <div style={iconStyle('hsl(var(--muted-foreground))')}>✅</div>
+        <div style={valueStyle('hsl(var(--muted-foreground))')}>{closed}</div>
         <div style={labelStyle}>Closed</div>
       </div>
     </div>

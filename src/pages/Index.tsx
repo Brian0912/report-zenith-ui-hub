@@ -1,31 +1,73 @@
 
 import React, { useState } from 'react';
-import { ReportCenter } from '../components/ReportCenter';
+import { SentinelHeader } from '../components/SentinelHeader';
+import { CleanMetricsDashboard } from '../components/CleanMetricsDashboard';
+import { SearchAndFilters } from '../components/SearchAndFilters';
+import { ReportGrid } from '../components/ReportGrid';
 import { TaskCreationModal } from '../components/TaskCreationModal';
-import { useTheme } from '../components/ThemeProvider';
+import { TaskLogsSidebar } from '../components/TaskLogsSidebar';
+import { mockReports } from '../components/mockData';
 
 export const Index: React.FC = () => {
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
-  const { theme } = useTheme();
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
 
   const containerStyle: React.CSSProperties = {
-    position: 'relative',
     minHeight: '100vh',
-    transition: 'margin-right 0.3s ease-in-out',
-    marginRight: isTaskModalOpen ? '450px' : '0',
+    backgroundColor: 'hsl(var(--muted))'
+  };
+
+  const mainContentStyle: React.CSSProperties = {
+    maxWidth: '1400px',
+    margin: '0 auto',
+    padding: '32px 24px'
+  };
+
+  const titleSectionStyle: React.CSSProperties = {
+    marginBottom: '32px'
+  };
+
+  const titleStyle: React.CSSProperties = {
+    fontSize: '28px',
+    fontWeight: '700',
+    color: 'hsl(var(--foreground))',
+    margin: 0,
+    marginBottom: '8px'
+  };
+
+  const subtitleStyle: React.CSSProperties = {
+    fontSize: '16px',
+    color: 'hsl(var(--muted-foreground))',
+    margin: 0
   };
 
   return (
     <div style={containerStyle}>
-      <ReportCenter 
-        isTaskModalOpen={isTaskModalOpen}
-        setIsTaskModalOpen={setIsTaskModalOpen}
-      />
+      <SentinelHeader onCreateTask={() => setIsTaskModalOpen(true)} />
       
-      <TaskCreationModal 
-        isOpen={isTaskModalOpen} 
-        onClose={() => setIsTaskModalOpen(false)} 
-      />
+      <div style={mainContentStyle}>
+        <div style={titleSectionStyle}>
+          <h1 style={titleStyle}>Crystal Report Center</h1>
+          <p style={subtitleStyle}>
+            Comprehensive monitoring and reporting dashboard
+          </p>
+        </div>
+
+        <CleanMetricsDashboard reports={mockReports} />
+        <SearchAndFilters />
+        <ReportGrid reports={mockReports} onReportClick={(id) => setSelectedTaskId(id)} />
+
+        {isTaskModalOpen && (
+          <TaskCreationModal onClose={() => setIsTaskModalOpen(false)} />
+        )}
+
+        {selectedTaskId && (
+          <TaskLogsSidebar
+            taskId={selectedTaskId}
+            onClose={() => setSelectedTaskId(null)}
+          />
+        )}
+      </div>
     </div>
   );
 };
