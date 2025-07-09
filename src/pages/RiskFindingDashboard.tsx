@@ -35,24 +35,6 @@ export const RiskFindingDashboard: React.FC = () => {
     padding: '32px 24px'
   };
 
-  const titleSectionStyle: React.CSSProperties = {
-    marginBottom: '32px'
-  };
-
-  const titleStyle: React.CSSProperties = {
-    fontSize: '28px',
-    fontWeight: '700',
-    color: 'hsl(var(--foreground))',
-    margin: 0,
-    marginBottom: '8px'
-  };
-
-  const subtitleStyle: React.CSSProperties = {
-    fontSize: '16px',
-    color: 'hsl(var(--muted-foreground))',
-    margin: 0
-  };
-
   const handleSubmitFinding = (findingData: any) => {
     const newFinding: Finding = {
       id: Date.now().toString(),
@@ -83,13 +65,6 @@ export const RiskFindingDashboard: React.FC = () => {
       />
       
       <div style={mainContentStyle}>
-        <div style={titleSectionStyle}>
-          <h1 style={titleStyle}>Security Finding Tracking Platform</h1>
-          <p style={subtitleStyle}>
-            Comprehensive security finding management and tracking system
-          </p>
-        </div>
-
         <StatusSummaryCards findings={filteredFindings} />
         
         <SearchFilterBar

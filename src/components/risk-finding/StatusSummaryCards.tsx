@@ -15,14 +15,14 @@ export const StatusSummaryCards: React.FC<StatusSummaryCardsProps> = ({ findings
   const containerStyle: React.CSSProperties = {
     display: 'grid',
     gridTemplateColumns: 'repeat(4, 1fr)',
-    gap: '24px',
-    marginBottom: '32px'
+    gap: '16px',
+    marginBottom: '24px'
   };
 
   const cardStyle: React.CSSProperties = {
     backgroundColor: 'hsl(var(--card))',
-    borderRadius: '12px',
-    padding: '24px',
+    borderRadius: '8px',
+    padding: '16px',
     border: '1px solid hsl(var(--border))',
     boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
     position: 'relative',
@@ -34,24 +34,24 @@ export const StatusSummaryCards: React.FC<StatusSummaryCardsProps> = ({ findings
     top: 0,
     left: 0,
     right: 0,
-    height: '4px',
+    height: '3px',
     backgroundColor: color
   });
 
   const iconStyle = (color: string): React.CSSProperties => ({
-    width: '48px',
-    height: '48px',
-    borderRadius: '12px',
+    width: '36px',
+    height: '36px',
+    borderRadius: '8px',
     backgroundColor: `${color}15`,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    fontSize: '20px',
-    marginBottom: '16px'
+    fontSize: '16px',
+    marginBottom: '12px'
   });
 
   const valueStyle = (color: string): React.CSSProperties => ({
-    fontSize: '32px',
+    fontSize: '24px',
     fontWeight: '700',
     color: color,
     margin: 0,
@@ -59,7 +59,7 @@ export const StatusSummaryCards: React.FC<StatusSummaryCardsProps> = ({ findings
   });
 
   const labelStyle: React.CSSProperties = {
-    fontSize: '14px',
+    fontSize: '12px',
     color: 'hsl(var(--muted-foreground))',
     fontWeight: '500',
     marginTop: '4px'

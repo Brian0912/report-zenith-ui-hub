@@ -25,24 +25,6 @@ export const AplusRiskManagement: React.FC = () => {
     padding: '32px 24px'
   };
 
-  const titleSectionStyle: React.CSSProperties = {
-    marginBottom: '32px'
-  };
-
-  const titleStyle: React.CSSProperties = {
-    fontSize: '28px',
-    fontWeight: '700',
-    color: '#1e293b',
-    margin: 0,
-    marginBottom: '8px'
-  };
-
-  const subtitleStyle: React.CSSProperties = {
-    fontSize: '16px',
-    color: '#64748b',
-    margin: 0
-  };
-
   const contentLayoutStyle: React.CSSProperties = {
     display: 'grid',
     gridTemplateColumns: '1fr',
@@ -63,13 +45,6 @@ export const AplusRiskManagement: React.FC = () => {
       <AplusHeader />
       
       <div style={mainContentStyle}>
-        <div style={titleSectionStyle}>
-          <h1 style={titleStyle}>API Risk Management Dashboard</h1>
-          <p style={subtitleStyle}>
-            Comprehensive API security risk assessment and monitoring
-          </p>
-        </div>
-
         <CleanMetricsDashboard reports={mockReports} />
         
         <div style={contentLayoutStyle}>

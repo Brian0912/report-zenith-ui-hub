@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from './components/ThemeProvider';
 import { Sidebar } from './components/Sidebar';
@@ -24,13 +24,16 @@ const App: React.FC = () => {
             <Sidebar />
             <main style={{ flex: 1, overflow: 'auto' }}>
               <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/aplus" element={<AplusRiskManagement />} />
-                <Route path="/risk-finding" element={<RiskFindingDashboard />} />
-                <Route path="/tasks/:id/report" element={<TaskReportDetailPage />} />
+                <Route path="/" element={<Navigate to="/sentinel/report-center" replace />} />
+                <Route path="/sentinel/report-center" element={<Index />} />
+                <Route path="/aplus" element={<Navigate to="/aplus/enhancement" replace />} />
+                <Route path="/aplus/enhancement" element={<AplusRiskManagement />} />
+                <Route path="/aplus/finding" element={<RiskFindingDashboard />} />
+                <Route path="/risk-finding" element={<Navigate to="/aplus/finding" replace />} />
                 <Route path="/governance/:id" element={<GovernancePage />} />
                 <Route path="/entity/:id" element={<EntityDetailPage />} />
                 <Route path="/entity/:entityId/risk/:riskId" element={<EntityRiskDetailPage />} />
+                <Route path="/tasks/:id/report" element={<TaskReportDetailPage />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </main>
