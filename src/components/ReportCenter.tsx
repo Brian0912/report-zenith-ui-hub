@@ -21,6 +21,7 @@ const ReportCenterContent: React.FC<ReportCenterProps> = ({
   const [reports, setReports] = useState<Report[]>(mockReports);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [dateFilter, setDateFilter] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [isLogsSidebarOpen, setIsLogsSidebarOpen] = useState(false);
@@ -84,6 +85,8 @@ const ReportCenterContent: React.FC<ReportCenterProps> = ({
             setSearchTerm={setSearchTerm}
             statusFilter={statusFilter}
             setStatusFilter={setStatusFilter}
+            dateFilter={dateFilter}
+            setDateFilter={setDateFilter}
             viewMode={viewMode}
             setViewMode={setViewMode}
           />
