@@ -15,25 +15,39 @@ export const Index: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState('');
   const [dateFilter, setDateFilter] = useState('');
 
+  const selectedTask = selectedTaskId ? mockReports.find(r => r.id === selectedTaskId) : null;
+  const isPanelOpen = isTaskPanelOpen || !!selectedTask;
+
   const containerStyle: React.CSSProperties = {
     minHeight: '100vh',
     backgroundColor: '#fafafa',
-    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+    display: 'flex',
+    flexDirection: 'column'
   };
 
   const contentContainerStyle: React.CSSProperties = {
     display: 'flex',
-    gap: '32px',
+    flex: 1,
+    gap: isPanelOpen ? '16px' : '0', // Reduced gap from 32px to 16px
     maxWidth: '1400px',
     margin: '0 auto',
     padding: '32px 24px',
-    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+    height: 'calc(100vh - 120px)', // Fixed height for proper scrolling
+    overflow: 'hidden'
   };
 
   const mainContentStyle: React.CSSProperties = {
+    flex: isPanelOpen ? '0 0 65%' : '1', // Adjusted width ratio - 65% when panel is open
+    minWidth: '0',
+    display: 'flex',
+    flexDirection: 'column',
+    overflow: 'hidden'
+  };
+
+  const scrollableContentStyle: React.CSSProperties = {
     flex: 1,
-    minWidth: '0', // Prevents flex item from overflowing
-    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+    overflowY: 'auto',
+    paddingRight: '8px' // Add some padding for scrollbar
   };
 
   // Filter reports based on search and status
@@ -55,12 +69,12 @@ export const Index: React.FC = () => {
 
   const handleViewLogs = (reportId: string) => {
     setSelectedTaskId(reportId);
-    setIsTaskPanelOpen(false); // Close create task panel if open
+    setIsTaskPanelOpen(false);
   };
 
   const handleCreateTask = () => {
     setIsTaskPanelOpen(true);
-    setSelectedTaskId(null); // Close logs panel if open
+    setSelectedTaskId(null);
   };
 
   const handleCloseTaskPanel = () => {
@@ -74,9 +88,6 @@ export const Index: React.FC = () => {
   const handleTaskCreated = () => {
     setIsTaskPanelOpen(false);
   };
-
-  const selectedTask = selectedTaskId ? mockReports.find(r => r.id === selectedTaskId) : null;
-  const isPanelOpen = isTaskPanelOpen || !!selectedTask;
 
   return (
     <div style={containerStyle}>
@@ -93,41 +104,38 @@ export const Index: React.FC = () => {
             />
           )}
           
-          <ReportGrid 
-            reports={filteredReports} 
-            onSubscribe={handleSubscribe} 
-            onViewLogs={handleViewLogs} 
-          />
+          <div style={scrollableContentStyle}>
+            <ReportGrid 
+              reports={filteredReports} 
+              onSubscribe={handleSubscribe} 
+              onViewLogs={handleViewLogs} 
+            />
+          </div>
         </div>
 
-        {/* Embedded Card Panel */}
+        {/* Panel with separate scroll */}
         {isPanelOpen && (
           <div style={{
-            width: '520px',
-            minWidth: '480px',
-            maxWidth: '560px',
-            height: 'calc(100vh - 80px - 64px)', // Full height minus header and padding
+            flex: '0 0 35%', // 35% width when open
+            minWidth: '400px',
+            height: '100%',
             backgroundColor: '#ffffff',
             borderRadius: '20px',
             boxShadow: '0 4px 24px rgba(0, 0, 0, 0.10)',
             display: 'flex',
             flexDirection: 'column',
             overflow: 'hidden',
-            animation: 'slideInFromRight 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-            position: 'sticky',
-            top: '32px'
+            animation: 'slideInFromRight 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
           }}>
             {/* Panel Header */}
             <div style={{
               padding: '32px 32px 24px 32px',
               borderBottom: '1px solid #f0f0f0',
               backgroundColor: '#ffffff',
-              position: 'sticky',
-              top: 0,
-              zIndex: 10,
               display: 'flex',
               justifyContent: 'space-between',
-              alignItems: 'flex-start'
+              alignItems: 'flex-start',
+              flexShrink: 0
             }}>
               <h2 style={{
                 fontSize: '28px',
@@ -170,10 +178,10 @@ export const Index: React.FC = () => {
               </button>
             </div>
 
-            {/* Panel Content */}
+            {/* Panel Content with separate scroll */}
             <div style={{
               flex: 1,
-              overflow: 'auto',
+              overflowY: 'auto',
               backgroundColor: '#fafafa'
             }}>
               {isTaskPanelOpen ? (
@@ -200,6 +208,25 @@ export const Index: React.FC = () => {
             transform: translateX(0);
             opacity: 1;
           }
+        }
+
+        /* Custom scrollbar styles */
+        *::-webkit-scrollbar {
+          width: 8px;
+        }
+
+        *::-webkit-scrollbar-track {
+          background: #f1f1f1;
+          border-radius: 4px;
+        }
+
+        *::-webkit-scrollbar-thumb {
+          background: #c1c1c1;
+          border-radius: 4px;
+        }
+
+        *::-webkit-scrollbar-thumb:hover {
+          background: #a1a1a1;
         }
 
         @media (max-width: 768px) {
