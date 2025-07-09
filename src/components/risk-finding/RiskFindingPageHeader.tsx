@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useTheme } from '../ThemeProvider';
 import { Button } from '../ui/button';
@@ -123,6 +122,26 @@ export const RiskFindingPageHeader: React.FC<RiskFindingPageHeaderProps> = ({
     fontSize: '14px'
   };
 
+  const filterContentStyle: React.CSSProperties = {
+    width: '200px',
+    padding: '16px',
+    backgroundColor: 'hsl(var(--popover))',
+    border: '1px solid hsl(var(--border))',
+    borderRadius: '8px',
+    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+  };
+
+  const filterOptionStyle = (isSelected: boolean): React.CSSProperties => ({
+    padding: '8px 12px',
+    cursor: 'pointer',
+    borderRadius: '4px',
+    backgroundColor: isSelected ? 'hsl(var(--accent))' : 'transparent',
+    color: 'hsl(var(--foreground))',
+    fontSize: '14px',
+    transition: 'background-color 0.2s ease',
+    marginBottom: '2px'
+  });
+
   const statusOptions = [
     { value: '', label: 'All Statuses' },
     { value: 'waiting_assignment', label: 'Waiting for Assignment' },
@@ -133,20 +152,6 @@ export const RiskFindingPageHeader: React.FC<RiskFindingPageHeaderProps> = ({
     { value: 'invalid_waiting', label: 'Invalid - Waiting' },
     { value: 'no_action_closed', label: 'No Action - Closed' }
   ];
-
-  const filterContentStyle: React.CSSProperties = {
-    width: '200px'
-  };
-
-  const filterOptionStyle = (isSelected: boolean): React.CSSProperties => ({
-    padding: '8px 12px',
-    cursor: 'pointer',
-    borderRadius: '4px',
-    backgroundColor: isSelected ? 'hsl(var(--accent))' : 'transparent',
-    color: 'hsl(var(--foreground))',
-    fontSize: '14px',
-    transition: 'background-color 0.2s ease'
-  });
 
   return (
     <header style={headerStyle}>
@@ -183,33 +188,35 @@ export const RiskFindingPageHeader: React.FC<RiskFindingPageHeaderProps> = ({
                   <h4 style={{ 
                     fontSize: '14px', 
                     fontWeight: '600', 
-                    marginBottom: '8px',
+                    marginBottom: '12px',
                     color: 'hsl(var(--foreground))'
                   }}>
                     Filter by Status
                   </h4>
-                  {statusOptions.map(option => (
-                    <div
-                      key={option.value}
-                      style={filterOptionStyle(statusFilter === option.value)}
-                      onClick={() => {
-                        onStatusChange(option.value);
-                        setIsFilterOpen(false);
-                      }}
-                      onMouseEnter={(e) => {
-                        if (statusFilter !== option.value) {
-                          e.currentTarget.style.backgroundColor = 'hsl(var(--muted))';
-                        }
-                      }}
-                      onMouseLeave={(e) => {
-                        if (statusFilter !== option.value) {
-                          e.currentTarget.style.backgroundColor = 'transparent';
-                        }
-                      }}
-                    >
-                      {option.label}
-                    </div>
-                  ))}
+                  <div>
+                    {statusOptions.map(option => (
+                      <div
+                        key={option.value}
+                        style={filterOptionStyle(statusFilter === option.value)}
+                        onClick={() => {
+                          onStatusChange(option.value);
+                          setIsFilterOpen(false);
+                        }}
+                        onMouseEnter={(e) => {
+                          if (statusFilter !== option.value) {
+                            e.currentTarget.style.backgroundColor = 'hsl(var(--muted))';
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (statusFilter !== option.value) {
+                            e.currentTarget.style.backgroundColor = 'transparent';
+                          }
+                        }}
+                      >
+                        {option.label}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </PopoverContent>
             </Popover>

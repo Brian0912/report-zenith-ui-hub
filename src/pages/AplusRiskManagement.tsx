@@ -1,7 +1,6 @@
 
 import React, { useState } from 'react';
 import { AplusHeader } from '../components/AplusHeader';
-import { CleanMetricsDashboard } from '../components/CleanMetricsDashboard';
 import { RiskFilters } from '../components/risk-management/RiskFilters';
 import { RiskMatrix } from '../components/risk-management/RiskMatrix';
 import { GovernanceSidebar } from '../components/risk-management/GovernanceSidebar';
@@ -44,9 +43,7 @@ export const AplusRiskManagement: React.FC = () => {
     <div style={containerStyle}>
       <AplusHeader />
       
-      <div style={mainContentStyle}>
-        <CleanMetricsDashboard reports={mockReports} />
-        
+      <div style={mainContentStyle}>        
         <div style={contentLayoutStyle}>
           <div style={filtersLayoutStyle}>
             <RiskFilters 
