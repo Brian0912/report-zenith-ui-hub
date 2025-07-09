@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useTheme } from './ThemeProvider';
 
@@ -7,6 +6,8 @@ interface SearchAndFiltersProps {
   setSearchTerm: (term: string) => void;
   statusFilter: string;
   setStatusFilter: (status: string) => void;
+  dateFilter: string;
+  setDateFilter: (date: string) => void;
   viewMode: 'grid' | 'list';
   setViewMode: (mode: 'grid' | 'list') => void;
 }
@@ -16,6 +17,8 @@ export const SearchAndFilters: React.FC<SearchAndFiltersProps> = ({
   setSearchTerm,
   statusFilter,
   setStatusFilter,
+  dateFilter,
+  setDateFilter,
   viewMode,
   setViewMode
 }) => {
