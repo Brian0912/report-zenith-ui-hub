@@ -63,7 +63,7 @@ export const Header: React.FC<HeaderProps> = ({ onCreateTask }) => {
   return (
     <header style={headerStyle}>
       <div style={containerStyle}>
-        <h1 style={titleStyle}>Crystal Report Center</h1>
+        <h1 style={titleStyle}>Report Center</h1>
         <div style={rightSectionStyle}>
           <TaskCreationButton onClick={onCreateTask} />
           <button

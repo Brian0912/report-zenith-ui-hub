@@ -27,6 +27,24 @@ export const Index: React.FC = () => {
     padding: '32px 24px'
   };
 
+  const titleSectionStyle: React.CSSProperties = {
+    marginBottom: '32px'
+  };
+
+  const titleStyle: React.CSSProperties = {
+    fontSize: '28px',
+    fontWeight: '700',
+    color: '#1e293b',
+    margin: 0,
+    marginBottom: '8px'
+  };
+
+  const subtitleStyle: React.CSSProperties = {
+    fontSize: '16px',
+    color: '#64748b',
+    margin: 0
+  };
+
   const handleSubscribe = (reportId: string) => {
     console.log('Subscribe to report:', reportId);
   };
@@ -42,6 +60,13 @@ export const Index: React.FC = () => {
       <SentinelHeader onCreateTask={() => setIsTaskModalOpen(true)} />
       
       <div style={mainContentStyle}>
+        <div style={titleSectionStyle}>
+          <h1 style={titleStyle}>Report Center</h1>
+          <p style={subtitleStyle}>
+            Comprehensive monitoring and reporting dashboard
+          </p>
+        </div>
+
         <CleanMetricsDashboard reports={mockReports} />
         <SearchAndFilters 
           searchTerm={searchTerm}

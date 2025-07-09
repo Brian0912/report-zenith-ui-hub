@@ -138,7 +138,7 @@ export const SentinelHeader: React.FC<SentinelHeaderProps> = ({ onCreateTask }) 
         <div style={leftSectionStyle}>
           <div style={logoStyle}>
             <div style={logoCircleStyle}>C</div>
-            <h1 style={logoTextStyle}>Crystal Report Center</h1>
+            <h1 style={logoTextStyle}>Report Center</h1>
           </div>
         </div>
 
