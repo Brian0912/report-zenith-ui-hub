@@ -9,7 +9,7 @@ export const Sidebar: React.FC<SidebarProps> = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const { theme, toggleTheme } = useTheme();
+  const { theme } = useTheme();
 
   const menuItems = [
     {
@@ -36,109 +36,95 @@ export const Sidebar: React.FC<SidebarProps> = () => {
   ];
 
   const sidebarStyle: React.CSSProperties = {
-    width: isCollapsed ? '70px' : '280px',
+    width: isCollapsed ? '80px' : '280px',
     height: '100vh',
-    backgroundColor: theme === 'dark' 
-      ? 'hsl(220 15% 9%)'
-      : 'hsl(0 0% 100%)',
-    borderRight: `1px solid ${theme === 'dark' ? 'hsl(220 15% 18%)' : 'hsl(220 13% 91%)'}`,
+    backgroundColor: 'hsl(var(--card))',
+    borderRight: '1px solid hsl(var(--border))',
     transition: 'all 0.3s ease',
     position: 'relative',
-    boxShadow: theme === 'dark' 
-      ? '2px 0 8px rgba(0, 0, 0, 0.2)'
-      : '2px 0 8px rgba(0, 0, 0, 0.05)',
-    zIndex: 1000
+    display: 'flex',
+    flexDirection: 'column'
   };
 
   const headerStyle: React.CSSProperties = {
-    padding: '24px 20px',
-    borderBottom: `1px solid ${theme === 'dark' ? 'hsl(220 15% 18%)' : 'hsl(220 13% 91%)'}`,
+    padding: '1.5rem',
+    borderBottom: '1px solid hsl(var(--border))',
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'space-between'
+    justifyContent: isCollapsed ? 'center' : 'flex-start'
   };
 
   const logoStyle: React.CSSProperties = {
-    fontSize: isCollapsed ? '20px' : '24px',
+    fontSize: isCollapsed ? '1.25rem' : '1.5rem',
     fontWeight: '700',
-    color: theme === 'dark' ? 'hsl(220 15% 95%)' : 'hsl(220 15% 15%)',
+    color: 'hsl(var(--foreground))',
     transition: 'all 0.3s ease'
   };
 
   const menuStyle: React.CSSProperties = {
-    padding: '20px 0',
+    padding: '1rem 0',
     flex: 1
   };
 
   const menuItemStyle = (isActive: boolean): React.CSSProperties => ({
     display: 'flex',
     alignItems: 'center',
-    padding: '14px 20px',
-    margin: '4px 12px',
+    padding: '0.75rem 1rem',
+    margin: '0.25rem 0.5rem',
     borderRadius: '8px',
     cursor: 'pointer',
     transition: 'all 0.2s ease',
     backgroundColor: isActive 
-      ? 'hsl(221 83% 53%)'
+      ? 'hsl(var(--primary))'
       : 'transparent',
     color: isActive
-      ? 'hsl(0 0% 98%)'
-      : (theme === 'dark' ? 'hsl(220 15% 85%)' : 'hsl(220 15% 25%)')
+      ? 'hsl(var(--primary-foreground))'
+      : 'hsl(var(--foreground))',
+    textDecoration: 'none'
   });
 
   const iconStyle: React.CSSProperties = {
-    fontSize: '18px',
-    marginRight: isCollapsed ? '0' : '12px',
+    fontSize: '1.125rem',
+    marginRight: isCollapsed ? '0' : '0.75rem',
     transition: 'all 0.3s ease'
   };
 
-  const labelStyle: React.CSSProperties = {
-    fontSize: '14px',
-    fontWeight: '500',
+  const labelContainerStyle: React.CSSProperties = {
     opacity: isCollapsed ? 0 : 1,
     transition: 'all 0.3s ease',
     whiteSpace: 'nowrap',
     overflow: 'hidden'
   };
 
+  const labelStyle: React.CSSProperties = {
+    fontSize: '0.875rem',
+    fontWeight: '500',
+    lineHeight: '1.25'
+  };
+
   const descriptionStyle: React.CSSProperties = {
-    fontSize: '12px',
-    opacity: isCollapsed ? 0 : 0.7,
-    transition: 'all 0.3s ease',
-    marginTop: '2px'
+    fontSize: '0.75rem',
+    opacity: 0.7,
+    marginTop: '0.125rem'
   };
 
   const toggleButtonStyle: React.CSSProperties = {
     position: 'absolute',
-    top: '20px',
-    right: '-15px',
-    width: '30px',
-    height: '30px',
+    top: '1.5rem',
+    right: '-12px',
+    width: '24px',
+    height: '24px',
     borderRadius: '50%',
-    backgroundColor: theme === 'dark' ? 'hsl(220 15% 12%)' : 'hsl(0 0% 100%)',
-    border: `1px solid ${theme === 'dark' ? 'hsl(220 15% 18%)' : 'hsl(220 13% 91%)'}`,
+    backgroundColor: 'hsl(var(--background))',
+    border: '1px solid hsl(var(--border))',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     cursor: 'pointer',
-    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+    fontSize: '0.75rem',
+    color: 'hsl(var(--muted-foreground))',
     transition: 'all 0.2s ease',
-    zIndex: 1001,
-    color: theme === 'dark' ? 'hsl(220 15% 85%)' : 'hsl(220 15% 25%)'
-  };
-
-  const themeToggleStyle: React.CSSProperties = {
-    position: 'absolute',
-    bottom: '20px',
-    left: '50%',
-    transform: 'translateX(-50%)',
-    padding: '12px',
-    borderRadius: '8px',
-    backgroundColor: theme === 'dark' ? 'hsl(220 15% 12%)' : 'hsl(220 13% 97%)',
-    border: `1px solid ${theme === 'dark' ? 'hsl(220 15% 18%)' : 'hsl(220 13% 91%)'}`,
-    cursor: 'pointer',
-    fontSize: '18px',
-    transition: 'all 0.2s ease'
+    zIndex: 1001
   };
 
   return (
@@ -147,10 +133,10 @@ export const Sidebar: React.FC<SidebarProps> = () => {
         style={toggleButtonStyle}
         onClick={() => setIsCollapsed(!isCollapsed)}
         onMouseEnter={(e) => {
-          e.currentTarget.style.transform = 'scale(1.05)';
+          e.currentTarget.style.backgroundColor = 'hsl(var(--accent))';
         }}
         onMouseLeave={(e) => {
-          e.currentTarget.style.transform = 'scale(1)';
+          e.currentTarget.style.backgroundColor = 'hsl(var(--background))';
         }}
       >
         {isCollapsed ? '→' : '←'}
@@ -172,9 +158,7 @@ export const Sidebar: React.FC<SidebarProps> = () => {
               onClick={() => navigate(item.path)}
               onMouseEnter={(e) => {
                 if (!isActive) {
-                  e.currentTarget.style.backgroundColor = theme === 'dark' 
-                    ? 'hsl(220 15% 12%)' 
-                    : 'hsl(220 13% 97%)';
+                  e.currentTarget.style.backgroundColor = 'hsl(var(--accent))';
                 }
               }}
               onMouseLeave={(e) => {
@@ -185,7 +169,7 @@ export const Sidebar: React.FC<SidebarProps> = () => {
             >
               <span style={iconStyle}>{item.icon}</span>
               {!isCollapsed && (
-                <div>
+                <div style={labelContainerStyle}>
                   <div style={labelStyle}>{item.label}</div>
                   <div style={descriptionStyle}>{item.description}</div>
                 </div>
@@ -194,14 +178,6 @@ export const Sidebar: React.FC<SidebarProps> = () => {
           );
         })}
       </nav>
-
-      <button 
-        style={themeToggleStyle}
-        onClick={toggleTheme}
-        title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
-      >
-        {theme === 'light' ? '🌙' : '☀️'}
-      </button>
     </div>
   );
 };

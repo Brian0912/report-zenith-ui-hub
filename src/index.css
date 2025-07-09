@@ -1,51 +1,51 @@
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 :root {
-  /* Clean Color System */
+  /* Clean Color System - Inspired by the reference design */
   --background: 0 0% 100%;
-  --foreground: 220 15% 15%;
+  --foreground: 220 8% 20%;
   
   /* Surface Colors */
   --card: 0 0% 100%;
-  --card-foreground: 220 15% 15%;
+  --card-foreground: 220 8% 20%;
   
   --popover: 0 0% 100%;
-  --popover-foreground: 220 15% 15%;
+  --popover-foreground: 220 8% 20%;
   
-  /* Primary Colors - Single accent system */
-  --primary: 221 83% 53%;
-  --primary-foreground: 0 0% 98%;
+  /* Primary Colors - Professional blue system */
+  --primary: 217 91% 60%;
+  --primary-foreground: 0 0% 100%;
   
   /* Secondary Colors */
   --secondary: 220 14% 96%;
-  --secondary-foreground: 220 15% 25%;
+  --secondary-foreground: 220 8% 35%;
   
-  /* Muted Colors for backgrounds */
+  /* Muted Colors for subtle backgrounds */
   --muted: 220 13% 97%;
-  --muted-foreground: 220 9% 46%;
+  --muted-foreground: 220 8% 46%;
   
   /* Accent Colors */
   --accent: 220 14% 96%;
-  --accent-foreground: 220 15% 25%;
+  --accent-foreground: 220 8% 35%;
   
-  /* Status Colors - Clean and consistent */
-  --success: 142 76% 36%;
-  --success-foreground: 0 0% 98%;
+  /* Status Colors - Clean and professional */
+  --success: 142 70% 45%;
+  --success-foreground: 0 0% 100%;
   
-  --warning: 43 96% 56%;
-  --warning-foreground: 0 0% 9%;
+  --warning: 38 92% 50%;
+  --warning-foreground: 0 0% 100%;
   
   --destructive: 0 84% 60%;
-  --destructive-foreground: 0 0% 98%;
+  --destructive-foreground: 0 0% 100%;
   
   /* Border Colors */
   --border: 220 13% 91%;
   --input: 220 13% 91%;
-  --ring: 221 83% 53%;
+  --ring: 217 91% 60%;
   
   /* Clean radius system */
-  --radius: 0.75rem;
+  --radius: 0.5rem;
 }
 
 [data-theme="dark"] {
@@ -58,8 +58,8 @@
   --popover: 220 15% 9%;
   --popover-foreground: 220 15% 95%;
   
-  --primary: 221 83% 53%;
-  --primary-foreground: 0 0% 98%;
+  --primary: 217 91% 60%;
+  --primary-foreground: 0 0% 100%;
   
   --secondary: 220 15% 12%;
   --secondary-foreground: 220 15% 85%;
@@ -70,20 +70,21 @@
   --accent: 220 15% 12%;
   --accent-foreground: 220 15% 85%;
   
-  --success: 142 76% 45%;
-  --success-foreground: 0 0% 98%;
+  --success: 142 70% 45%;
+  --success-foreground: 0 0% 100%;
   
-  --warning: 43 96% 56%;
-  --warning-foreground: 0 0% 9%;
+  --warning: 38 92% 50%;
+  --warning-foreground: 0 0% 100%;
   
   --destructive: 0 84% 60%;
-  --destructive-foreground: 0 0% 98%;
+  --destructive-foreground: 0 0% 100%;
   
   --border: 220 15% 18%;
   --input: 220 15% 18%;
-  --ring: 221 83% 53%;
+  --ring: 217 91% 60%;
 }
 
+/* Reset and base styles */
 * {
   margin: 0;
   padding: 0;
@@ -93,7 +94,7 @@
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
   font-feature-settings: 'cv01', 'cv03', 'cv04', 'cv11';
-  line-height: 1.6;
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
@@ -106,7 +107,7 @@ body {
   min-height: 100vh;
 }
 
-/* Clean animations */
+/* Refined animations */
 @keyframes fade-in {
   from {
     opacity: 0;
@@ -118,36 +119,21 @@ body {
   }
 }
 
-@keyframes shimmer {
-  0% {
-    background-position: -200px 0;
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
   }
-  100% {
-    background-position: 200px 0;
-  }
-}
-
-@keyframes pulse {
-  0%, 100% {
+  to {
     opacity: 1;
-  }
-  50% {
-    opacity: 0.8;
-  }
-}
-
-@keyframes bounce {
-  0%, 100% {
     transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-2px);
   }
 }
 
 /* Clean scrollbar styles */
 ::-webkit-scrollbar {
   width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -164,52 +150,68 @@ body {
 }
 
 /* Focus styles for accessibility */
-*:focus {
-  outline: 2px solid hsl(var(--ring));
-  outline-offset: 2px;
-}
-
-button:focus {
+*:focus-visible {
   outline: 2px solid hsl(var(--ring));
   outline-offset: 2px;
 }
 
 /* Selection styles */
 ::selection {
-  background: hsl(var(--primary) / 0.2);
+  background: hsl(var(--primary) / 0.15);
   color: inherit;
 }
 
-::-moz-selection {
-  background: hsl(var(--primary) / 0.2);
-  color: inherit;
+/* Typography scale */
+.text-xs { font-size: 0.75rem; line-height: 1rem; }
+.text-sm { font-size: 0.875rem; line-height: 1.25rem; }
+.text-base { font-size: 1rem; line-height: 1.5rem; }
+.text-lg { font-size: 1.125rem; line-height: 1.75rem; }
+.text-xl { font-size: 1.25rem; line-height: 1.75rem; }
+.text-2xl { font-size: 1.5rem; line-height: 2rem; }
+.text-3xl { font-size: 1.875rem; line-height: 2.25rem; }
+
+/* Utility classes */
+.card-shadow {
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
 }
 
-/* Responsive design helpers */
-@media (max-width: 768px) {
-  body {
-    font-size: 14px;
-  }
+.card-shadow-lg {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
-/* Smooth scrolling */
-html {
-  scroll-behavior: smooth;
+/* Status indicator styles */
+.status-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
 }
 
-/* Status indicator colors */
-.status-completed {
-  color: hsl(var(--success));
+.status-pending {
+  background-color: hsl(38 92% 50% / 0.1);
+  color: hsl(38 92% 35%);
+  border: 1px solid hsl(38 92% 50% / 0.2);
 }
 
-.status-running {
-  color: hsl(var(--primary));
+.status-testing {
+  background-color: hsl(142 70% 45% / 0.1);
+  color: hsl(142 70% 35%);
+  border: 1px solid hsl(142 70% 45% / 0.2);
 }
 
-.status-error {
-  color: hsl(var(--destructive));
+.status-closed {
+  background-color: hsl(220 8% 46% / 0.1);
+  color: hsl(220 8% 35%);
+  border: 1px solid hsl(220 8% 46% / 0.2);
 }
 
-.status-queued {
-  color: hsl(var(--warning));
+.status-active {
+  background-color: hsl(217 91% 60% / 0.1);
+  color: hsl(217 91% 45%);
+  border: 1px solid hsl(217 91% 60% / 0.2);
 }

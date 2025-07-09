@@ -13,66 +13,81 @@ export const RiskFindingHeader: React.FC<RiskFindingHeaderProps> = ({ onSubmitFi
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: '32px'
+    marginBottom: '2rem'
+  };
+
+  const titleContainerStyle: React.CSSProperties = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '1rem'
+  };
+
+  const iconStyle: React.CSSProperties = {
+    width: '48px',
+    height: '48px',
+    borderRadius: '12px',
+    backgroundColor: 'hsl(var(--primary) / 0.1)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: '1.5rem'
   };
 
   const titleStyle: React.CSSProperties = {
-    fontSize: '32px',
-    fontWeight: 'bold',
-    background: theme === 'dark' 
-      ? 'linear-gradient(135deg, #60a5fa 0%, #34d399 100%)'
-      : 'linear-gradient(135deg, #3b82f6 0%, #10b981 100%)',
-    WebkitBackgroundClip: 'text',
-    WebkitTextFillColor: 'transparent',
-    backgroundClip: 'text',
-    margin: 0
+    fontSize: '2rem',
+    fontWeight: '700',
+    color: 'hsl(var(--foreground))',
+    margin: 0,
+    lineHeight: '1.2'
   };
 
   const subtitleStyle: React.CSSProperties = {
-    fontSize: '16px',
-    color: theme === 'dark' ? '#94a3b8' : '#64748b',
-    marginTop: '8px',
+    fontSize: '1rem',
+    color: 'hsl(var(--muted-foreground))',
+    marginTop: '0.5rem',
     fontWeight: '400'
   };
 
   const buttonStyle: React.CSSProperties = {
-    background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
-    color: 'white',
+    backgroundColor: 'hsl(var(--primary))',
+    color: 'hsl(var(--primary-foreground))',
     border: 'none',
-    borderRadius: '12px',
-    padding: '14px 28px',
-    fontSize: '16px',
+    borderRadius: '8px',
+    padding: '0.75rem 1.5rem',
+    fontSize: '0.875rem',
     fontWeight: '600',
     cursor: 'pointer',
-    boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)',
-    transition: 'all 0.3s ease',
+    transition: 'all 0.2s ease',
     display: 'flex',
     alignItems: 'center',
-    gap: '8px'
+    gap: '0.5rem'
   };
 
   return (
     <div style={headerStyle}>
-      <div>
-        <h1 style={titleStyle}>Risk & Finding Management</h1>
-        <p style={subtitleStyle}>
-          Professional dashboard for tracking security findings and risk management
-        </p>
+      <div style={titleContainerStyle}>
+        <div style={iconStyle}>
+          🔍
+        </div>
+        <div>
+          <h1 style={titleStyle}>Risk & Finding Management</h1>
+          <p style={subtitleStyle}>
+            Professional dashboard for tracking security findings and risk management
+          </p>
+        </div>
       </div>
       
       <button 
         style={buttonStyle}
         onClick={onSubmitFinding}
         onMouseEnter={(e) => {
-          e.currentTarget.style.transform = 'translateY(-2px)';
-          e.currentTarget.style.boxShadow = '0 6px 20px rgba(59, 130, 246, 0.4)';
+          e.currentTarget.style.opacity = '0.9';
         }}
         onMouseLeave={(e) => {
-          e.currentTarget.style.transform = 'translateY(0)';
-          e.currentTarget.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.3)';
+          e.currentTarget.style.opacity = '1';
         }}
       >
-        <span style={{ fontSize: '18px' }}>📝</span>
+        <span style={{ fontSize: '1rem' }}>📝</span>
         Submit Finding
       </button>
     </div>

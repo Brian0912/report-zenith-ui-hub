@@ -56,12 +56,19 @@ const ReportCenterContent: React.FC<ReportCenterProps> = ({
 
   const containerStyle: React.CSSProperties = {
     minHeight: '100vh',
-    backgroundColor: theme === 'dark' 
-      ? 'hsl(220 15% 7%)'
-      : 'hsl(220 13% 98%)',
+    backgroundColor: 'hsl(var(--background))',
     transition: 'all 0.3s ease',
     position: 'relative',
     marginRight: isLogsSidebarOpen ? '600px' : '0'
+  };
+
+  const mainContentStyle: React.CSSProperties = {
+    padding: '2rem',
+    maxWidth: '1400px',
+    margin: '0 auto',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '2rem'
   };
 
   const selectedTask = selectedTaskId ? reports.find(r => r.id === selectedTaskId) : null;
@@ -70,14 +77,7 @@ const ReportCenterContent: React.FC<ReportCenterProps> = ({
     <div style={containerStyle}>
       <div style={{ position: 'relative', zIndex: 1 }}>
         <Header onCreateTask={handleCreateTask} />
-        <div style={{ 
-          padding: '2rem', 
-          maxWidth: '1400px', 
-          margin: '0 auto',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '2rem'
-        }}>
+        <div style={mainContentStyle}>
           <MetricsDashboard reports={reports} />
           <SearchAndFilters 
             searchTerm={searchTerm}
