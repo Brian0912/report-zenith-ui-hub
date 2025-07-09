@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { useTheme } from './ThemeProvider';
-import { TaskCreationButton } from './TaskCreationButton';
+import { Button } from './ui/button';
 
 interface HeaderProps {
   onCreateTask: () => void;
@@ -65,7 +65,9 @@ export const Header: React.FC<HeaderProps> = ({ onCreateTask }) => {
       <div style={containerStyle}>
         <h1 style={titleStyle}>Report Center</h1>
         <div style={rightSectionStyle}>
-          <TaskCreationButton onClick={onCreateTask} />
+          <Button onClick={onCreateTask}>
+            Create Task
+          </Button>
           <button
             style={themeToggleStyle}
             onClick={toggleTheme}

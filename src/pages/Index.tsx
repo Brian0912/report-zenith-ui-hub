@@ -30,7 +30,7 @@ export const Index: React.FC = () => {
   const filteredReports = useMemo(() => {
     return mockReports.filter(report => {
       const matchesSearch = searchTerm === '' || 
-        report.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        report.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         report.description.toLowerCase().includes(searchTerm.toLowerCase());
       
       const matchesStatus = statusFilter === '' || report.status === statusFilter;
