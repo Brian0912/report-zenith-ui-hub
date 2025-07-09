@@ -1,49 +1,56 @@
 
-import React, { useState, useEffect } from 'react';
-import { useTheme } from '../components/ThemeProvider';
-import { RiskFindingHeader } from '../components/risk-finding/RiskFindingHeader';
-import { RiskFindingFilters } from '../components/risk-finding/RiskFindingFilters';
-import { RiskCategoryList } from '../components/risk-finding/RiskCategoryList';
+import React, { useState } from 'react';
+import { RiskFindingPageHeader } from '../components/risk-finding/RiskFindingPageHeader';
+import { StatusSummaryCards } from '../components/risk-finding/StatusSummaryCards';
+import { SearchFilterBar } from '../components/risk-finding/SearchFilterBar';
+import { FindingsList } from '../components/risk-finding/FindingsList';
 import { FindingSubmissionModal } from '../components/risk-finding/FindingSubmissionModal';
 import { FindingDetailModal } from '../components/risk-finding/FindingDetailModal';
-import { mockRiskCategories, mockFindings, RiskCategory, Finding } from '../components/risk-finding/mockFindingData';
+import { mockFindings, Finding } from '../components/risk-finding/mockFindingData';
 
 export const RiskFindingDashboard: React.FC = () => {
-  const { theme } = useTheme();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
-  const [submitterFilter, setSubmitterFilter] = useState('');
-  const [dateRange, setDateRange] = useState({ start: '', end: '' });
   const [isSubmissionModalOpen, setIsSubmissionModalOpen] = useState(false);
   const [selectedFinding, setSelectedFinding] = useState<Finding | null>(null);
   const [findings, setFindings] = useState<Finding[]>(mockFindings);
-  const [riskCategories] = useState<RiskCategory[]>(mockRiskCategories);
 
   const filteredFindings = findings.filter(finding => {
     const matchesSearch = finding.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          finding.reporter.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          finding.domain.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = !statusFilter || finding.status === statusFilter;
-    const matchesSubmitter = !submitterFilter || finding.reporter.toLowerCase().includes(submitterFilter.toLowerCase());
     
-    return matchesSearch && matchesStatus && matchesSubmitter;
+    return matchesSearch && matchesStatus;
   });
 
   const containerStyle: React.CSSProperties = {
     minHeight: '100vh',
-    background: theme === 'dark' 
-      ? 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)'
-      : 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
-    padding: '24px',
-    color: theme === 'dark' ? '#f1f5f9' : '#334155'
+    backgroundColor: '#f9fafb'
   };
 
   const mainContentStyle: React.CSSProperties = {
     maxWidth: '1400px',
     margin: '0 auto',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '24px'
+    padding: '32px 24px'
+  };
+
+  const titleSectionStyle: React.CSSProperties = {
+    marginBottom: '32px'
+  };
+
+  const titleStyle: React.CSSProperties = {
+    fontSize: '28px',
+    fontWeight: '700',
+    color: '#1f2937',
+    margin: 0,
+    marginBottom: '8px'
+  };
+
+  const subtitleStyle: React.CSSProperties = {
+    fontSize: '16px',
+    color: '#6b7280',
+    margin: 0
   };
 
   const handleSubmitFinding = (findingData: any) => {
@@ -71,24 +78,29 @@ export const RiskFindingDashboard: React.FC = () => {
 
   return (
     <div style={containerStyle}>
+      <RiskFindingPageHeader 
+        onSubmitFinding={() => setIsSubmissionModalOpen(true)}
+      />
+      
       <div style={mainContentStyle}>
-        <RiskFindingHeader 
-          onSubmitFinding={() => setIsSubmissionModalOpen(true)}
-        />
+        <div style={titleSectionStyle}>
+          <h1 style={titleStyle}>Security Finding Tracking Platform</h1>
+          <p style={subtitleStyle}>
+            Comprehensive security finding management and tracking system
+          </p>
+        </div>
+
+        <StatusSummaryCards findings={filteredFindings} />
         
-        <RiskFindingFilters
+        <SearchFilterBar
           searchTerm={searchTerm}
           onSearchChange={setSearchTerm}
           statusFilter={statusFilter}
           onStatusChange={setStatusFilter}
-          submitterFilter={submitterFilter}
-          onSubmitterChange={setSubmitterFilter}
-          dateRange={dateRange}
-          onDateRangeChange={setDateRange}
+          onSubmitFinding={() => setIsSubmissionModalOpen(true)}
         />
 
-        <RiskCategoryList
-          riskCategories={riskCategories}
+        <FindingsList
           findings={filteredFindings}
           onFindingClick={setSelectedFinding}
         />
