@@ -3,6 +3,7 @@ import { useTheme } from './ThemeProvider';
 import { Button } from './ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { Filter } from 'lucide-react';
+import { FilterModal, FilterState } from './FilterModal';
 
 interface SentinelHeaderProps {
   onCreateTask: () => void;
@@ -11,8 +12,13 @@ interface SentinelHeaderProps {
 export const SentinelHeader: React.FC<SentinelHeaderProps> = ({ onCreateTask }) => {
   const { theme, toggleTheme } = useTheme();
   const [searchTerm, setSearchTerm] = useState('');
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [statusFilter, setStatusFilter] = useState('');
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+  const [activeFilters, setActiveFilters] = useState<FilterState>({
+    selectedFilters: [],
+    taskStatus: [],
+    creators: [],
+    tags: []
+  });
 
   const headerStyle: React.CSSProperties = {
     backgroundColor: 'hsl(var(--card))',
@@ -161,101 +167,109 @@ export const SentinelHeader: React.FC<SentinelHeaderProps> = ({ onCreateTask }) 
     { value: 'failed', label: 'Failed' }
   ];
 
+  const handleApplyFilters = (filters: FilterState) => {
+    setActiveFilters(filters);
+    console.log('Applied filters:', filters);
+    // Here you would typically update the reports based on the filters
+  };
+
+  const activeFilterCount = activeFilters.selectedFilters.length;
+
   return (
-    <header style={headerStyle}>
-      <div style={containerStyle}>
-        <div style={leftSectionStyle}>
-          <div style={logoStyle}>
-            <div style={logoCircleStyle}>C</div>
-            <h1 style={logoTextStyle}>Crystal Report Center</h1>
-          </div>
-        </div>
-
-        <div style={centerSectionStyle}>
-          <div style={searchContainerStyle}>
-            <div style={{ position: 'relative', flex: 1 }}>
-              <span style={searchIconStyle}>🔍</span>
-              <input
-                type="text"
-                placeholder="Search reports..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                style={searchInputStyle}
-              />
+    <>
+      <header style={headerStyle}>
+        <div style={containerStyle}>
+          <div style={leftSectionStyle}>
+            <div style={logoStyle}>
+              <div style={logoCircleStyle}>C</div>
+              <h1 style={logoTextStyle}>Crystal Report Center</h1>
             </div>
-            
-            <Popover open={isFilterOpen} onOpenChange={setIsFilterOpen}>
-              <PopoverTrigger asChild>
-                <Button variant="outline" size="default">
-                  <Filter size={16} />
-                  Filter
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent style={filterContentStyle}>
-                <div>
-                  <h4 style={{ 
-                    fontSize: '14px', 
-                    fontWeight: '600', 
-                    marginBottom: '8px',
-                    color: 'hsl(var(--foreground))'
+          </div>
+
+          <div style={centerSectionStyle}>
+            <div style={searchContainerStyle}>
+              <div style={{ position: 'relative', flex: 1 }}>
+                <span style={searchIconStyle}>🔍</span>
+                <input
+                  type="text"
+                  placeholder="Search reports..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  style={searchInputStyle}
+                />
+              </div>
+              
+              <Button 
+                variant="outline" 
+                size="default"
+                onClick={() => setIsFilterModalOpen(true)}
+                style={{
+                  position: 'relative',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}
+              >
+                <Filter size={16} />
+                Filter
+                {activeFilterCount > 0 && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '-6px',
+                    right: '-6px',
+                    backgroundColor: 'hsl(var(--primary))',
+                    color: 'hsl(var(--primary-foreground))',
+                    borderRadius: '50%',
+                    width: '20px',
+                    height: '20px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '12px',
+                    fontWeight: '600'
                   }}>
-                    Filter by Status
-                  </h4>
-                  {statusOptions.map(option => (
-                    <div
-                      key={option.value}
-                      style={filterOptionStyle(statusFilter === option.value)}
-                      onClick={() => {
-                        setStatusFilter(option.value);
-                        setIsFilterOpen(false);
-                      }}
-                      onMouseEnter={(e) => {
-                        if (statusFilter !== option.value) {
-                          e.currentTarget.style.backgroundColor = 'hsl(var(--muted))';
-                        }
-                      }}
-                      onMouseLeave={(e) => {
-                        if (statusFilter !== option.value) {
-                          e.currentTarget.style.backgroundColor = 'transparent';
-                        }
-                      }}
-                    >
-                      {option.label}
-                    </div>
-                  ))}
-                </div>
-              </PopoverContent>
-            </Popover>
+                    {activeFilterCount}
+                  </div>
+                )}
+              </Button>
+            </div>
+          </div>
+
+          <div style={rightSectionStyle}>
+            <button 
+              style={createTaskButtonStyle}
+              onClick={onCreateTask}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = 'hsl(var(--primary) / 0.9)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'hsl(var(--primary))';
+              }}
+            >
+              Create Task
+            </button>
+            <button
+              style={themeToggleStyle}
+              onClick={toggleTheme}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = 'hsl(var(--accent))';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'hsl(var(--muted))';
+              }}
+            >
+              {theme === 'dark' ? '☀️' : '🌙'}
+            </button>
           </div>
         </div>
+      </header>
 
-        <div style={rightSectionStyle}>
-          <button 
-            style={createTaskButtonStyle}
-            onClick={onCreateTask}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = 'hsl(var(--primary) / 0.9)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = 'hsl(var(--primary))';
-            }}
-          >
-            Create Task
-          </button>
-          <button
-            style={themeToggleStyle}
-            onClick={toggleTheme}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = 'hsl(var(--accent))';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = 'hsl(var(--muted))';
-            }}
-          >
-            {theme === 'dark' ? '☀️' : '🌙'}
-          </button>
-        </div>
-      </div>
-    </header>
+      <FilterModal
+        isOpen={isFilterModalOpen}
+        onClose={() => setIsFilterModalOpen(false)}
+        onApplyFilters={handleApplyFilters}
+        initialFilters={activeFilters}
+      />
+    </>
   );
 };
