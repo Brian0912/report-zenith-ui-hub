@@ -17,17 +17,23 @@ export const Index: React.FC = () => {
 
   const containerStyle: React.CSSProperties = {
     minHeight: '100vh',
-    backgroundColor: '#f8fafc',
-    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
+    backgroundColor: '#fafafa',
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
   };
 
-  const mainContentStyle: React.CSSProperties = {
+  const contentContainerStyle: React.CSSProperties = {
+    display: 'flex',
+    gap: '32px',
     maxWidth: '1400px',
     margin: '0 auto',
     padding: '32px 24px',
-    marginRight: (isTaskPanelOpen || selectedTaskId) ? '45%' : '0',
-    transition: 'margin-right 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-    minWidth: '600px'
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+  };
+
+  const mainContentStyle: React.CSSProperties = {
+    flex: 1,
+    minWidth: '0', // Prevents flex item from overflowing
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
   };
 
   // Filter reports based on search and status
@@ -70,6 +76,7 @@ export const Index: React.FC = () => {
   };
 
   const selectedTask = selectedTaskId ? mockReports.find(r => r.id === selectedTaskId) : null;
+  const isPanelOpen = isTaskPanelOpen || !!selectedTask;
 
   return (
     <div style={containerStyle}>
@@ -77,48 +84,140 @@ export const Index: React.FC = () => {
         onCreateTask={handleCreateTask}
       />
       
-      <div style={mainContentStyle}>        
-        {dateFilter && (
-          <SearchAndFilters 
-            dateFilter={dateFilter} 
-            setDateFilter={setDateFilter} 
+      <div style={contentContainerStyle}>
+        <div style={mainContentStyle}>        
+          {dateFilter && (
+            <SearchAndFilters 
+              dateFilter={dateFilter} 
+              setDateFilter={setDateFilter} 
+            />
+          )}
+          
+          <ReportGrid 
+            reports={filteredReports} 
+            onSubscribe={handleSubscribe} 
+            onViewLogs={handleViewLogs} 
           />
+        </div>
+
+        {/* Embedded Card Panel */}
+        {isPanelOpen && (
+          <div style={{
+            width: '520px',
+            minWidth: '480px',
+            maxWidth: '560px',
+            height: 'calc(100vh - 80px - 64px)', // Full height minus header and padding
+            backgroundColor: '#ffffff',
+            borderRadius: '20px',
+            boxShadow: '0 4px 24px rgba(0, 0, 0, 0.10)',
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden',
+            animation: 'slideInFromRight 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+            position: 'sticky',
+            top: '32px'
+          }}>
+            {/* Panel Header */}
+            <div style={{
+              padding: '32px 32px 24px 32px',
+              borderBottom: '1px solid #f0f0f0',
+              backgroundColor: '#ffffff',
+              position: 'sticky',
+              top: 0,
+              zIndex: 10,
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'flex-start'
+            }}>
+              <h2 style={{
+                fontSize: '28px',
+                fontWeight: '700',
+                color: '#1a202c',
+                margin: 0,
+                lineHeight: '1.2',
+                paddingRight: '16px'
+              }}>
+                {isTaskPanelOpen ? 'Create New Task' : `Task Logs – ${selectedTask?.title}`}
+              </h2>
+              <button
+                onClick={isTaskPanelOpen ? handleCloseTaskPanel : handleCloseLogsPanel}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: '#718096',
+                  padding: '8px',
+                  borderRadius: '8px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'all 0.2s ease',
+                  width: '36px',
+                  height: '36px',
+                  flexShrink: 0
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = 'rgba(0, 0, 0, 0.05)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                }}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="m18 6-12 12"/>
+                  <path d="m6 6 12 12"/>
+                </svg>
+              </button>
+            </div>
+
+            {/* Panel Content */}
+            <div style={{
+              flex: 1,
+              overflow: 'auto',
+              backgroundColor: '#fafafa'
+            }}>
+              {isTaskPanelOpen ? (
+                <TaskCreationPanel onSuccess={handleTaskCreated} />
+              ) : selectedTask ? (
+                <TaskLogsSidebar 
+                  task={selectedTask} 
+                  isOpen={true} 
+                  onClose={handleCloseLogsPanel} 
+                />
+              ) : null}
+            </div>
+          </div>
         )}
-        
-        <ReportGrid 
-          reports={filteredReports} 
-          onSubscribe={handleSubscribe} 
-          onViewLogs={handleViewLogs} 
-        />
       </div>
 
-      {/* Create Task Panel */}
-      {isTaskPanelOpen && (
-        <SlideOutPanel
-          isOpen={isTaskPanelOpen}
-          onClose={handleCloseTaskPanel}
-          title="Create New Task"
-        >
-          <TaskCreationPanel onSuccess={handleTaskCreated} />
-        </SlideOutPanel>
-      )}
+      <style>{`
+        @keyframes slideInFromRight {
+          from {
+            transform: translateX(100%);
+            opacity: 0;
+          }
+          to {
+            transform: translateX(0);
+            opacity: 1;
+          }
+        }
 
-      {/* Task Logs Panel */}
-      {selectedTask && (
-        <SlideOutPanel
-          isOpen={!!selectedTask}
-          onClose={handleCloseLogsPanel}
-          title={`Task Logs - ${selectedTask.title}`}
-        >
-          <div style={{ height: '100%', overflow: 'auto' }}>
-            <TaskLogsSidebar 
-              task={selectedTask} 
-              isOpen={true} 
-              onClose={handleCloseLogsPanel} 
-            />
-          </div>
-        </SlideOutPanel>
-      )}
+        @media (max-width: 768px) {
+          .content-container {
+            flex-direction: column !important;
+            gap: 24px !important;
+          }
+          
+          .panel-card {
+            width: 100% !important;
+            min-width: unset !important;
+            max-width: unset !important;
+            height: auto !important;
+            position: static !important;
+            border-radius: 16px !important;
+          }
+        }
+      `}</style>
     </div>
   );
 };

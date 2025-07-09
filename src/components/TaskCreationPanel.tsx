@@ -1,7 +1,6 @@
 
 import React, { useState } from 'react';
 import { Check, Loader2, Plus, X, ChevronDown, ChevronUp } from 'lucide-react';
-import { useTheme } from './ThemeProvider';
 
 interface TaskCreationPanelProps {
   onSuccess?: () => void;
@@ -40,7 +39,6 @@ const metadataOptions = [
 ];
 
 export const TaskCreationPanel: React.FC<TaskCreationPanelProps> = ({ onSuccess }) => {
-  const { theme } = useTheme();
   const [goal, setGoal] = useState('');
   const [background, setBackground] = useState('');
   const [metadata, setMetadata] = useState<MetadataItem[]>([]);
@@ -90,232 +88,211 @@ export const TaskCreationPanel: React.FC<TaskCreationPanelProps> = ({ onSuccess 
     ));
   };
 
-  const containerStyle: React.CSSProperties = {
-    display: 'flex',
-    flexDirection: 'column',
-    height: '100%',
-    backgroundColor: theme === 'dark' ? '#1a1a2e' : '#fafafa'
-  };
-
-  const contentStyle: React.CSSProperties = {
-    flex: 1,
-    overflow: 'auto',
-    padding: '32px 24px 120px 24px'
-  };
-
-  const sectionStyle: React.CSSProperties = {
-    marginBottom: '32px'
-  };
-
-  const sectionHeaderStyle: React.CSSProperties = {
-    fontSize: '16px',
-    fontWeight: '600',
-    color: theme === 'dark' ? '#ffffff' : '#1a202c',
-    marginBottom: '12px',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px'
-  };
-
-  const labelStyle: React.CSSProperties = {
-    display: 'block',
-    marginBottom: '8px',
-    fontSize: '14px',
-    fontWeight: '500',
-    color: theme === 'dark' ? '#e2e8f0' : '#374151'
-  };
-
-  const inputStyle: React.CSSProperties = {
-    width: '100%',
-    padding: '12px 16px',
-    borderRadius: '8px',
-    border: theme === 'dark' ? '1px solid #4a5568' : '1px solid #d1d5db',
-    backgroundColor: theme === 'dark' ? '#2d3748' : '#ffffff',
-    color: theme === 'dark' ? '#ffffff' : '#1a202c',
-    fontSize: '14px',
-    outline: 'none',
-    transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
-    fontFamily: 'inherit'
-  };
-
-  const textareaStyle: React.CSSProperties = {
-    ...inputStyle,
-    minHeight: '100px',
-    resize: 'vertical' as const,
-    lineHeight: '1.5'
-  };
-
-  const footerStyle: React.CSSProperties = {
-    position: 'sticky',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    padding: '24px',
-    backgroundColor: theme === 'dark' ? '#1a1a2e' : '#ffffff',
-    borderTop: theme === 'dark' ? '1px solid #2d3748' : '1px solid #e2e8f0',
-    display: 'flex',
-    gap: '12px'
-  };
-
-  const buttonStyle: React.CSSProperties = {
-    flex: 1,
-    padding: '16px 24px',
-    borderRadius: '12px',
-    border: 'none',
-    background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
-    color: '#ffffff',
-    fontSize: '16px',
-    fontWeight: '600',
-    cursor: 'pointer',
-    transition: 'all 0.2s ease',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-    justifyContent: 'center',
-    boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)'
-  };
-
-  const metadataCardStyle: React.CSSProperties = {
-    backgroundColor: theme === 'dark' ? '#2d3748' : '#ffffff',
-    border: theme === 'dark' ? '1px solid #4a5568' : '1px solid #e2e8f0',
-    borderRadius: '12px',
-    padding: '20px',
-    marginBottom: '16px'
-  };
-
-  const metadataToggleStyle: React.CSSProperties = {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    width: '100%',
-    background: 'none',
-    border: 'none',
-    cursor: 'pointer',
-    color: theme === 'dark' ? '#ffffff' : '#1a202c',
-    fontSize: '16px',
-    fontWeight: '600'
-  };
-
-  const metadataItemStyle: React.CSSProperties = {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '12px',
-    padding: '12px',
-    backgroundColor: theme === 'dark' ? '#1a1a2e' : '#f8fafc',
-    borderRadius: '8px',
-    marginBottom: '8px'
-  };
-
-  const chipStyle: React.CSSProperties = {
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: '6px',
-    padding: '6px 12px',
-    backgroundColor: theme === 'dark' ? '#3b82f6' : '#e0f2fe',
-    color: theme === 'dark' ? '#ffffff' : '#0369a1',
-    borderRadius: '20px',
-    fontSize: '12px',
-    fontWeight: '500',
-    cursor: 'pointer',
-    transition: 'all 0.2s ease'
-  };
-
   if (showSuccess) {
     return (
       <div style={{ 
-        ...containerStyle, 
-        alignItems: 'center', 
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
         justifyContent: 'center',
-        padding: '48px 24px'
+        padding: '64px 32px',
+        textAlign: 'center',
+        backgroundColor: '#fafafa',
+        height: '100%'
       }}>
-        <div style={{ textAlign: 'center' }}>
-          <div style={{ 
-            fontSize: '48px', 
-            marginBottom: '24px', 
-            color: '#10b981' 
-          }}>
-            <Check size={48} />
-          </div>
-          <h2 style={{ 
-            fontSize: '24px', 
-            fontWeight: '700', 
-            color: theme === 'dark' ? '#ffffff' : '#1a202c', 
-            marginBottom: '12px' 
-          }}>
-            Task Created Successfully!
-          </h2>
-          <p style={{ 
-            color: theme === 'dark' ? '#a0aec0' : '#718096',
-            fontSize: '16px',
-            lineHeight: '1.5'
-          }}>
-            Your task has been created and is now being executed.
-          </p>
+        <div style={{ 
+          fontSize: '48px', 
+          marginBottom: '24px', 
+          color: '#10b981' 
+        }}>
+          <Check size={48} />
         </div>
+        <h2 style={{ 
+          fontSize: '24px', 
+          fontWeight: '700', 
+          color: '#1a202c', 
+          marginBottom: '12px' 
+        }}>
+          Task Created Successfully!
+        </h2>
+        <p style={{ 
+          color: '#718096',
+          fontSize: '16px',
+          lineHeight: '1.5'
+        }}>
+          Your task has been created and is now being executed.
+        </p>
       </div>
     );
   }
 
   return (
-    <div style={containerStyle}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-        <div style={contentStyle}>
+        <div style={{ 
+          flex: 1, 
+          overflow: 'auto', 
+          padding: '32px',
+          backgroundColor: '#fafafa'
+        }}>
           {/* Goal Section */}
-          <div style={sectionStyle}>
-            <h3 style={sectionHeaderStyle}>Goal</h3>
-            <label style={labelStyle}>
+          <div style={{ marginBottom: '32px' }}>
+            <h3 style={{
+              fontSize: '18px',
+              fontWeight: '600',
+              color: '#1a202c',
+              marginBottom: '16px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}>
+              Goal
+            </h3>
+            <label style={{
+              display: 'block',
+              marginBottom: '8px',
+              fontSize: '14px',
+              fontWeight: '500',
+              color: '#374151'
+            }}>
               What do you want to achieve? *
             </label>
             <textarea
-              style={textareaStyle}
+              style={{
+                width: '100%',
+                padding: '16px',
+                borderRadius: '12px',
+                border: '1px solid #d1d5db',
+                backgroundColor: '#ffffff',
+                color: '#1a202c',
+                fontSize: '14px',
+                outline: 'none',
+                transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
+                fontFamily: 'inherit',
+                minHeight: '120px',
+                resize: 'vertical',
+                lineHeight: '1.5'
+              }}
               value={goal}
               onChange={(e) => setGoal(e.target.value)}
               placeholder="Describe the objective and expected outcomes of this task..."
               required
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = '#3b82f6';
+                e.currentTarget.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = '#d1d5db';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
             />
           </div>
 
           {/* Background Section */}
-          <div style={sectionStyle}>
-            <h3 style={sectionHeaderStyle}>Background</h3>
-            <label style={labelStyle}>
+          <div style={{ marginBottom: '32px' }}>
+            <h3 style={{
+              fontSize: '18px',
+              fontWeight: '600',
+              color: '#1a202c',
+              marginBottom: '16px'
+            }}>
+              Background
+            </h3>
+            <label style={{
+              display: 'block',
+              marginBottom: '8px',
+              fontSize: '14px',
+              fontWeight: '500',
+              color: '#374151'
+            }}>
               Provide context and background information *
             </label>
             <textarea
-              style={textareaStyle}
+              style={{
+                width: '100%',
+                padding: '16px',
+                borderRadius: '12px',
+                border: '1px solid #d1d5db',
+                backgroundColor: '#ffffff',
+                color: '#1a202c',
+                fontSize: '14px',
+                outline: 'none',
+                transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
+                fontFamily: 'inherit',
+                minHeight: '120px',
+                resize: 'vertical',
+                lineHeight: '1.5'
+              }}
               value={background}
               onChange={(e) => setBackground(e.target.value)}
               placeholder="Share relevant context, previous attempts, constraints, or additional details..."
               required
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = '#3b82f6';
+                e.currentTarget.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = '#d1d5db';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
             />
           </div>
 
           {/* Metadata Section */}
-          <div style={sectionStyle}>
-            <div style={metadataCardStyle}>
-              <button
-                type="button"
-                onClick={() => setIsMetadataExpanded(!isMetadataExpanded)}
-                style={metadataToggleStyle}
-              >
-                <span>Add Metadata (optional)</span>
-                {isMetadataExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
-              </button>
+          <div style={{ marginBottom: '32px' }}>
+            <div style={{
+              backgroundColor: '#ffffff',
+              border: '1px solid #e2e8f0',
+              borderRadius: '16px',
+              padding: '24px'
+            }}>
+              <div style={{ 
+                borderBottom: isMetadataExpanded ? '1px solid #f0f0f0' : 'none',
+                paddingBottom: isMetadataExpanded ? '20px' : '0',
+                marginBottom: isMetadataExpanded ? '20px' : '0'
+              }}>
+                <button
+                  type="button"
+                  onClick={() => setIsMetadataExpanded(!isMetadataExpanded)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    width: '100%',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: '#1a202c',
+                    fontSize: '18px',
+                    fontWeight: '600',
+                    padding: '8px 0'
+                  }}
+                >
+                  <span>Add Metadata (optional)</span>
+                  {isMetadataExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                </button>
+              </div>
               
               {isMetadataExpanded && (
-                <div style={{ marginTop: '20px' }}>
+                <div>
                   <p style={{ 
                     fontSize: '14px', 
-                    color: theme === 'dark' ? '#a0aec0' : '#6b7280',
-                    marginBottom: '16px',
+                    color: '#6b7280',
+                    marginBottom: '20px',
                     lineHeight: '1.5'
                   }}>
                     Add specific metadata to help categorize and filter your task.
                   </p>
 
                   {/* Available Options */}
-                  <div style={{ marginBottom: '20px' }}>
-                    <label style={{ ...labelStyle, marginBottom: '12px' }}>
+                  <div style={{ marginBottom: '24px' }}>
+                    <label style={{
+                      display: 'block',
+                      marginBottom: '12px',
+                      fontSize: '14px',
+                      fontWeight: '500',
+                      color: '#374151'
+                    }}>
                       Available Options
                     </label>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
@@ -324,7 +301,20 @@ export const TaskCreationPanel: React.FC<TaskCreationPanelProps> = ({ onSuccess 
                           key={option.id}
                           type="button"
                           onClick={() => addMetadata(option)}
-                          style={chipStyle}
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            padding: '8px 12px',
+                            backgroundColor: '#e0f2fe',
+                            color: '#0369a1',
+                            borderRadius: '20px',
+                            fontSize: '12px',
+                            fontWeight: '500',
+                            border: 'none',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s ease'
+                          }}
                           onMouseEnter={(e) => {
                             e.currentTarget.style.transform = 'scale(1.05)';
                           }}
@@ -342,16 +332,32 @@ export const TaskCreationPanel: React.FC<TaskCreationPanelProps> = ({ onSuccess 
                   {/* Selected Metadata */}
                   {metadata.length > 0 && (
                     <div>
-                      <label style={{ ...labelStyle, marginBottom: '12px' }}>
+                      <label style={{
+                        display: 'block',
+                        marginBottom: '12px',
+                        fontSize: '14px',
+                        fontWeight: '500',
+                        color: '#374151'
+                      }}>
                         Selected Metadata
                       </label>
                       {metadata.map(item => (
-                        <div key={item.id} style={metadataItemStyle}>
+                        <div key={item.id} style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '12px',
+                          padding: '16px',
+                          backgroundColor: '#f8fafc',
+                          borderRadius: '12px',
+                          marginBottom: '12px',
+                          border: '1px solid #f0f0f0'
+                        }}>
                           <div style={{ flex: 1 }}>
                             <div style={{ 
                               fontSize: '12px', 
-                              color: theme === 'dark' ? '#a0aec0' : '#6b7280',
-                              marginBottom: '4px'
+                              color: '#6b7280',
+                              marginBottom: '6px',
+                              fontWeight: '500'
                             }}>
                               {item.label}
                             </div>
@@ -361,9 +367,21 @@ export const TaskCreationPanel: React.FC<TaskCreationPanelProps> = ({ onSuccess 
                               onChange={(e) => updateMetadata(item.id, e.target.value)}
                               placeholder={`Enter ${item.label.toLowerCase()}...`}
                               style={{
-                                ...inputStyle,
+                                width: '100%',
                                 padding: '8px 12px',
-                                fontSize: '13px'
+                                borderRadius: '8px',
+                                border: '1px solid #d1d5db',
+                                backgroundColor: '#ffffff',
+                                color: '#1a202c',
+                                fontSize: '14px',
+                                outline: 'none',
+                                transition: 'border-color 0.2s ease'
+                              }}
+                              onFocus={(e) => {
+                                e.currentTarget.style.borderColor = '#3b82f6';
+                              }}
+                              onBlur={(e) => {
+                                e.currentTarget.style.borderColor = '#d1d5db';
                               }}
                             />
                           </div>
@@ -374,8 +392,19 @@ export const TaskCreationPanel: React.FC<TaskCreationPanelProps> = ({ onSuccess 
                               background: 'none',
                               border: 'none',
                               cursor: 'pointer',
-                              color: theme === 'dark' ? '#f56565' : '#e53e3e',
-                              padding: '4px'
+                              color: '#e53e3e',
+                              padding: '6px',
+                              borderRadius: '6px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              transition: 'background-color 0.2s ease'
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.backgroundColor = 'rgba(229, 62, 62, 0.1)';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.backgroundColor = 'transparent';
                             }}
                           >
                             <X size={16} />
@@ -390,14 +419,37 @@ export const TaskCreationPanel: React.FC<TaskCreationPanelProps> = ({ onSuccess 
           </div>
         </div>
 
-        <div style={footerStyle}>
+        {/* Sticky Footer */}
+        <div style={{
+          padding: '24px 32px',
+          backgroundColor: '#ffffff',
+          borderTop: '1px solid #f0f0f0',
+          position: 'sticky',
+          bottom: 0
+        }}>
           <button
             type="submit"
             disabled={!goal.trim() || !background.trim() || isSubmitting}
             style={{
-              ...buttonStyle,
-              opacity: (!goal.trim() || !background.trim() || isSubmitting) ? 0.6 : 1,
+              width: '100%',
+              padding: '16px 24px',
+              borderRadius: '12px',
+              border: 'none',
+              background: (!goal.trim() || !background.trim() || isSubmitting) 
+                ? '#d1d5db' 
+                : 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+              color: '#ffffff',
+              fontSize: '16px',
+              fontWeight: '600',
               cursor: (!goal.trim() || !background.trim() || isSubmitting) ? 'not-allowed' : 'pointer',
+              transition: 'all 0.2s ease',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              justifyContent: 'center',
+              boxShadow: (!goal.trim() || !background.trim() || isSubmitting) 
+                ? 'none' 
+                : '0 4px 12px rgba(59, 130, 246, 0.3)'
             }}
             onMouseEnter={(e) => {
               if (!isSubmitting && goal.trim() && background.trim()) {
@@ -407,7 +459,9 @@ export const TaskCreationPanel: React.FC<TaskCreationPanelProps> = ({ onSuccess 
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.3)';
+              e.currentTarget.style.boxShadow = (!goal.trim() || !background.trim() || isSubmitting) 
+                ? 'none' 
+                : '0 4px 12px rgba(59, 130, 246, 0.3)';
             }}
           >
             {isSubmitting ? <Loader2 size={20} style={{ animation: 'spin 1s linear infinite' }} /> : null}

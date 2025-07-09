@@ -1,7 +1,6 @@
 
 import React, { useState } from 'react';
 import { Clock, User, AlertCircle, Info, AlertTriangle, Bug, Copy } from 'lucide-react';
-import { useTheme } from './ThemeProvider';
 import { Report } from './mockData';
 
 interface TaskLogsSidebarProps {
@@ -11,82 +10,8 @@ interface TaskLogsSidebarProps {
 }
 
 export const TaskLogsSidebar: React.FC<TaskLogsSidebarProps> = ({ task, isOpen, onClose }) => {
-  const { theme } = useTheme();
   const [selectedVersion, setSelectedVersion] = useState(task.versions[task.versions.length - 1]?.id || '');
   const [logFilter, setLogFilter] = useState<string>('all');
-
-  const containerStyle: React.CSSProperties = {
-    display: 'flex',
-    flexDirection: 'column',
-    height: '100%',
-    backgroundColor: theme === 'dark' ? '#1a1a2e' : '#fafafa'
-  };
-
-  const contentStyle: React.CSSProperties = {
-    flex: 1,
-    overflow: 'auto',
-    padding: '32px 24px'
-  };
-
-  const sectionStyle: React.CSSProperties = {
-    marginBottom: '32px'
-  };
-
-  const sectionHeaderStyle: React.CSSProperties = {
-    fontSize: '16px',
-    fontWeight: '600',
-    color: theme === 'dark' ? '#ffffff' : '#1a202c',
-    marginBottom: '16px',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px'
-  };
-
-  const cardStyle: React.CSSProperties = {
-    backgroundColor: theme === 'dark' ? '#2d3748' : '#ffffff',
-    border: theme === 'dark' ? '1px solid #4a5568' : '1px solid #e2e8f0',
-    borderRadius: '12px',
-    padding: '20px',
-    marginBottom: '16px'
-  };
-
-  const progressBarStyle: React.CSSProperties = {
-    width: '100%',
-    height: '8px',
-    background: theme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : '#e2e8f0',
-    borderRadius: '4px',
-    overflow: 'hidden',
-    marginTop: '12px'
-  };
-
-  const progressFillStyle: React.CSSProperties = {
-    height: '100%',
-    background: 'linear-gradient(90deg, #10B981 0%, #14B8A6 100%)',
-    width: `${task.progress}%`,
-    transition: 'width 0.3s ease',
-    borderRadius: '4px'
-  };
-
-  const selectStyle: React.CSSProperties = {
-    width: '100%',
-    padding: '12px 16px',
-    background: theme === 'dark' ? '#2d3748' : '#ffffff',
-    border: theme === 'dark' ? '1px solid #4a5568' : '1px solid #d1d5db',
-    borderRadius: '8px',
-    color: theme === 'dark' ? '#ffffff' : '#1a202c',
-    fontSize: '14px',
-    outline: 'none'
-  };
-
-  const logItemStyle: React.CSSProperties = {
-    display: 'flex',
-    gap: '12px',
-    padding: '16px',
-    borderRadius: '8px',
-    marginBottom: '12px',
-    background: theme === 'dark' ? '#2d3748' : '#ffffff',
-    border: theme === 'dark' ? '1px solid #4a5568' : '1px solid #e2e8f0'
-  };
 
   const getLogIcon = (level: string) => {
     switch (level) {
@@ -141,15 +66,37 @@ export const TaskLogsSidebar: React.FC<TaskLogsSidebarProps> = ({ task, isOpen, 
   };
 
   return (
-    <div style={containerStyle}>
-      <div style={contentStyle}>
+    <div style={{ 
+      display: 'flex', 
+      flexDirection: 'column', 
+      height: '100%',
+      backgroundColor: '#fafafa'
+    }}>
+      <div style={{ 
+        flex: 1, 
+        overflow: 'auto', 
+        padding: '32px'
+      }}>
         {/* Task Overview */}
-        <div style={sectionStyle}>
-          <h3 style={sectionHeaderStyle}>
+        <div style={{ marginBottom: '32px' }}>
+          <h3 style={{
+            fontSize: '18px',
+            fontWeight: '600',
+            color: '#1a202c',
+            marginBottom: '16px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
+          }}>
             <Clock size={16} />
             Task Overview
           </h3>
-          <div style={cardStyle}>
+          <div style={{
+            backgroundColor: '#ffffff',
+            border: '1px solid #e2e8f0',
+            borderRadius: '16px',
+            padding: '24px'
+          }}>
             <div style={{ 
               display: 'flex', 
               alignItems: 'center', 
@@ -159,13 +106,13 @@ export const TaskLogsSidebar: React.FC<TaskLogsSidebarProps> = ({ task, isOpen, 
               {getStatusBadge(task.status)}
               <span style={{ 
                 fontSize: '14px', 
-                color: theme === 'dark' ? '#a0aec0' : '#6b7280' 
+                color: '#6b7280' 
               }}>
                 Version {currentVersion?.version}
               </span>
             </div>
             
-            <div style={{ marginBottom: '12px' }}>
+            <div style={{ marginBottom: '16px' }}>
               <div style={{ 
                 display: 'flex', 
                 justifyContent: 'space-between', 
@@ -174,19 +121,31 @@ export const TaskLogsSidebar: React.FC<TaskLogsSidebarProps> = ({ task, isOpen, 
               }}>
                 <span style={{ 
                   fontWeight: '500', 
-                  color: theme === 'dark' ? '#ffffff' : '#1a202c' 
+                  color: '#1a202c' 
                 }}>
                   Progress
                 </span>
                 <span style={{ 
                   fontSize: '14px', 
-                  color: theme === 'dark' ? '#a0aec0' : '#6b7280' 
+                  color: '#6b7280' 
                 }}>
                   {task.progress}%
                 </span>
               </div>
-              <div style={progressBarStyle}>
-                <div style={progressFillStyle} />
+              <div style={{
+                width: '100%',
+                height: '8px',
+                background: 'rgba(0, 0, 0, 0.1)',
+                borderRadius: '4px',
+                overflow: 'hidden'
+              }}>
+                <div style={{
+                  height: '100%',
+                  background: 'linear-gradient(90deg, #10B981 0%, #14B8A6 100%)',
+                  width: `${task.progress}%`,
+                  transition: 'width 0.3s ease',
+                  borderRadius: '4px'
+                }} />
               </div>
             </div>
 
@@ -198,13 +157,17 @@ export const TaskLogsSidebar: React.FC<TaskLogsSidebarProps> = ({ task, isOpen, 
             }}>
               <div>
                 <div style={{ 
-                  color: theme === 'dark' ? '#a0aec0' : '#6b7280',
-                  marginBottom: '4px'
+                  color: '#6b7280',
+                  marginBottom: '4px',
+                  fontSize: '12px',
+                  fontWeight: '500',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em'
                 }}>
                   Created
                 </div>
                 <div style={{ 
-                  color: theme === 'dark' ? '#ffffff' : '#1a202c',
+                  color: '#1a202c',
                   fontWeight: '500'
                 }}>
                   {formatTimestamp(task.createdAt)}
@@ -212,13 +175,17 @@ export const TaskLogsSidebar: React.FC<TaskLogsSidebarProps> = ({ task, isOpen, 
               </div>
               <div>
                 <div style={{ 
-                  color: theme === 'dark' ? '#a0aec0' : '#6b7280',
-                  marginBottom: '4px'
+                  color: '#6b7280',
+                  marginBottom: '4px',
+                  fontSize: '12px',
+                  fontWeight: '500',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em'
                 }}>
                   Last Run
                 </div>
                 <div style={{ 
-                  color: theme === 'dark' ? '#ffffff' : '#1a202c',
+                  color: '#1a202c',
                   fontWeight: '500'
                 }}>
                   {formatTimestamp(task.schedule.lastRun)}
@@ -229,10 +196,27 @@ export const TaskLogsSidebar: React.FC<TaskLogsSidebarProps> = ({ task, isOpen, 
         </div>
 
         {/* Version Selection */}
-        <div style={sectionStyle}>
-          <h3 style={sectionHeaderStyle}>Version History</h3>
+        <div style={{ marginBottom: '32px' }}>
+          <h3 style={{
+            fontSize: '18px',
+            fontWeight: '600',
+            color: '#1a202c',
+            marginBottom: '16px'
+          }}>
+            Version History
+          </h3>
           <select 
-            style={selectStyle}
+            style={{
+              width: '100%',
+              padding: '12px 16px',
+              background: '#ffffff',
+              border: '1px solid #d1d5db',
+              borderRadius: '12px',
+              color: '#1a202c',
+              fontSize: '14px',
+              outline: 'none',
+              cursor: 'pointer'
+            }}
             value={selectedVersion}
             onChange={(e) => setSelectedVersion(e.target.value)}
           >
@@ -246,17 +230,30 @@ export const TaskLogsSidebar: React.FC<TaskLogsSidebarProps> = ({ task, isOpen, 
 
         {/* Version Details */}
         {currentVersion && (
-          <div style={sectionStyle}>
-            <h3 style={sectionHeaderStyle}>
+          <div style={{ marginBottom: '32px' }}>
+            <h3 style={{
+              fontSize: '18px',
+              fontWeight: '600',
+              color: '#1a202c',
+              marginBottom: '16px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}>
               <User size={16} />
               Version Details
             </h3>
-            <div style={cardStyle}>
-              <div style={{ marginBottom: '16px' }}>
+            <div style={{
+              backgroundColor: '#ffffff',
+              border: '1px solid #e2e8f0',
+              borderRadius: '16px',
+              padding: '24px'
+            }}>
+              <div style={{ marginBottom: '20px' }}>
                 <div style={{ 
                   fontSize: '12px', 
-                  color: theme === 'dark' ? '#a0aec0' : '#6b7280',
-                  marginBottom: '6px',
+                  color: '#6b7280',
+                  marginBottom: '8px',
                   textTransform: 'uppercase',
                   letterSpacing: '0.05em',
                   fontWeight: '600'
@@ -265,7 +262,7 @@ export const TaskLogsSidebar: React.FC<TaskLogsSidebarProps> = ({ task, isOpen, 
                 </div>
                 <div style={{ 
                   fontSize: '14px', 
-                  color: theme === 'dark' ? '#ffffff' : '#1a202c',
+                  color: '#1a202c',
                   lineHeight: '1.5'
                 }}>
                   {currentVersion.goal}
@@ -275,8 +272,8 @@ export const TaskLogsSidebar: React.FC<TaskLogsSidebarProps> = ({ task, isOpen, 
               <div>
                 <div style={{ 
                   fontSize: '12px', 
-                  color: theme === 'dark' ? '#a0aec0' : '#6b7280',
-                  marginBottom: '6px',
+                  color: '#6b7280',
+                  marginBottom: '8px',
                   textTransform: 'uppercase',
                   letterSpacing: '0.05em',
                   fontWeight: '600'
@@ -285,7 +282,7 @@ export const TaskLogsSidebar: React.FC<TaskLogsSidebarProps> = ({ task, isOpen, 
                 </div>
                 <div style={{ 
                   fontSize: '14px', 
-                  color: theme === 'dark' ? '#ffffff' : '#1a202c',
+                  color: '#1a202c',
                   lineHeight: '1.5'
                 }}>
                   {currentVersion.background}
@@ -296,14 +293,21 @@ export const TaskLogsSidebar: React.FC<TaskLogsSidebarProps> = ({ task, isOpen, 
         )}
 
         {/* Execution Logs */}
-        <div style={sectionStyle}>
+        <div style={{ marginBottom: '32px' }}>
           <div style={{ 
             display: 'flex', 
             justifyContent: 'space-between', 
             alignItems: 'center',
             marginBottom: '16px'
           }}>
-            <h3 style={{ ...sectionHeaderStyle, marginBottom: 0 }}>Execution Logs</h3>
+            <h3 style={{
+              fontSize: '18px',
+              fontWeight: '600',
+              color: '#1a202c',
+              margin: 0
+            }}>
+              Execution Logs
+            </h3>
             <button
               onClick={handleCopyLogs}
               style={{
@@ -312,12 +316,20 @@ export const TaskLogsSidebar: React.FC<TaskLogsSidebarProps> = ({ task, isOpen, 
                 gap: '6px',
                 padding: '8px 12px',
                 background: 'none',
-                border: theme === 'dark' ? '1px solid #4a5568' : '1px solid #d1d5db',
-                borderRadius: '6px',
-                color: theme === 'dark' ? '#a0aec0' : '#6b7280',
+                border: '1px solid #d1d5db',
+                borderRadius: '8px',
+                color: '#6b7280',
                 fontSize: '12px',
                 cursor: 'pointer',
                 transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#f8fafc';
+                e.currentTarget.style.borderColor = '#9ca3af';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent';
+                e.currentTarget.style.borderColor = '#d1d5db';
               }}
             >
               <Copy size={12} />
@@ -326,7 +338,18 @@ export const TaskLogsSidebar: React.FC<TaskLogsSidebarProps> = ({ task, isOpen, 
           </div>
           
           <select 
-            style={{ ...selectStyle, marginBottom: '16px' }}
+            style={{
+              width: '100%',
+              padding: '12px 16px',
+              background: '#ffffff',
+              border: '1px solid #d1d5db',
+              borderRadius: '12px',
+              color: '#1a202c',
+              fontSize: '14px',
+              outline: 'none',
+              cursor: 'pointer',
+              marginBottom: '16px'
+            }}
             value={logFilter}
             onChange={(e) => setLogFilter(e.target.value)}
           >
@@ -341,15 +364,26 @@ export const TaskLogsSidebar: React.FC<TaskLogsSidebarProps> = ({ task, isOpen, 
             {filteredLogs.length === 0 ? (
               <div style={{ 
                 textAlign: 'center', 
-                padding: '32px',
-                color: theme === 'dark' ? '#a0aec0' : '#6b7280',
-                fontSize: '14px'
+                padding: '48px 24px',
+                color: '#6b7280',
+                fontSize: '14px',
+                backgroundColor: '#ffffff',
+                borderRadius: '12px',
+                border: '1px solid #e2e8f0'
               }}>
                 No logs available for this task
               </div>
             ) : (
               filteredLogs.map(log => (
-                <div key={log.id} style={logItemStyle}>
+                <div key={log.id} style={{
+                  display: 'flex',
+                  gap: '12px',
+                  padding: '16px',
+                  borderRadius: '12px',
+                  marginBottom: '12px',
+                  background: '#ffffff',
+                  border: '1px solid #e2e8f0'
+                }}>
                   <div style={{ paddingTop: '2px' }}>
                     {getLogIcon(log.level)}
                   </div>
@@ -363,7 +397,7 @@ export const TaskLogsSidebar: React.FC<TaskLogsSidebarProps> = ({ task, isOpen, 
                       <span style={{ 
                         fontSize: '12px',
                         fontWeight: '600',
-                        color: theme === 'dark' ? '#ffffff' : '#1a202c',
+                        color: '#1a202c',
                         textTransform: 'uppercase',
                         letterSpacing: '0.05em'
                       }}>
@@ -371,14 +405,14 @@ export const TaskLogsSidebar: React.FC<TaskLogsSidebarProps> = ({ task, isOpen, 
                       </span>
                       <span style={{ 
                         fontSize: '12px',
-                        color: theme === 'dark' ? '#a0aec0' : '#6b7280'
+                        color: '#6b7280'
                       }}>
                         {formatTimestamp(log.timestamp)}
                       </span>
                     </div>
                     <div style={{ 
                       fontSize: '14px',
-                      color: theme === 'dark' ? '#e2e8f0' : '#374151',
+                      color: '#374151',
                       lineHeight: '1.5'
                     }}>
                       {log.message}
