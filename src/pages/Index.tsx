@@ -11,10 +11,13 @@ import { mockReports } from '../components/mockData';
 export const Index: React.FC = () => {
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
+  const [dateFilter, setDateFilter] = useState('');
 
   const containerStyle: React.CSSProperties = {
     minHeight: '100vh',
-    backgroundColor: 'hsl(var(--muted))'
+    backgroundColor: '#f8fafc'
   };
 
   const mainContentStyle: React.CSSProperties = {
@@ -30,16 +33,18 @@ export const Index: React.FC = () => {
   const titleStyle: React.CSSProperties = {
     fontSize: '28px',
     fontWeight: '700',
-    color: 'hsl(var(--foreground))',
+    color: '#1e293b',
     margin: 0,
     marginBottom: '8px'
   };
 
   const subtitleStyle: React.CSSProperties = {
     fontSize: '16px',
-    color: 'hsl(var(--muted-foreground))',
+    color: '#64748b',
     margin: 0
   };
+
+  const selectedTask = selectedTaskId ? mockReports.find(r => r.id === selectedTaskId) : null;
 
   return (
     <div style={containerStyle}>
@@ -54,16 +59,27 @@ export const Index: React.FC = () => {
         </div>
 
         <CleanMetricsDashboard reports={mockReports} />
-        <SearchAndFilters />
-        <ReportGrid reports={mockReports} onReportClick={(id) => setSelectedTaskId(id)} />
+        <SearchAndFilters 
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+          statusFilter={statusFilter}
+          setStatusFilter={setStatusFilter}
+          dateFilter={dateFilter}
+          setDateFilter={setDateFilter}
+        />
+        <ReportGrid reports={mockReports} />
 
         {isTaskModalOpen && (
-          <TaskCreationModal onClose={() => setIsTaskModalOpen(false)} />
+          <TaskCreationModal 
+            isOpen={isTaskModalOpen}
+            onClose={() => setIsTaskModalOpen(false)} 
+          />
         )}
 
-        {selectedTaskId && (
+        {selectedTask && (
           <TaskLogsSidebar
-            taskId={selectedTaskId}
+            task={selectedTask}
+            isOpen={true}
             onClose={() => setSelectedTaskId(null)}
           />
         )}

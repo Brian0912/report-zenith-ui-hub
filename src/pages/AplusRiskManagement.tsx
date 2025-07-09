@@ -6,13 +6,17 @@ import { RiskFilters } from '../components/risk-management/RiskFilters';
 import { RiskMatrix } from '../components/risk-management/RiskMatrix';
 import { GovernanceSidebar } from '../components/risk-management/GovernanceSidebar';
 import { mockReports } from '../components/mockData';
+import { mockEntities, mockRisks, mockGovernanceGroups } from '../components/risk-management/mockRiskData';
 
 export const AplusRiskManagement: React.FC = () => {
-  const [selectedEntity, setSelectedEntity] = useState<string | null>(null);
+  const [selectedServiceTrees, setSelectedServiceTrees] = useState<string[]>([]);
+  const [filteredEntities, setFilteredEntities] = useState(mockEntities);
+  const [visibleRiskIds, setVisibleRiskIds] = useState<string[]>(mockRisks.map(r => r.id));
+  const [isGovernanceSidebarOpen, setIsGovernanceSidebarOpen] = useState(false);
 
   const containerStyle: React.CSSProperties = {
     minHeight: '100vh',
-    backgroundColor: 'hsl(var(--muted))'
+    backgroundColor: '#f8fafc'
   };
 
   const mainContentStyle: React.CSSProperties = {
@@ -28,50 +32,31 @@ export const AplusRiskManagement: React.FC = () => {
   const titleStyle: React.CSSProperties = {
     fontSize: '28px',
     fontWeight: '700',
-    color: 'hsl(var(--foreground))',
+    color: '#1e293b',
     margin: 0,
     marginBottom: '8px'
   };
 
   const subtitleStyle: React.CSSProperties = {
     fontSize: '16px',
-    color: 'hsl(var(--muted-foreground))',
+    color: '#64748b',
     margin: 0
   };
 
   const contentLayoutStyle: React.CSSProperties = {
     display: 'grid',
-    gridTemplateColumns: '1fr 300px',
+    gridTemplateColumns: '1fr',
     gap: '32px'
   };
 
-  // Transform mockReports to risk metrics for display
-  const riskMetrics = [
-    {
-      label: 'Total Risks',
-      value: 24,
-      color: 'hsl(var(--primary))',
-      icon: '🛡️'
-    },
-    {
-      label: 'High Risk',
-      value: 3,
-      color: 'hsl(var(--destructive))',
-      icon: '🚨'
-    },
-    {
-      label: 'Medium Risk',
-      value: 8,
-      color: 'hsl(var(--warning))',
-      icon: '⚠️'
-    },
-    {
-      label: 'Low Risk',
-      value: 13,
-      color: 'hsl(var(--success))',
-      icon: '✅'
-    }
-  ];
+  const filtersLayoutStyle: React.CSSProperties = {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(2, 1fr)',
+    gap: '16px',
+    marginBottom: '24px'
+  };
+
+  const visibleRisks = mockRisks.filter(risk => visibleRiskIds.includes(risk.id));
 
   return (
     <div style={containerStyle}>
@@ -88,17 +73,30 @@ export const AplusRiskManagement: React.FC = () => {
         <CleanMetricsDashboard reports={mockReports} />
         
         <div style={contentLayoutStyle}>
-          <div>
-            <RiskFilters />
-            <RiskMatrix onEntitySelect={setSelectedEntity} />
+          <div style={filtersLayoutStyle}>
+            <RiskFilters 
+              entities={mockEntities}
+              risks={mockRisks}
+              selectedServiceTrees={selectedServiceTrees}
+              onServiceTreeChange={setSelectedServiceTrees}
+              onFilterChange={setFilteredEntities}
+              onRiskVisibilityChange={setVisibleRiskIds}
+            />
           </div>
           
-          <GovernanceSidebar 
-            selectedEntity={selectedEntity}
-            onEntitySelect={setSelectedEntity}
+          <RiskMatrix 
+            entities={filteredEntities}
+            risks={visibleRisks}
+            onEntityRiskHistory={() => setIsGovernanceSidebarOpen(true)}
           />
         </div>
       </div>
+
+      <GovernanceSidebar 
+        isOpen={isGovernanceSidebarOpen}
+        onClose={() => setIsGovernanceSidebarOpen(false)}
+        governanceGroups={mockGovernanceGroups}
+      />
     </div>
   );
 };
