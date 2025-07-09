@@ -1,14 +1,27 @@
 
 import React, { useState } from 'react';
 import { useTheme } from './ThemeProvider';
+import { Button } from './ui/button';
+import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
+import { Filter } from 'lucide-react';
 
 interface SentinelHeaderProps {
   onCreateTask: () => void;
+  searchTerm: string;
+  setSearchTerm: (term: string) => void;
+  statusFilter: string;
+  setStatusFilter: (status: string) => void;
 }
 
-export const SentinelHeader: React.FC<SentinelHeaderProps> = ({ onCreateTask }) => {
+export const SentinelHeader: React.FC<SentinelHeaderProps> = ({ 
+  onCreateTask, 
+  searchTerm, 
+  setSearchTerm, 
+  statusFilter, 
+  setStatusFilter 
+}) => {
   const { theme, toggleTheme } = useTheme();
-  const [searchTerm, setSearchTerm] = useState('');
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   const headerStyle: React.CSSProperties = {
     backgroundColor: 'hsl(var(--card))',
@@ -59,17 +72,20 @@ export const SentinelHeader: React.FC<SentinelHeaderProps> = ({ onCreateTask }) 
 
   const centerSectionStyle: React.CSSProperties = {
     flex: 1,
-    maxWidth: '400px',
+    maxWidth: '500px',
     margin: '0 48px'
   };
 
   const searchContainerStyle: React.CSSProperties = {
     position: 'relative',
-    width: '100%'
+    width: '100%',
+    display: 'flex',
+    gap: '12px',
+    alignItems: 'center'
   };
 
   const searchInputStyle: React.CSSProperties = {
-    width: '100%',
+    flex: 1,
     padding: '10px 16px 10px 40px',
     borderRadius: '8px',
     border: '1px solid hsl(var(--border))',
@@ -94,30 +110,6 @@ export const SentinelHeader: React.FC<SentinelHeaderProps> = ({ onCreateTask }) 
     gap: '16px'
   };
 
-  const dashboardButtonStyle: React.CSSProperties = {
-    padding: '8px 16px',
-    backgroundColor: 'transparent',
-    border: 'none',
-    color: 'hsl(var(--muted-foreground))',
-    fontSize: '14px',
-    fontWeight: '500',
-    cursor: 'pointer',
-    borderRadius: '6px',
-    transition: 'all 0.2s ease'
-  };
-
-  const createTaskButtonStyle: React.CSSProperties = {
-    padding: '10px 20px',
-    backgroundColor: 'hsl(var(--primary))',
-    color: 'hsl(var(--primary-foreground))',
-    border: 'none',
-    borderRadius: '8px',
-    fontSize: '14px',
-    fontWeight: '500',
-    cursor: 'pointer',
-    transition: 'all 0.2s ease'
-  };
-
   const themeToggleStyle: React.CSSProperties = {
     width: '32px',
     height: '32px',
@@ -132,6 +124,28 @@ export const SentinelHeader: React.FC<SentinelHeaderProps> = ({ onCreateTask }) 
     transition: 'all 0.2s ease'
   };
 
+  const statusOptions = [
+    { value: '', label: 'All Status' },
+    { value: 'completed', label: 'Completed' },
+    { value: 'running', label: 'Running' },
+    { value: 'error', label: 'Error' },
+    { value: 'queued', label: 'Queued' }
+  ];
+
+  const filterContentStyle: React.CSSProperties = {
+    width: '200px'
+  };
+
+  const filterOptionStyle = (isSelected: boolean): React.CSSProperties => ({
+    padding: '8px 12px',
+    cursor: 'pointer',
+    borderRadius: '4px',
+    backgroundColor: isSelected ? 'hsl(var(--accent))' : 'transparent',
+    color: 'hsl(var(--foreground))',
+    fontSize: '14px',
+    transition: 'background-color 0.2s ease'
+  });
+
   return (
     <header style={headerStyle}>
       <div style={containerStyle}>
@@ -144,31 +158,67 @@ export const SentinelHeader: React.FC<SentinelHeaderProps> = ({ onCreateTask }) 
 
         <div style={centerSectionStyle}>
           <div style={searchContainerStyle}>
-            <span style={searchIconStyle}>🔍</span>
-            <input
-              type="text"
-              placeholder="Search reports..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              style={searchInputStyle}
-            />
+            <div style={{ position: 'relative', flex: 1 }}>
+              <span style={searchIconStyle}>🔍</span>
+              <input
+                type="text"
+                placeholder="Search reports..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                style={searchInputStyle}
+              />
+            </div>
+            
+            <Popover open={isFilterOpen} onOpenChange={setIsFilterOpen}>
+              <PopoverTrigger asChild>
+                <Button variant="outline" size="default">
+                  <Filter size={16} />
+                  Filter
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent style={filterContentStyle}>
+                <div>
+                  <h4 style={{ 
+                    fontSize: '14px', 
+                    fontWeight: '600', 
+                    marginBottom: '8px',
+                    color: 'hsl(var(--foreground))'
+                  }}>
+                    Filter by Status
+                  </h4>
+                  {statusOptions.map(option => (
+                    <div
+                      key={option.value}
+                      style={filterOptionStyle(statusFilter === option.value)}
+                      onClick={() => {
+                        setStatusFilter(option.value);
+                        setIsFilterOpen(false);
+                      }}
+                      onMouseEnter={(e) => {
+                        if (statusFilter !== option.value) {
+                          e.currentTarget.style.backgroundColor = 'hsl(var(--muted))';
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (statusFilter !== option.value) {
+                          e.currentTarget.style.backgroundColor = 'transparent';
+                        }
+                      }}
+                    >
+                      {option.label}
+                    </div>
+                  ))}
+                </div>
+              </PopoverContent>
+            </Popover>
           </div>
         </div>
 
         <div style={rightSectionStyle}>
-          <button style={dashboardButtonStyle}>Dashboard</button>
-          <button 
-            style={createTaskButtonStyle}
-            onClick={onCreateTask}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = 'hsl(var(--primary) / 0.9)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = 'hsl(var(--primary))';
-            }}
-          >
+          <Button variant="ghost">Dashboard</Button>
+          <Button onClick={onCreateTask}>
             Create Task
-          </button>
+          </Button>
           <button
             style={themeToggleStyle}
             onClick={toggleTheme}

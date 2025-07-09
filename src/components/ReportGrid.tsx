@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useTheme } from './ThemeProvider';
 import { Report } from './mockData';
@@ -5,14 +6,12 @@ import { ReportCard } from './ReportCard';
 
 interface ReportGridProps {
   reports: Report[];
-  viewMode: 'grid' | 'list';
   onSubscribe: (reportId: string) => void;
   onViewLogs: (reportId: string) => void;
 }
 
 export const ReportGrid: React.FC<ReportGridProps> = ({ 
   reports, 
-  viewMode, 
   onSubscribe,
   onViewLogs 
 }) => {
@@ -20,9 +19,7 @@ export const ReportGrid: React.FC<ReportGridProps> = ({
 
   const gridStyle: React.CSSProperties = {
     display: 'grid',
-    gridTemplateColumns: viewMode === 'grid' 
-      ? 'repeat(auto-fill, minmax(400px, 1fr))'
-      : '1fr',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))',
     gap: '1.5rem',
     animation: 'fade-in 0.5s ease-out'
   };
@@ -79,7 +76,7 @@ export const ReportGrid: React.FC<ReportGridProps> = ({
         <ReportCard
           key={report.id}
           report={report}
-          viewMode={viewMode}
+          viewMode="grid"
           onSubscribe={onSubscribe}
           onViewLogs={onViewLogs}
           animationDelay={index * 100}
