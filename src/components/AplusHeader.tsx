@@ -94,18 +94,6 @@ export const AplusHeader: React.FC<AplusHeaderProps> = ({ onCreateTask }) => {
     gap: '16px'
   };
 
-  const dashboardButtonStyle: React.CSSProperties = {
-    padding: '8px 16px',
-    backgroundColor: 'transparent',
-    border: 'none',
-    color: 'hsl(var(--muted-foreground))',
-    fontSize: '14px',
-    fontWeight: '500',
-    cursor: 'pointer',
-    borderRadius: '6px',
-    transition: 'all 0.2s ease'
-  };
-
   const themeToggleStyle: React.CSSProperties = {
     width: '32px',
     height: '32px',
@@ -144,7 +132,6 @@ export const AplusHeader: React.FC<AplusHeaderProps> = ({ onCreateTask }) => {
         </div>
 
         <div style={rightSectionStyle}>
-          <button style={dashboardButtonStyle}>Dashboard</button>
           <button
             style={themeToggleStyle}
             onClick={toggleTheme}

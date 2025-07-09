@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { useTheme } from '../ThemeProvider';
+import { Button } from '../ui/button';
 
 interface RiskFindingPageHeaderProps {
   onSubmitFinding: () => void;
@@ -11,8 +12,8 @@ export const RiskFindingPageHeader: React.FC<RiskFindingPageHeaderProps> = ({ on
   const [searchTerm, setSearchTerm] = useState('');
 
   const headerStyle: React.CSSProperties = {
-    backgroundColor: 'white',
-    borderBottom: '1px solid #e5e7eb',
+    backgroundColor: 'hsl(var(--card))',
+    borderBottom: '1px solid hsl(var(--border))',
     padding: '16px 24px',
     boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
   };
@@ -40,12 +41,12 @@ export const RiskFindingPageHeader: React.FC<RiskFindingPageHeaderProps> = ({ on
   const logoCircleStyle: React.CSSProperties = {
     width: '40px',
     height: '40px',
-    backgroundColor: '#3b82f6',
+    backgroundColor: 'hsl(var(--primary))',
     borderRadius: '50%',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    color: 'white',
+    color: 'hsl(var(--primary-foreground))',
     fontSize: '20px',
     fontWeight: 'bold'
   };
@@ -53,7 +54,7 @@ export const RiskFindingPageHeader: React.FC<RiskFindingPageHeaderProps> = ({ on
   const logoTextStyle: React.CSSProperties = {
     fontSize: '20px',
     fontWeight: '600',
-    color: '#1f2937',
+    color: 'hsl(var(--foreground))',
     margin: 0
   };
 
@@ -72,10 +73,11 @@ export const RiskFindingPageHeader: React.FC<RiskFindingPageHeaderProps> = ({ on
     width: '100%',
     padding: '10px 16px 10px 40px',
     borderRadius: '8px',
-    border: '1px solid #d1d5db',
+    border: '1px solid hsl(var(--border))',
     fontSize: '14px',
     outline: 'none',
-    backgroundColor: '#f9fafb'
+    backgroundColor: 'hsl(var(--muted))',
+    color: 'hsl(var(--foreground))'
   };
 
   const searchIconStyle: React.CSSProperties = {
@@ -83,7 +85,7 @@ export const RiskFindingPageHeader: React.FC<RiskFindingPageHeaderProps> = ({ on
     left: '12px',
     top: '50%',
     transform: 'translateY(-50%)',
-    color: '#6b7280',
+    color: 'hsl(var(--muted-foreground))',
     fontSize: '16px'
   };
 
@@ -93,35 +95,12 @@ export const RiskFindingPageHeader: React.FC<RiskFindingPageHeaderProps> = ({ on
     gap: '16px'
   };
 
-  const dashboardButtonStyle: React.CSSProperties = {
-    padding: '8px 16px',
-    backgroundColor: 'transparent',
-    border: 'none',
-    color: '#6b7280',
-    fontSize: '14px',
-    fontWeight: '500',
-    cursor: 'pointer',
-    borderRadius: '6px',
-    transition: 'all 0.2s ease'
-  };
-
-  const submitButtonStyle: React.CSSProperties = {
-    padding: '10px 20px',
-    backgroundColor: '#3b82f6',
-    color: 'white',
-    border: 'none',
-    borderRadius: '8px',
-    fontSize: '14px',
-    fontWeight: '500',
-    cursor: 'pointer',
-    transition: 'all 0.2s ease'
-  };
-
   const userMenuStyle: React.CSSProperties = {
     width: '32px',
     height: '32px',
     borderRadius: '50%',
-    backgroundColor: '#e5e7eb',
+    backgroundColor: 'hsl(var(--muted))',
+    border: '1px solid hsl(var(--border))',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -153,19 +132,9 @@ export const RiskFindingPageHeader: React.FC<RiskFindingPageHeaderProps> = ({ on
         </div>
 
         <div style={rightSectionStyle}>
-          <button style={dashboardButtonStyle}>Dashboard</button>
-          <button 
-            style={submitButtonStyle}
-            onClick={onSubmitFinding}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = '#2563eb';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = '#3b82f6';
-            }}
-          >
+          <Button onClick={onSubmitFinding}>
             Submit Finding
-          </button>
+          </Button>
           <div style={userMenuStyle}>👤</div>
         </div>
       </div>
