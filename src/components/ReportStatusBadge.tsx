@@ -1,71 +1,73 @@
 
 import React from 'react';
-import { useTheme } from './ThemeProvider';
+import { CheckCircle, Clock, AlertCircle, Loader } from 'lucide-react';
 
 interface ReportStatusBadgeProps {
   status: string;
 }
 
 export const ReportStatusBadge: React.FC<ReportStatusBadgeProps> = ({ status }) => {
-  const { theme } = useTheme();
-
   const getStatusConfig = (status: string) => {
     switch (status) {
       case 'completed':
         return {
-          color: 'hsl(142 76% 36%)',
-          icon: '✅',
-          animation: 'none'
+          backgroundColor: '#10B981',
+          color: 'white',
+          icon: CheckCircle,
+          text: 'COMPLETED'
         };
       case 'running':
         return {
-          color: 'hsl(221 83% 53%)',
-          icon: '⚡',
-          animation: 'pulse 2s ease-in-out infinite'
+          backgroundColor: '#4F46E5',
+          color: 'white',
+          icon: Loader,
+          text: 'RUNNING'
         };
       case 'error':
         return {
-          color: 'hsl(0 84% 60%)',
-          icon: '🚨',
-          animation: 'bounce 1s ease-in-out infinite'
+          backgroundColor: '#EF4444',
+          color: 'white',
+          icon: AlertCircle,
+          text: 'ERROR'
         };
       case 'queued':
         return {
-          color: 'hsl(43 96% 56%)',
-          icon: '⏳',
-          animation: 'pulse 3s ease-in-out infinite'
+          backgroundColor: '#F59E0B',
+          color: 'white',
+          icon: Clock,
+          text: 'QUEUED'
         };
       default:
         return {
-          color: 'hsl(220 9% 46%)',
-          icon: '❓',
-          animation: 'none'
+          backgroundColor: '#6B7280',
+          color: 'white',
+          icon: Clock,
+          text: 'UNKNOWN'
         };
     }
   };
 
-  const statusConfig = getStatusConfig(status);
+  const config = getStatusConfig(status);
+  const Icon = config.icon;
 
-  const statusBadgeStyle: React.CSSProperties = {
+  const badgeStyle: React.CSSProperties = {
+    height: '24px',
+    borderRadius: '12px',
+    padding: '4px 12px',
+    backgroundColor: config.backgroundColor,
+    color: config.color,
+    fontSize: '12px',
+    fontWeight: '500',
     display: 'flex',
     alignItems: 'center',
-    gap: '0.5rem',
-    padding: '0.25rem 0.75rem',
-    borderRadius: '6px',
-    backgroundColor: `${statusConfig.color}15`,
-    color: statusConfig.color,
-    fontSize: '0.75rem',
-    fontWeight: '600',
-    textTransform: 'uppercase' as const,
-    letterSpacing: '0.05em',
-    animation: statusConfig.animation,
-    border: `1px solid ${statusConfig.color}30`
+    gap: '4px',
+    whiteSpace: 'nowrap'
   };
 
   return (
-    <div style={statusBadgeStyle}>
-      <span>{statusConfig.icon}</span>
-      <span>{status}</span>
+    <div style={badgeStyle}>
+      <Icon size={12} />
+      {config.text}
     </div>
   );
 };

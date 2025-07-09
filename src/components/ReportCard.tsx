@@ -1,12 +1,10 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Eye, Download, List, ChevronDown } from 'lucide-react';
+import { Eye, Download, List, MoreHorizontal } from 'lucide-react';
 import { useTheme } from './ThemeProvider';
 import { Report } from './mockData';
-import { ReportHeader } from './ReportHeader';
-import { ReportMetadata } from './ReportMetadata';
-import { ReportProgress } from './ReportProgress';
-import { ReportFooter } from './ReportFooter';
+import { ReportStatusBadge } from './ReportStatusBadge';
 import { DownloadProgressModal } from './DownloadProgressModal';
 import { useDownload } from '../hooks/useDownload';
 
@@ -28,62 +26,205 @@ export const ReportCard: React.FC<ReportCardProps> = ({
   const { theme } = useTheme();
   const navigate = useNavigate();
   const [isHovered, setIsHovered] = useState(false);
-  const [showExportDropdown, setShowExportDropdown] = useState(false);
+  const [showMoreActions, setShowMoreActions] = useState(false);
   const { downloadProgress, startDownload, cancelDownload } = useDownload();
 
+  // Card container styles following design system
   const cardStyle: React.CSSProperties = {
-    backgroundColor: 'hsl(var(--card))',
-    border: '1px solid hsl(var(--border))',
+    width: '400px',
+    height: '200px',
+    backgroundColor: '#FFFFFF',
     borderRadius: '12px',
-    boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+    padding: '24px',
+    border: '1px solid #E5E7EB',
+    boxShadow: isHovered 
+      ? '0px 4px 16px rgba(0, 0, 0, 0.12)' 
+      : '0px 2px 8px rgba(0, 0, 0, 0.06)',
     transition: 'all 0.2s ease',
-    overflow: 'hidden',
-    position: 'relative' as const,
-    transform: isHovered ? 'translateY(-2px)' : 'translateY(0)',
-    cursor: 'pointer'
-  };
-
-  const contentStyle: React.CSSProperties = {
-    padding: '1.5rem'
-  };
-
-  const descriptionStyle: React.CSSProperties = {
-    color: 'hsl(var(--muted-foreground))',
-    fontSize: '0.875rem',
-    lineHeight: '1.5',
-    marginBottom: '1.5rem'
-  };
-
-  const actionButtonsStyle: React.CSSProperties = {
+    cursor: 'pointer',
+    position: 'relative',
     display: 'flex',
-    gap: '8px',
-    justifyContent: 'flex-end',
-    marginBottom: '1.5rem',
-    flexWrap: 'wrap' as const
+    flexDirection: 'column',
+    justifyContent: 'space-between'
   };
 
-  const buttonStyle: React.CSSProperties = {
-    height: '36px',
-    padding: '0 12px',
-    borderRadius: '8px',
-    border: '1px solid hsl(var(--border))',
+  // Header section with title and status
+  const headerStyle: React.CSSProperties = {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: '12px'
+  };
+
+  const titleStyle: React.CSSProperties = {
+    fontSize: '18px',
+    lineHeight: '24px',
+    fontWeight: '600',
+    color: '#111827',
+    margin: 0,
+    flex: 1,
+    paddingRight: '16px'
+  };
+
+  // Owner info section
+  const ownerStyle: React.CSSProperties = {
     display: 'flex',
     alignItems: 'center',
-    gap: '6px',
-    fontSize: '0.875rem',
+    gap: '8px',
+    marginBottom: '16px'
+  };
+
+  const avatarStyle: React.CSSProperties = {
+    width: '24px',
+    height: '24px',
+    borderRadius: '50%',
+    backgroundColor: getAvatarColor(report.pointOfContact.name),
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: 'white',
+    fontSize: '12px',
+    fontWeight: '600'
+  };
+
+  const ownerNameStyle: React.CSSProperties = {
+    fontSize: '14px',
+    lineHeight: '20px',
+    fontWeight: '400',
+    color: '#6B7280'
+  };
+
+  // Description with truncation
+  const descriptionStyle: React.CSSProperties = {
+    fontSize: '14px',
+    lineHeight: '20px',
+    fontWeight: '400',
+    color: '#374151',
+    marginBottom: '16px',
+    display: '-webkit-box',
+    WebkitLineClamp: 2,
+    WebkitBoxOrient: 'vertical',
+    overflow: 'hidden'
+  };
+
+  // Metrics chips
+  const metricsStyle: React.CSSProperties = {
+    display: 'flex',
+    gap: '8px',
+    marginBottom: '16px',
+    flexWrap: 'wrap'
+  };
+
+  const metricChipStyle: React.CSSProperties = {
+    padding: '4px 8px',
+    backgroundColor: '#F3F4F6',
+    borderRadius: '6px',
+    fontSize: '12px',
     fontWeight: '500',
-    cursor: 'pointer',
-    transition: 'all 0.2s ease',
-    backgroundColor: 'hsl(var(--secondary))',
-    color: 'hsl(var(--secondary-foreground))'
+    color: '#6B7280'
+  };
+
+  // Footer with actions
+  const footerStyle: React.CSSProperties = {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center'
   };
 
   const primaryButtonStyle: React.CSSProperties = {
-    ...buttonStyle,
-    backgroundColor: 'hsl(var(--primary))',
-    color: 'hsl(var(--primary-foreground))',
-    border: 'none'
+    backgroundColor: '#4F46E5',
+    color: 'white',
+    border: 'none',
+    borderRadius: '8px',
+    padding: '8px 16px',
+    fontSize: '14px',
+    fontWeight: '500',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '6px',
+    transition: 'all 0.2s ease'
   };
+
+  const secondaryActionsStyle: React.CSSProperties = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px'
+  };
+
+  const secondaryButtonStyle: React.CSSProperties = {
+    backgroundColor: 'transparent',
+    color: '#6B7280',
+    border: '1px solid #E5E7EB',
+    borderRadius: '6px',
+    padding: '6px 12px',
+    fontSize: '12px',
+    fontWeight: '500',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '4px',
+    transition: 'all 0.2s ease'
+  };
+
+  const moreButtonStyle: React.CSSProperties = {
+    backgroundColor: 'transparent',
+    border: 'none',
+    color: '#6B7280',
+    cursor: 'pointer',
+    padding: '4px',
+    borderRadius: '4px',
+    display: 'flex',
+    alignItems: 'center',
+    transition: 'all 0.2s ease'
+  };
+
+  // Last updated timestamp
+  const timestampStyle: React.CSSProperties = {
+    position: 'absolute',
+    bottom: '8px',
+    right: '12px',
+    fontSize: '12px',
+    color: '#9CA3AF'
+  };
+
+  // Alert badge if applicable
+  const alertBadgeStyle: React.CSSProperties = {
+    position: 'absolute',
+    top: '-6px',
+    right: '8px',
+    backgroundColor: '#EF4444',
+    color: 'white',
+    borderRadius: '10px',
+    width: '20px',
+    height: '20px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: '12px',
+    fontWeight: '600'
+  };
+
+  function getAvatarColor(name: string): string {
+    const colors = ['#4F46E5', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4'];
+    const index = name.charCodeAt(0) % colors.length;
+    return colors[index];
+  }
+
+  function getCompletionPercentage(): string {
+    if (report.status === 'completed') return '100%';
+    if (report.status === 'running') return `${report.progress}%`;
+    if (report.status === 'queued') return '0%';
+    return 'Error';
+  }
+
+  function getKeyMetrics() {
+    return [
+      `v${report.version}`,
+      getCompletionPercentage(),
+      `${report.subscriberCount} subscribers`
+    ];
+  }
 
   const handleViewDetails = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -92,12 +233,7 @@ export const ReportCard: React.FC<ReportCardProps> = ({
 
   const handleExportClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setShowExportDropdown(!showExportDropdown);
-  };
-
-  const handleExportOption = (option: string) => {
-    startDownload(`${report.title} - ${option}`, report.id);
-    setShowExportDropdown(false);
+    startDownload(`${report.title} - Complete Package`, report.id);
   };
 
   const handleViewLogs = (e: React.MouseEvent) => {
@@ -109,155 +245,119 @@ export const ReportCard: React.FC<ReportCardProps> = ({
     onSubscribe(report.id);
   };
 
-  const exportDropdownStyle: React.CSSProperties = {
-    position: 'relative' as const
-  };
-
-  const dropdownContentStyle: React.CSSProperties = {
-    position: 'absolute' as const,
-    top: '40px',
-    right: '0',
-    backgroundColor: 'hsl(var(--popover))',
-    border: '1px solid hsl(var(--border))',
-    borderRadius: '8px',
-    boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
-    zIndex: 10,
-    minWidth: '200px',
-    padding: '8px'
-  };
-
-  const dropdownItemStyle: React.CSSProperties = {
-    padding: '8px 12px',
-    borderRadius: '4px',
-    cursor: 'pointer',
-    fontSize: '0.875rem',
-    color: 'hsl(var(--popover-foreground))',
-    transition: 'background-color 0.2s ease'
-  };
-
   return (
     <>
       <div
         style={cardStyle}
-        onMouseEnter={() => {
-          setIsHovered(true);
-        }}
+        onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => {
           setIsHovered(false);
-          setShowExportDropdown(false);
+          setShowMoreActions(false);
         }}
+        onClick={() => navigate(`/tasks/${report.id}/report`)}
       >
-        <div style={contentStyle}>
-          <ReportHeader title={report.title} status={report.status} />
-          
-          <p style={descriptionStyle}>{report.description}</p>
-          
-          <div style={actionButtonsStyle}>
-            <button
-              style={primaryButtonStyle}
-              onClick={handleViewDetails}
-              title="View full report details"
-              onMouseEnter={(e) => {
-                e.currentTarget.style.opacity = '0.9';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.opacity = '1';
-              }}
-            >
-              <Eye size={16} />
-              View Details
-            </button>
-            
-            <div style={exportDropdownStyle}>
-              <button
-                style={buttonStyle}
-                onClick={handleExportClick}
-                title="Export report and evidences"
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = 'hsl(var(--accent))';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'hsl(var(--secondary))';
-                }}
-              >
-                <Download size={16} />
-                Export
-                <ChevronDown size={14} />
-              </button>
-              
-              {showExportDropdown && (
-                <div style={dropdownContentStyle}>
-                  <div 
-                    style={dropdownItemStyle}
-                    onClick={() => handleExportOption('Complete Package')}
-                    onMouseEnter={(e) => {
-                      (e.target as HTMLElement).style.backgroundColor = 'hsl(var(--accent))';
-                    }}
-                    onMouseLeave={(e) => {
-                      (e.target as HTMLElement).style.backgroundColor = 'transparent';
-                    }}
-                  >
-                    Download Complete Package
-                  </div>
-                  <div 
-                    style={dropdownItemStyle}
-                    onClick={() => handleExportOption('PDF Report')}
-                    onMouseEnter={(e) => {
-                      (e.target as HTMLElement).style.backgroundColor = 'hsl(var(--accent))';
-                    }}
-                    onMouseLeave={(e) => {
-                      (e.target as HTMLElement).style.backgroundColor = 'transparent';
-                    }}
-                  >
-                    Download PDF Report Only
-                  </div>
-                  <div 
-                    style={dropdownItemStyle}
-                    onClick={() => handleExportOption('Support Evidences')}
-                    onMouseEnter={(e) => {
-                      (e.target as HTMLElement).style.backgroundColor = 'hsl(var(--accent))';
-                    }}
-                    onMouseLeave={(e) => {
-                      (e.target as HTMLElement).style.backgroundColor = 'transparent';
-                    }}
-                  >
-                    Download Support Evidences
-                  </div>
-                </div>
-              )}
+        {/* Header */}
+        <div>
+          <div style={headerStyle}>
+            <h3 style={titleStyle}>{report.title}</h3>
+            <ReportStatusBadge status={report.status} />
+          </div>
+
+          {/* Owner */}
+          <div style={ownerStyle}>
+            <div style={avatarStyle}>
+              {report.pointOfContact.avatar}
             </div>
-            
+            <span style={ownerNameStyle}>{report.pointOfContact.name}</span>
+          </div>
+
+          {/* Description */}
+          <p style={descriptionStyle}>{report.description}</p>
+
+          {/* Key Metrics */}
+          <div style={metricsStyle}>
+            {getKeyMetrics().map((metric, index) => (
+              <span key={index} style={metricChipStyle}>{metric}</span>
+            ))}
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div style={footerStyle}>
+          <button
+            style={primaryButtonStyle}
+            onClick={handleViewDetails}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#4338CA';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#4F46E5';
+            }}
+          >
+            <Eye size={14} />
+            View Report
+          </button>
+
+          <div style={secondaryActionsStyle}>
             <button
-              style={buttonStyle}
-              onClick={handleViewLogs}
-              title="View task execution logs"
+              style={secondaryButtonStyle}
+              onClick={handleExportClick}
               onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = 'hsl(var(--accent))';
+                e.currentTarget.style.backgroundColor = '#F9FAFB';
+                e.currentTarget.style.borderColor = '#D1D5DB';
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'hsl(var(--secondary))';
+                e.currentTarget.style.backgroundColor = 'transparent';
+                e.currentTarget.style.borderColor = '#E5E7EB';
               }}
             >
-              <List size={16} />
-              View Logs
+              <Download size={12} />
+              Export
+            </button>
+
+            <button
+              style={secondaryButtonStyle}
+              onClick={handleViewLogs}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#F9FAFB';
+                e.currentTarget.style.borderColor = '#D1D5DB';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent';
+                e.currentTarget.style.borderColor = '#E5E7EB';
+              }}
+            >
+              <List size={12} />
+              Logs
+              {/* Alert badge for logs */}
+              <div style={{ position: 'relative' }}>
+                {report.status === 'error' && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '-8px',
+                    right: '-8px',
+                    backgroundColor: '#EF4444',
+                    color: 'white',
+                    borderRadius: '8px',
+                    width: '16px',
+                    height: '16px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '10px',
+                    fontWeight: '600'
+                  }}>
+                    !
+                  </div>
+                )}
+              </div>
             </button>
           </div>
-          
-          <ReportMetadata 
-            pointOfContact={report.pointOfContact}
-            version={report.version}
-            status={report.status}
-          />
+        </div>
 
-          <ReportProgress progress={report.progress} status={report.status} />
-
-          <ReportFooter 
-            tags={report.tags}
-            isSubscribed={report.isSubscribed}
-            subscriberCount={report.subscriberCount}
-            onSubscribe={handleSubscribe}
-            status={report.status}
-          />
+        {/* Last updated timestamp */}
+        <div style={timestampStyle}>
+          Updated 2h ago
         </div>
       </div>
 
