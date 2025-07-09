@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { SentinelHeader } from '../components/SentinelHeader';
 import { SearchAndFilters } from '../components/SearchAndFilters';
@@ -13,6 +14,10 @@ export const Index: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [dateFilter, setDateFilter] = useState('');
+
+  // Calculate isPanelOpen early so it can be used in styles
+  const selectedTask = selectedTaskId ? mockReports.find(r => r.id === selectedTaskId) : null;
+  const isPanelOpen = isTaskPanelOpen || !!selectedTask;
 
   const containerStyle: React.CSSProperties = {
     minHeight: '100vh',
@@ -113,9 +118,6 @@ export const Index: React.FC = () => {
   const handleTaskCreated = () => {
     setIsTaskPanelOpen(false);
   };
-
-  const selectedTask = selectedTaskId ? mockReports.find(r => r.id === selectedTaskId) : null;
-  const isPanelOpen = isTaskPanelOpen || !!selectedTask;
 
   return (
     <div style={containerStyle}>
