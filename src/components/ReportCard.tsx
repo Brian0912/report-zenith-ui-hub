@@ -29,10 +29,11 @@ export const ReportCard: React.FC<ReportCardProps> = ({
   const [showMoreActions, setShowMoreActions] = useState(false);
   const { downloadProgress, startDownload, cancelDownload } = useDownload();
 
-  // Card container styles following design system
+  // Card container styles - increased height to 240px
   const cardStyle: React.CSSProperties = {
-    width: '400px',
-    height: '200px',
+    width: '100%',
+    maxWidth: '400px',
+    height: '300px', // Increased from 200px
     backgroundColor: '#FFFFFF',
     borderRadius: '12px',
     padding: '24px',
@@ -71,7 +72,7 @@ export const ReportCard: React.FC<ReportCardProps> = ({
     display: 'flex',
     alignItems: 'center',
     gap: '8px',
-    marginBottom: '16px'
+    marginBottom: '12px'
   };
 
   const avatarStyle: React.CSSProperties = {
@@ -100,7 +101,7 @@ export const ReportCard: React.FC<ReportCardProps> = ({
     lineHeight: '20px',
     fontWeight: '400',
     color: '#374151',
-    marginBottom: '16px',
+    marginBottom: '12px',
     display: '-webkit-box',
     WebkitLineClamp: 2,
     WebkitBoxOrient: 'vertical',
@@ -124,11 +125,12 @@ export const ReportCard: React.FC<ReportCardProps> = ({
     color: '#6B7280'
   };
 
-  // Footer with actions
+  // Footer with actions - positioned at bottom
   const footerStyle: React.CSSProperties = {
     display: 'flex',
     justifyContent: 'space-between',
-    alignItems: 'center'
+    alignItems: 'center',
+    marginTop: 'auto' // This pushes the footer to the bottom
   };
 
   const primaryButtonStyle: React.CSSProperties = {
@@ -167,18 +169,6 @@ export const ReportCard: React.FC<ReportCardProps> = ({
     transition: 'all 0.2s ease'
   };
 
-  const moreButtonStyle: React.CSSProperties = {
-    backgroundColor: 'transparent',
-    border: 'none',
-    color: '#6B7280',
-    cursor: 'pointer',
-    padding: '4px',
-    borderRadius: '4px',
-    display: 'flex',
-    alignItems: 'center',
-    transition: 'all 0.2s ease'
-  };
-
   // Last updated timestamp
   const timestampStyle: React.CSSProperties = {
     position: 'absolute',
@@ -186,23 +176,6 @@ export const ReportCard: React.FC<ReportCardProps> = ({
     right: '12px',
     fontSize: '12px',
     color: '#9CA3AF'
-  };
-
-  // Alert badge if applicable
-  const alertBadgeStyle: React.CSSProperties = {
-    position: 'absolute',
-    top: '-6px',
-    right: '8px',
-    backgroundColor: '#EF4444',
-    color: 'white',
-    borderRadius: '10px',
-    width: '20px',
-    height: '20px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: '12px',
-    fontWeight: '600'
   };
 
   function getAvatarColor(name: string): string {
@@ -256,102 +229,105 @@ export const ReportCard: React.FC<ReportCardProps> = ({
         }}
         onClick={() => navigate(`/tasks/${report.id}/report`)}
       >
-        {/* Header */}
-        <div>
-          <div style={headerStyle}>
-            <h3 style={titleStyle}>{report.title}</h3>
-            <ReportStatusBadge status={report.status} />
-          </div>
-
-          {/* Owner */}
-          <div style={ownerStyle}>
-            <div style={avatarStyle}>
-              {report.pointOfContact.avatar}
+        {/* Content Container */}
+        <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+          {/* Header */}
+          <div>
+            <div style={headerStyle}>
+              <h3 style={titleStyle}>{report.title}</h3>
+              <ReportStatusBadge status={report.status} />
             </div>
-            <span style={ownerNameStyle}>{report.pointOfContact.name}</span>
-          </div>
 
-          {/* Description */}
-          <p style={descriptionStyle}>{report.description}</p>
-
-          {/* Key Metrics */}
-          <div style={metricsStyle}>
-            {getKeyMetrics().map((metric, index) => (
-              <span key={index} style={metricChipStyle}>{metric}</span>
-            ))}
-          </div>
-        </div>
-
-        {/* Footer */}
-        <div style={footerStyle}>
-          <button
-            style={primaryButtonStyle}
-            onClick={handleViewDetails}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = '#4338CA';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = '#4F46E5';
-            }}
-          >
-            <Eye size={14} />
-            View Report
-          </button>
-
-          <div style={secondaryActionsStyle}>
-            <button
-              style={secondaryButtonStyle}
-              onClick={handleExportClick}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = '#F9FAFB';
-                e.currentTarget.style.borderColor = '#D1D5DB';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'transparent';
-                e.currentTarget.style.borderColor = '#E5E7EB';
-              }}
-            >
-              <Download size={12} />
-              Export
-            </button>
-
-            <button
-              style={secondaryButtonStyle}
-              onClick={handleViewLogs}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = '#F9FAFB';
-                e.currentTarget.style.borderColor = '#D1D5DB';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'transparent';
-                e.currentTarget.style.borderColor = '#E5E7EB';
-              }}
-            >
-              <List size={12} />
-              Logs
-              {/* Alert badge for logs */}
-              <div style={{ position: 'relative' }}>
-                {report.status === 'error' && (
-                  <div style={{
-                    position: 'absolute',
-                    top: '-8px',
-                    right: '-8px',
-                    backgroundColor: '#EF4444',
-                    color: 'white',
-                    borderRadius: '8px',
-                    width: '16px',
-                    height: '16px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '10px',
-                    fontWeight: '600'
-                  }}>
-                    !
-                  </div>
-                )}
+            {/* Owner */}
+            <div style={ownerStyle}>
+              <div style={avatarStyle}>
+                {report.pointOfContact.avatar}
               </div>
+              <span style={ownerNameStyle}>{report.pointOfContact.name}</span>
+            </div>
+
+            {/* Description */}
+            <p style={descriptionStyle}>{report.description}</p>
+
+            {/* Key Metrics */}
+            <div style={metricsStyle}>
+              {getKeyMetrics().map((metric, index) => (
+                <span key={index} style={metricChipStyle}>{metric}</span>
+              ))}
+            </div>
+          </div>
+
+          {/* Footer */}
+          <div style={footerStyle}>
+            <button
+              style={primaryButtonStyle}
+              onClick={handleViewDetails}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#4338CA';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = '#4F46E5';
+              }}
+            >
+              <Eye size={14} />
+              View Report
             </button>
+
+            <div style={secondaryActionsStyle}>
+              <button
+                style={secondaryButtonStyle}
+                onClick={handleExportClick}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#F9FAFB';
+                  e.currentTarget.style.borderColor = '#D1D5DB';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                  e.currentTarget.style.borderColor = '#E5E7EB';
+                }}
+              >
+                <Download size={12} />
+                Export
+              </button>
+
+              <button
+                style={secondaryButtonStyle}
+                onClick={handleViewLogs}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#F9FAFB';
+                  e.currentTarget.style.borderColor = '#D1D5DB';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                  e.currentTarget.style.borderColor = '#E5E7EB';
+                }}
+              >
+                <List size={12} />
+                Logs
+                {/* Alert badge for logs */}
+                <div style={{ position: 'relative' }}>
+                  {report.status === 'error' && (
+                    <div style={{
+                      position: 'absolute',
+                      top: '-8px',
+                      right: '-8px',
+                      backgroundColor: '#EF4444',
+                      color: 'white',
+                      borderRadius: '8px',
+                      width: '16px',
+                      height: '16px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '10px',
+                      fontWeight: '600'
+                    }}>
+                      !
+                    </div>
+                  )}
+                </div>
+              </button>
+            </div>
           </div>
         </div>
 
