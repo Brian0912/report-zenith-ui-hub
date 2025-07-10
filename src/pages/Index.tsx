@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { SentinelHeader } from '../components/SentinelHeader';
 import { SearchAndFilters } from '../components/SearchAndFilters';
@@ -26,15 +25,15 @@ export const Index: React.FC = () => {
 
   const contentContainerStyle: React.CSSProperties = {
     display: 'flex',
-    gap: isPanelOpen ? '12px' : '16px',
+    gap: isPanelOpen ? '16px' : '24px',
     maxWidth: '1600px',
     margin: '0 auto',
-    padding: '32px 24px',
+    padding: '32px 32px',
     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
   };
 
   const mainContentStyle: React.CSSProperties = {
-    flex: isPanelOpen ? '0 0 70%' : '1',
+    flex: isPanelOpen ? '0 0 68%' : '1',
     minWidth: '0',
     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
     height: 'calc(100vh - 80px - 64px)',
@@ -106,8 +105,8 @@ export const Index: React.FC = () => {
         {/* Embedded Card Panel */}
         {isPanelOpen && (
           <div style={{
-            flex: '0 0 30%',
-            minWidth: '350px',
+            flex: '0 0 32%',
+            minWidth: '380px',
             height: 'calc(100vh - 80px - 64px)',
             backgroundColor: '#ffffff',
             borderRadius: '20px',

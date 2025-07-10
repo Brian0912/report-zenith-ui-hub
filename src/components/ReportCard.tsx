@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Eye, Download, List, MoreHorizontal } from 'lucide-react';
@@ -30,19 +29,19 @@ export const ReportCard: React.FC<ReportCardProps> = ({
   const [showMoreActions, setShowMoreActions] = useState(false);
   const { downloadProgress, startDownload, cancelDownload } = useDownload();
 
-  // Card container styles - reduced height and improved spacing
+  // Card container styles - optimized height and spacing
   const cardStyle: React.CSSProperties = {
     width: '100%',
-    maxWidth: '400px',
-    height: '220px',
+    maxWidth: '420px',
+    height: '260px',
     backgroundColor: '#FFFFFF',
-    borderRadius: '12px',
-    padding: '20px',
+    borderRadius: '16px',
+    padding: '24px',
     border: '1px solid #E5E7EB',
     boxShadow: isHovered 
-      ? '0px 4px 16px rgba(0, 0, 0, 0.12)' 
-      : '0px 2px 8px rgba(0, 0, 0, 0.06)',
-    transition: 'all 0.2s ease',
+      ? '0px 8px 24px rgba(0, 0, 0, 0.12)' 
+      : '0px 4px 12px rgba(0, 0, 0, 0.06)',
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.6, 1)',
     cursor: 'pointer',
     position: 'relative',
     display: 'flex',
@@ -55,7 +54,7 @@ export const ReportCard: React.FC<ReportCardProps> = ({
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: '8px'
+    marginBottom: '12px'
   };
 
   const titleStyle: React.CSSProperties = {
@@ -65,7 +64,11 @@ export const ReportCard: React.FC<ReportCardProps> = ({
     color: '#111827',
     margin: 0,
     flex: 1,
-    paddingRight: '16px'
+    paddingRight: '16px',
+    display: '-webkit-box',
+    WebkitLineClamp: 2,
+    WebkitBoxOrient: 'vertical',
+    overflow: 'hidden'
   };
 
   // Owner info section
@@ -73,12 +76,12 @@ export const ReportCard: React.FC<ReportCardProps> = ({
     display: 'flex',
     alignItems: 'center',
     gap: '8px',
-    marginBottom: '8px'
+    marginBottom: '10px'
   };
 
   const avatarStyle: React.CSSProperties = {
-    width: '24px',
-    height: '24px',
+    width: '28px',
+    height: '28px',
     borderRadius: '50%',
     backgroundColor: getAvatarColor(report.pointOfContact.name),
     display: 'flex',
@@ -92,35 +95,36 @@ export const ReportCard: React.FC<ReportCardProps> = ({
   const ownerNameStyle: React.CSSProperties = {
     fontSize: '14px',
     lineHeight: '20px',
-    fontWeight: '400',
+    fontWeight: '500',
     color: '#6B7280'
   };
 
   // Description with truncation
   const descriptionStyle: React.CSSProperties = {
     fontSize: '14px',
-    lineHeight: '20px',
+    lineHeight: '18px',
     fontWeight: '400',
     color: '#374151',
-    marginBottom: '8px',
+    marginBottom: '12px',
     display: '-webkit-box',
     WebkitLineClamp: 2,
     WebkitBoxOrient: 'vertical',
-    overflow: 'hidden'
+    overflow: 'hidden',
+    height: '36px'
   };
 
   // Metrics chips
   const metricsStyle: React.CSSProperties = {
     display: 'flex',
     gap: '6px',
-    marginBottom: '12px',
+    marginBottom: '16px',
     flexWrap: 'wrap'
   };
 
   const metricChipStyle: React.CSSProperties = {
-    padding: '3px 6px',
+    padding: '4px 8px',
     backgroundColor: '#F3F4F6',
-    borderRadius: '6px',
+    borderRadius: '8px',
     fontSize: '12px',
     fontWeight: '500',
     color: '#6B7280'
@@ -131,22 +135,24 @@ export const ReportCard: React.FC<ReportCardProps> = ({
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 'auto'
+    marginTop: 'auto',
+    paddingTop: '8px'
   };
 
   const primaryButtonStyle: React.CSSProperties = {
     backgroundColor: '#4F46E5',
     color: 'white',
     border: 'none',
-    borderRadius: '8px',
-    padding: '8px 16px',
+    borderRadius: '10px',
+    padding: '10px 18px',
     fontSize: '14px',
-    fontWeight: '500',
+    fontWeight: '600',
     cursor: 'pointer',
     display: 'flex',
     alignItems: 'center',
-    gap: '3px',
-    transition: 'all 0.2s ease'
+    gap: '6px',
+    transition: 'all 0.2s ease',
+    boxShadow: '0 2px 4px rgba(79, 70, 229, 0.2)'
   };
 
   const secondaryActionsStyle: React.CSSProperties = {
@@ -159,9 +165,9 @@ export const ReportCard: React.FC<ReportCardProps> = ({
     backgroundColor: 'transparent',
     color: '#6B7280',
     border: '1px solid #E5E7EB',
-    borderRadius: '6px',
-    padding: '6px 12px',
-    fontSize: '12px',
+    borderRadius: '8px',
+    padding: '8px 12px',
+    fontSize: '13px',
     fontWeight: '500',
     cursor: 'pointer',
     display: 'flex',
@@ -170,13 +176,14 @@ export const ReportCard: React.FC<ReportCardProps> = ({
     transition: 'all 0.2s ease'
   };
 
-  // Last updated timestamp
+  // Last updated timestamp - positioned absolutely
   const timestampStyle: React.CSSProperties = {
     position: 'absolute',
-    bottom: '8px',
-    right: '12px',
-    fontSize: '12px',
-    color: '#9CA3AF'
+    bottom: '12px',
+    right: '16px',
+    fontSize: '11px',
+    color: '#9CA3AF',
+    fontWeight: '400'
   };
 
   function getAvatarColor(name: string): string {
@@ -288,9 +295,11 @@ export const ReportCard: React.FC<ReportCardProps> = ({
               onClick={handleViewDetails}
               onMouseEnter={(e) => {
                 e.currentTarget.style.backgroundColor = '#4338CA';
+                e.currentTarget.style.transform = 'translateY(-1px)';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.backgroundColor = '#4F46E5';
+                e.currentTarget.style.transform = 'translateY(0)';
               }}
             >
               <Eye size={14} />
@@ -304,10 +313,12 @@ export const ReportCard: React.FC<ReportCardProps> = ({
                 onMouseEnter={(e) => {
                   e.currentTarget.style.backgroundColor = '#F9FAFB';
                   e.currentTarget.style.borderColor = '#D1D5DB';
+                  e.currentTarget.style.transform = 'translateY(-1px)';
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.backgroundColor = 'transparent';
                   e.currentTarget.style.borderColor = '#E5E7EB';
+                  e.currentTarget.style.transform = 'translateY(0)';
                 }}
               >
                 <Download size={12} />
@@ -320,10 +331,12 @@ export const ReportCard: React.FC<ReportCardProps> = ({
                 onMouseEnter={(e) => {
                   e.currentTarget.style.backgroundColor = '#F9FAFB';
                   e.currentTarget.style.borderColor = '#D1D5DB';
+                  e.currentTarget.style.transform = 'translateY(-1px)';
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.backgroundColor = 'transparent';
                   e.currentTarget.style.borderColor = '#E5E7EB';
+                  e.currentTarget.style.transform = 'translateY(0)';
                 }}
               >
                 <List size={12} />
@@ -333,18 +346,19 @@ export const ReportCard: React.FC<ReportCardProps> = ({
                   {report.status === 'error' && (
                     <div style={{
                       position: 'absolute',
-                      top: '-8px',
-                      right: '-8px',
+                      top: '-10px',
+                      right: '-10px',
                       backgroundColor: '#EF4444',
                       color: 'white',
-                      borderRadius: '8px',
-                      width: '16px',
-                      height: '16px',
+                      borderRadius: '10px',
+                      width: '18px',
+                      height: '18px',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       fontSize: '10px',
-                      fontWeight: '600'
+                      fontWeight: '600',
+                      boxShadow: '0 2px 4px rgba(239, 68, 68, 0.3)'
                     }}>
                       !
                     </div>

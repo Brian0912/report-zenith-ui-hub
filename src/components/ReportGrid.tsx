@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useTheme } from './ThemeProvider';
 import { Report } from './mockData';
@@ -19,9 +18,10 @@ export const ReportGrid: React.FC<ReportGridProps> = ({
 
   const gridStyle: React.CSSProperties = {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))',
-    gap: '1.5rem',
-    animation: 'fade-in 0.5s ease-out'
+    gridTemplateColumns: 'repeat(auto-fill, minmax(420px, 1fr))',
+    gap: '20px',
+    animation: 'fade-in 0.5s ease-out',
+    padding: '8px 0'
   };
 
   const emptyStateStyle: React.CSSProperties = {
