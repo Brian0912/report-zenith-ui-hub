@@ -15,6 +15,9 @@ export const Index: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState('');
   const [dateFilter, setDateFilter] = useState('');
 
+  const selectedTask = selectedTaskId ? mockReports.find(r => r.id === selectedTaskId) : null;
+  const isPanelOpen = isTaskPanelOpen || !!selectedTask;
+
   const containerStyle: React.CSSProperties = {
     minHeight: '100vh',
     backgroundColor: '#fafafa',
@@ -23,7 +26,7 @@ export const Index: React.FC = () => {
 
   const contentContainerStyle: React.CSSProperties = {
     display: 'flex',
-    gap: '32px',
+    gap: '16px',
     maxWidth: '1400px',
     margin: '0 auto',
     padding: '32px 24px',
@@ -31,9 +34,12 @@ export const Index: React.FC = () => {
   };
 
   const mainContentStyle: React.CSSProperties = {
-    flex: 1,
-    minWidth: '0', // Prevents flex item from overflowing
-    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+    flex: isPanelOpen ? '0 0 78%' : '1',
+    minWidth: '0',
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+    height: 'calc(100vh - 80px - 64px)',
+    overflowY: 'auto',
+    paddingRight: '8px'
   };
 
   // Filter reports based on search and status
@@ -55,12 +61,12 @@ export const Index: React.FC = () => {
 
   const handleViewLogs = (reportId: string) => {
     setSelectedTaskId(reportId);
-    setIsTaskPanelOpen(false); // Close create task panel if open
+    setIsTaskPanelOpen(false);
   };
 
   const handleCreateTask = () => {
     setIsTaskPanelOpen(true);
-    setSelectedTaskId(null); // Close logs panel if open
+    setSelectedTaskId(null);
   };
 
   const handleCloseTaskPanel = () => {
@@ -74,9 +80,6 @@ export const Index: React.FC = () => {
   const handleTaskCreated = () => {
     setIsTaskPanelOpen(false);
   };
-
-  const selectedTask = selectedTaskId ? mockReports.find(r => r.id === selectedTaskId) : null;
-  const isPanelOpen = isTaskPanelOpen || !!selectedTask;
 
   return (
     <div style={containerStyle}>
@@ -103,10 +106,9 @@ export const Index: React.FC = () => {
         {/* Embedded Card Panel */}
         {isPanelOpen && (
           <div style={{
-            width: '520px',
-            minWidth: '480px',
-            maxWidth: '560px',
-            height: 'calc(100vh - 80px - 64px)', // Full height minus header and padding
+            flex: '0 0 22%',
+            minWidth: '300px',
+            height: 'calc(100vh - 80px - 64px)',
             backgroundColor: '#ffffff',
             borderRadius: '20px',
             boxShadow: '0 4px 24px rgba(0, 0, 0, 0.10)',
@@ -119,7 +121,7 @@ export const Index: React.FC = () => {
           }}>
             {/* Panel Header */}
             <div style={{
-              padding: '32px 32px 24px 32px',
+              padding: '24px 24px 16px 24px',
               borderBottom: '1px solid #f0f0f0',
               backgroundColor: '#ffffff',
               position: 'sticky',
@@ -130,7 +132,7 @@ export const Index: React.FC = () => {
               alignItems: 'flex-start'
             }}>
               <h2 style={{
-                fontSize: '28px',
+                fontSize: '20px',
                 fontWeight: '700',
                 color: '#1a202c',
                 margin: 0,
@@ -202,16 +204,35 @@ export const Index: React.FC = () => {
           }
         }
 
+        /* Custom scrollbar styling */
+        ::-webkit-scrollbar {
+          width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+          background: #f1f1f1;
+          border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+          background: #c1c1c1;
+          border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+          background: #a8a8a8;
+        }
+
         @media (max-width: 768px) {
           .content-container {
             flex-direction: column !important;
-            gap: 24px !important;
+            gap: 16px !important;
           }
           
           .panel-card {
+            flex: none !important;
             width: 100% !important;
             min-width: unset !important;
-            max-width: unset !important;
             height: auto !important;
             position: static !important;
             border-radius: 16px !important;

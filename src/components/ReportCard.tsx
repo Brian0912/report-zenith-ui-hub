@@ -7,6 +7,7 @@ import { Report } from './mockData';
 import { ReportStatusBadge } from './ReportStatusBadge';
 import { DownloadProgressModal } from './DownloadProgressModal';
 import { useDownload } from '../hooks/useDownload';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 
 interface ReportCardProps {
   report: Report;
@@ -29,14 +30,14 @@ export const ReportCard: React.FC<ReportCardProps> = ({
   const [showMoreActions, setShowMoreActions] = useState(false);
   const { downloadProgress, startDownload, cancelDownload } = useDownload();
 
-  // Card container styles - increased height to 240px
+  // Card container styles - reduced height and improved spacing
   const cardStyle: React.CSSProperties = {
     width: '100%',
     maxWidth: '400px',
-    height: '300px',
+    height: '220px',
     backgroundColor: '#FFFFFF',
     borderRadius: '12px',
-    padding: '24px',
+    padding: '20px',
     border: '1px solid #E5E7EB',
     boxShadow: isHovered 
       ? '0px 4px 16px rgba(0, 0, 0, 0.12)' 
@@ -54,7 +55,7 @@ export const ReportCard: React.FC<ReportCardProps> = ({
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: '12px'
+    marginBottom: '8px'
   };
 
   const titleStyle: React.CSSProperties = {
@@ -72,7 +73,7 @@ export const ReportCard: React.FC<ReportCardProps> = ({
     display: 'flex',
     alignItems: 'center',
     gap: '8px',
-    marginBottom: '12px'
+    marginBottom: '8px'
   };
 
   const avatarStyle: React.CSSProperties = {
@@ -101,7 +102,7 @@ export const ReportCard: React.FC<ReportCardProps> = ({
     lineHeight: '20px',
     fontWeight: '400',
     color: '#374151',
-    marginBottom: '12px',
+    marginBottom: '8px',
     display: '-webkit-box',
     WebkitLineClamp: 2,
     WebkitBoxOrient: 'vertical',
@@ -111,13 +112,13 @@ export const ReportCard: React.FC<ReportCardProps> = ({
   // Metrics chips
   const metricsStyle: React.CSSProperties = {
     display: 'flex',
-    gap: '8px',
-    marginBottom: '16px',
+    gap: '6px',
+    marginBottom: '12px',
     flexWrap: 'wrap'
   };
 
   const metricChipStyle: React.CSSProperties = {
-    padding: '4px 8px',
+    padding: '3px 6px',
     backgroundColor: '#F3F4F6',
     borderRadius: '6px',
     fontSize: '12px',
@@ -130,7 +131,7 @@ export const ReportCard: React.FC<ReportCardProps> = ({
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 'auto' // This pushes the footer to the bottom
+    marginTop: 'auto'
   };
 
   const primaryButtonStyle: React.CSSProperties = {
@@ -218,8 +219,10 @@ export const ReportCard: React.FC<ReportCardProps> = ({
     onSubscribe(report.id);
   };
 
+  const isDescriptionTruncated = report.description.length > 100;
+
   return (
-    <>
+    <TooltipProvider>
       <div
         style={cardStyle}
         onMouseEnter={() => setIsHovered(true)}
@@ -246,8 +249,29 @@ export const ReportCard: React.FC<ReportCardProps> = ({
               <span style={ownerNameStyle}>{report.pointOfContact.name}</span>
             </div>
 
-            {/* Description */}
-            <p style={descriptionStyle}>{report.description}</p>
+            {/* Description with tooltip for truncated text */}
+            {isDescriptionTruncated ? (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <p style={descriptionStyle}>{report.description}</p>
+                </TooltipTrigger>
+                <TooltipContent 
+                  style={{
+                    maxWidth: '300px',
+                    padding: '12px',
+                    backgroundColor: '#1F2937',
+                    color: 'white',
+                    borderRadius: '8px',
+                    fontSize: '14px',
+                    lineHeight: '1.4'
+                  }}
+                >
+                  {report.description}
+                </TooltipContent>
+              </Tooltip>
+            ) : (
+              <p style={descriptionStyle}>{report.description}</p>
+            )}
 
             {/* Key Metrics */}
             <div style={metricsStyle}>
@@ -342,6 +366,6 @@ export const ReportCard: React.FC<ReportCardProps> = ({
         progress={downloadProgress}
         onCancel={cancelDownload}
       />
-    </>
+    </TooltipProvider>
   );
 };
