@@ -180,7 +180,7 @@ export const mockReports: Report[] = [
   },
   {
     id: '2',
-    title: 'Customer Acquisition Metrics',
+    title: 'Customer Acquisition Metrics Customer Acquisition Metrics Customer Acquisition Metrics',
     description: 'Detailed breakdown of customer acquisition channels, conversion rates, and cost analysis for marketing optimization.',
     status: 'running',
     type: 'Marketing',
