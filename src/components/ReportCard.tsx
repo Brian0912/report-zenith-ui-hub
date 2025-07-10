@@ -32,8 +32,8 @@ export const ReportCard: React.FC<ReportCardProps> = ({
   // Card container styles - increased height to 240px
   const cardStyle: React.CSSProperties = {
     width: '100%',
-    maxWidth: '390px',
-    height: '240px', // Increased from 200px
+    maxWidth: '400px',
+    height: '290px', // Increased from 200px
     backgroundColor: '#FFFFFF',
     borderRadius: '12px',
     padding: '24px',
