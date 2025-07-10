@@ -33,7 +33,7 @@ export const ReportCard: React.FC<ReportCardProps> = ({
   const cardStyle: React.CSSProperties = {
     width: '100%',
     maxWidth: '400px',
-    height: '290px', // Increased from 200px
+    height: '300px',
     backgroundColor: '#FFFFFF',
     borderRadius: '12px',
     padding: '24px',
@@ -144,7 +144,7 @@ export const ReportCard: React.FC<ReportCardProps> = ({
     cursor: 'pointer',
     display: 'flex',
     alignItems: 'center',
-    gap: '6px',
+    gap: '3px',
     transition: 'all 0.2s ease'
   };
 
