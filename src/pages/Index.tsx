@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { SentinelHeader } from '../components/SentinelHeader';
 import { SearchAndFilters } from '../components/SearchAndFilters';
@@ -17,6 +18,7 @@ export const Index: React.FC = () => {
   const selectedTask = selectedTaskId ? mockReports.find(r => r.id === selectedTaskId) : null;
   const isPanelOpen = isTaskPanelOpen || !!selectedTask;
 
+  // Style constants for better maintainability
   const containerStyle: React.CSSProperties = {
     minHeight: '100vh',
     backgroundColor: '#fafafa',
@@ -25,21 +27,132 @@ export const Index: React.FC = () => {
 
   const contentContainerStyle: React.CSSProperties = {
     display: 'flex',
-    gap: isPanelOpen ? '16px' : '24px',
+    gap: isPanelOpen ? '24px' : '0',
     maxWidth: '1600px',
     margin: '0 auto',
-    padding: '32px 32px',
-    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+    padding: '24px',
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+    alignItems: 'flex-start'
   };
 
   const mainContentStyle: React.CSSProperties = {
-    flex: isPanelOpen ? '0 0 68%' : '1',
-    minWidth: '0',
+    flex: isPanelOpen ? '1 1 auto' : '1',
+    minWidth: isPanelOpen ? '600px' : '0',
     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-    height: 'calc(100vh - 80px - 64px)',
+    height: 'calc(100vh - 80px - 48px)',
     overflowY: 'auto',
     paddingRight: '8px'
   };
+
+  // Panel styles with fixed width and responsive behavior
+  const panelContainerStyle: React.CSSProperties = {
+    flex: '0 0 400px',
+    maxWidth: '400px',
+    minWidth: '400px',
+    height: 'calc(100vh - 80px - 48px)',
+    backgroundColor: '#ffffff',
+    borderRadius: '16px',
+    border: '1px solid #e2e8f0',
+    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12)',
+    display: 'flex',
+    flexDirection: 'column',
+    overflow: 'hidden',
+    animation: 'slideInFromRight 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+    position: 'sticky',
+    top: '24px'
+  };
+
+  const panelHeaderStyle: React.CSSProperties = {
+    minHeight: '72px',
+    maxHeight: '72px',
+    padding: '20px 24px',
+    borderBottom: '1px solid #e2e8f0',
+    backgroundColor: '#ffffff',
+    position: 'sticky',
+    top: 0,
+    zIndex: 10,
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    overflow: 'hidden'
+  };
+
+  const panelTitleStyle: React.CSSProperties = {
+    fontSize: '18px',
+    fontWeight: '600',
+    color: '#1a202c',
+    margin: 0,
+    lineHeight: '1.3',
+    paddingRight: '16px',
+    flex: 1,
+    display: '-webkit-box',
+    WebkitLineClamp: 2,
+    WebkitBoxOrient: 'vertical',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis'
+  };
+
+  const closeButtonStyle: React.CSSProperties = {
+    background: 'none',
+    border: 'none',
+    cursor: 'pointer',
+    color: '#64748b',
+    padding: '8px',
+    borderRadius: '8px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    transition: 'all 0.2s ease',
+    width: '36px',
+    height: '36px',
+    flexShrink: 0
+  };
+
+  const panelContentStyle: React.CSSProperties = {
+    flex: 1,
+    overflow: 'auto',
+    backgroundColor: '#f8fafc',
+    padding: '0'
+  };
+
+  // Responsive styles
+  const responsiveStyles = `
+    @media (max-width: 1200px) {
+      .panel-container {
+        flex: 0 0 350px !important;
+        max-width: 350px !important;
+        min-width: 350px !important;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .content-container {
+        flex-direction: column !important;
+        gap: 16px !important;
+        padding: 16px !important;
+      }
+      
+      .panel-container {
+        flex: none !important;
+        width: 100% !important;
+        min-width: unset !important;
+        max-width: unset !important;
+        height: 60vh !important;
+        position: fixed !important;
+        top: 80px !important;
+        left: 0 !important;
+        right: 0 !important;
+        z-index: 1000 !important;
+        border-radius: 16px 16px 0 0 !important;
+        box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.15) !important;
+      }
+      
+      .main-content {
+        min-width: unset !important;
+        height: auto !important;
+      }
+    }
+  `;
 
   // Filter reports based on search and status
   const filteredReports = useMemo(() => {
@@ -86,8 +199,8 @@ export const Index: React.FC = () => {
         onCreateTask={handleCreateTask}
       />
       
-      <div style={contentContainerStyle}>
-        <div style={mainContentStyle}>        
+      <div style={contentContainerStyle} className="content-container">
+        <div style={mainContentStyle} className="main-content">        
           {dateFilter && (
             <SearchAndFilters 
               dateFilter={dateFilter} 
@@ -102,66 +215,24 @@ export const Index: React.FC = () => {
           />
         </div>
 
-        {/* Embedded Card Panel */}
+        {/* Fixed-width Panel */}
         {isPanelOpen && (
-          <div style={{
-            flex: '0 0 32%',
-            minWidth: '380px',
-            height: 'calc(100vh - 80px - 64px)',
-            backgroundColor: '#ffffff',
-            borderRadius: '20px',
-            boxShadow: '0 4px 24px rgba(0, 0, 0, 0.10)',
-            display: 'flex',
-            flexDirection: 'column',
-            overflow: 'hidden',
-            animation: 'slideInFromRight 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-            position: 'sticky',
-            top: '32px'
-          }}>
-            {/* Panel Header */}
-            <div style={{
-              padding: '24px 24px 16px 24px',
-              borderBottom: '1px solid #f0f0f0',
-              backgroundColor: '#ffffff',
-              position: 'sticky',
-              top: 0,
-              zIndex: 10,
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'flex-start'
-            }}>
-              <h2 style={{
-                fontSize: '20px',
-                fontWeight: '700',
-                color: '#1a202c',
-                margin: 0,
-                lineHeight: '1.2',
-                paddingRight: '16px'
-              }}>
+          <div style={panelContainerStyle} className="panel-container">
+            {/* Enhanced Panel Header */}
+            <div style={panelHeaderStyle}>
+              <h2 style={panelTitleStyle}>
                 {isTaskPanelOpen ? 'Create New Task' : `Task Logs – ${selectedTask?.title}`}
               </h2>
               <button
                 onClick={isTaskPanelOpen ? handleCloseTaskPanel : handleCloseLogsPanel}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  cursor: 'pointer',
-                  color: '#718096',
-                  padding: '8px',
-                  borderRadius: '8px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  transition: 'all 0.2s ease',
-                  width: '36px',
-                  height: '36px',
-                  flexShrink: 0
-                }}
+                style={closeButtonStyle}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = 'rgba(0, 0, 0, 0.05)';
+                  e.currentTarget.style.backgroundColor = '#f1f5f9';
+                  e.currentTarget.style.color = '#334155';
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.backgroundColor = 'transparent';
+                  e.currentTarget.style.color = '#64748b';
                 }}
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -172,11 +243,7 @@ export const Index: React.FC = () => {
             </div>
 
             {/* Panel Content */}
-            <div style={{
-              flex: 1,
-              overflow: 'auto',
-              backgroundColor: '#fafafa'
-            }}>
+            <div style={panelContentStyle}>
               {isTaskPanelOpen ? (
                 <TaskCreationPanel onSuccess={handleTaskCreated} />
               ) : selectedTask ? (
@@ -203,40 +270,26 @@ export const Index: React.FC = () => {
           }
         }
 
-        /* Custom scrollbar styling */
+        /* Enhanced scrollbar styling */
         ::-webkit-scrollbar {
           width: 6px;
         }
 
         ::-webkit-scrollbar-track {
-          background: #f1f1f1;
+          background: #f1f5f9;
           border-radius: 3px;
         }
 
         ::-webkit-scrollbar-thumb {
-          background: #c1c1c1;
+          background: #cbd5e1;
           border-radius: 3px;
         }
 
         ::-webkit-scrollbar-thumb:hover {
-          background: #a8a8a8;
+          background: #94a3b8;
         }
 
-        @media (max-width: 768px) {
-          .content-container {
-            flex-direction: column !important;
-            gap: 16px !important;
-          }
-          
-          .panel-card {
-            flex: none !important;
-            width: 100% !important;
-            min-width: unset !important;
-            height: auto !important;
-            position: static !important;
-            border-radius: 16px !important;
-          }
-        }
+        ${responsiveStyles}
       `}</style>
     </div>
   );
