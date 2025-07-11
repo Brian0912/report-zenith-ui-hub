@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef, useCallback, useMemo, useReducer } from 'react';
 import { X, Plus, Save, AlertCircle, CheckCircle, Sparkles, Clock, User, Search, HelpCircle, ChevronDown, ChevronUp, Loader2, Database } from 'lucide-react';
 
@@ -592,6 +593,7 @@ export const TaskCreationPanel: React.FC<TaskCreationPanelProps> = ({ onSuccess 
     }, 3000);
   };
 
+
   return (
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       {/* Template Section */}
@@ -1014,8 +1016,10 @@ export const TaskCreationPanel: React.FC<TaskCreationPanelProps> = ({ onSuccess 
         <div style={{
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'flex-end'
+          justifyContent: 'space-between'
         }}>
+          <div></div>
+          
           <button
             onClick={handleSubmit}
             disabled={!validation.isFormValid || uiState.isSubmitting}
