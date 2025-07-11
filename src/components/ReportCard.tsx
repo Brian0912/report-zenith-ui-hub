@@ -23,7 +23,7 @@ const Tooltip = ({ children, content, show }) => {
       {isVisible && (
         <div style={{
           position: 'absolute',
-          bottom: '100%',
+          top: '100%',
           left: '0',
           backgroundColor: '#1F2937',
           color: 'white',
@@ -35,25 +35,25 @@ const Tooltip = ({ children, content, show }) => {
           wordWrap: 'break-word',
           zIndex: 1000,
           boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-          marginBottom: '8px',
+          marginTop: '8px',
           animation: 'fadeIn 0.2s ease-out'
         }}>
           {content}
           <div style={{
             position: 'absolute',
-            top: '100%',
+            bottom: '100%',
             left: '16px',
             width: 0,
             height: 0,
             borderLeft: '6px solid transparent',
             borderRight: '6px solid transparent',
-            borderTop: '6px solid #1F2937'
+            borderBottom: '6px solid #1F2937'
           }} />
         </div>
       )}
-      <style jsx>{`
+      <style>{`
         @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(-4px); }
+          from { opacity: 0; transform: translateY(4px); }
           to { opacity: 1; transform: translateY(0); }
         }
       `}</style>
@@ -61,28 +61,85 @@ const Tooltip = ({ children, content, show }) => {
   );
 };
 
+const LoadingSkeleton = () => (
+  <div style={{
+    width: '420px',
+    height: '260px',
+    backgroundColor: '#FFFFFF',
+    borderRadius: '12px',
+    padding: '24px',
+    border: '1px solid #E5E7EB',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '12px'
+  }}>
+    {[...Array(4)].map((_, i) => (
+      <div key={i} style={{
+        height: i === 0 ? '24px' : '16px',
+        backgroundColor: '#F3F4F6',
+        borderRadius: '4px',
+        width: i === 0 ? '70%' : '100%',
+        animation: 'pulse 1.5s ease-in-out infinite'
+      }} />
+    ))}
+    <style>{`
+      @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+      }
+    `}</style>
+  </div>
+);
+
 interface ReportCardProps {
   report: Report;
   viewMode: 'grid' | 'list';
   onSubscribe: (reportId: string) => void;
   animationDelay: number;
   onViewLogs: (reportId: string) => void;
+  isLoading?: boolean;
+  data?: any;
 }
 
 export const ReportCard: React.FC<ReportCardProps> = ({ 
-  report, 
+  report: reportProp, 
   viewMode, 
   onSubscribe, 
   animationDelay,
-  onViewLogs 
+  onViewLogs,
+  isLoading = false,
+  data = null
 }) => {
   const { theme } = useTheme();
   const navigate = useNavigate();
   const [isHovered, setIsHovered] = useState(false);
-  const [showVersionDropdown, setShowVersionDropdown] = useState(false);
-  const [isSubscribed, setIsSubscribed] = useState(report.isSubscribed);
+  const [showRunHistory, setShowRunHistory] = useState(false);
+  const [isSubscribed, setIsSubscribed] = useState(reportProp?.isSubscribed || false);
   const [focusedElement, setFocusedElement] = useState(null);
   const { downloadProgress, startDownload, cancelDownload } = useDownload();
+
+  // Use provided data or fallback to reportProp with enhanced run history
+  const report = data || {
+    ...reportProp,
+    runs: reportProp?.versions?.map((version, index) => ({
+      timestamp: index === 0 ? '2h ago' : 
+                 index === 1 ? '1w ago' : 
+                 index === 2 ? '2w ago' : 
+                 index === 3 ? '3w ago' : '1mo ago',
+      status: version.status === 'completed' ? 'completed' : 
+              version.status === 'failed' ? 'error' : 'completed',
+      duration: ['45s', '52s', '12s', '48s', '41s'][index] || '45s',
+      error: version.status === 'failed' ? 'Data connection timeout' : undefined
+    })) || [
+      { timestamp: '2h ago', status: 'completed', duration: '45s' },
+      { timestamp: '1w ago', status: 'completed', duration: '52s' },
+      { timestamp: '2w ago', status: 'error', duration: '12s', error: 'Data connection timeout' },
+      { timestamp: '3w ago', status: 'completed', duration: '48s' },
+      { timestamp: '1mo ago', status: 'completed', duration: '41s' }
+    ]
+  };
+
+  if (isLoading) return <LoadingSkeleton />;
 
   // Status configuration
   const getStatusConfig = (status: string) => {
@@ -115,21 +172,7 @@ export const ReportCard: React.FC<ReportCardProps> = ({
     }
   };
 
-  // Report type configuration
-  const getReportTypeConfig = (frequency: string) => {
-    const typeMap: Record<string, { bg: string; color: string; label: string }> = {
-      'daily': { bg: '#F3F4F6', color: '#374151', label: 'Ad Hoc' },
-      'weekly': { bg: '#EDE9FE', color: '#5B21B6', label: 'Weekly' },
-      'monthly': { bg: '#DBEAFE', color: '#1E40AF', label: 'Monthly' },
-      'quarterly': { bg: '#D1FAE5', color: '#047857', label: 'Quarterly' },
-      'bi-annual': { bg: '#D1FAE5', color: '#047857', label: 'Bi-annual' },
-      'hourly': { bg: '#F3F4F6', color: '#374151', label: 'Ad Hoc' }
-    };
-    return typeMap[frequency.toLowerCase()] || typeMap['daily'];
-  };
-
   const statusConfig = getStatusConfig(report.status);
-  const typeConfig = getReportTypeConfig(report.schedule.frequency);
   const StatusIcon = statusConfig.badge.icon;
 
   function getAvatarColor(name: string): string {
@@ -156,9 +199,9 @@ export const ReportCard: React.FC<ReportCardProps> = ({
     onViewLogs(report.id);
   };
 
-  const handleVersionClick = (e: React.MouseEvent) => {
+  const handleRunHistoryClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setShowVersionDropdown(!showVersionDropdown);
+    setShowRunHistory(!showRunHistory);
   };
 
   const handleSubscribeClick = (e: React.MouseEvent) => {
@@ -169,7 +212,7 @@ export const ReportCard: React.FC<ReportCardProps> = ({
 
   const handleCardMouseLeave = () => {
     setIsHovered(false);
-    setShowVersionDropdown(false);
+    setShowRunHistory(false);
   };
 
   const handleKeyDown = (event: React.KeyboardEvent, action: () => void) => {
@@ -349,12 +392,12 @@ export const ReportCard: React.FC<ReportCardProps> = ({
                   gap: '6px'
                 }}>
                   <Calendar size={10} />
-                  {typeConfig.label}
+                  {report.schedule?.frequency || 'Monthly'}
                 </div>
               </div>
             </div>
 
-            {/* Version Dropdown */}
+            {/* Run History Dropdown */}
             <div style={{ position: 'relative' }}>
               <button
                 style={{
@@ -370,12 +413,12 @@ export const ReportCard: React.FC<ReportCardProps> = ({
                   padding: '4px 6px',
                   borderRadius: '4px',
                   transition: 'all 0.2s ease',
-                  outline: focusedElement === 'version' ? '2px solid #4F46E5' : 'none',
+                  outline: focusedElement === 'history' ? '2px solid #4F46E5' : 'none',
                   outlineOffset: '2px'
                 }}
-                onClick={handleVersionClick}
-                onKeyDown={(e) => handleKeyDown(e, () => setShowVersionDropdown(!showVersionDropdown))}
-                onFocus={() => setFocusedElement('version')}
+                onClick={handleRunHistoryClick}
+                onKeyDown={(e) => handleKeyDown(e, () => setShowRunHistory(!showRunHistory))}
+                onFocus={() => setFocusedElement('history')}
                 onBlur={() => setFocusedElement(null)}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.backgroundColor = '#F3F4F6';
@@ -383,18 +426,18 @@ export const ReportCard: React.FC<ReportCardProps> = ({
                 onMouseLeave={(e) => {
                   e.currentTarget.style.backgroundColor = 'transparent';
                 }}
-                aria-label="View version history"
-                aria-expanded={showVersionDropdown}
+                aria-label="View run history"
+                aria-expanded={showRunHistory}
               >
-                {report.version}
+                2h ago
                 <ChevronDown size={10} style={{
-                  transform: showVersionDropdown ? 'rotate(180deg)' : 'rotate(0deg)',
+                  transform: showRunHistory ? 'rotate(180deg)' : 'rotate(0deg)',
                   transition: 'transform 0.2s ease'
                 }} />
               </button>
 
-              {/* Version History Dropdown */}
-              {showVersionDropdown && (
+              {/* Enhanced Run History Dropdown - Based on reference image */}
+              {showRunHistory && (
                 <div style={{
                   position: 'absolute',
                   top: '100%',
@@ -402,38 +445,109 @@ export const ReportCard: React.FC<ReportCardProps> = ({
                   marginTop: '4px',
                   backgroundColor: 'white',
                   border: '1px solid #E5E7EB',
-                  borderRadius: '8px',
+                  borderRadius: '12px',
                   boxShadow: '0 10px 25px rgba(0, 0, 0, 0.15)',
                   zIndex: 1000,
-                  minWidth: '200px',
-                  maxHeight: '300px',
+                  minWidth: '280px',
+                  maxHeight: '400px',
                   overflowY: 'auto',
                   animation: 'slideIn 0.2s ease-out'
                 }}>
-                  {report.versions.map((version, index) => (
+                  {/* Header */}
+                  <div style={{
+                    padding: '12px 16px',
+                    borderBottom: '1px solid #F3F4F6',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    backgroundColor: '#FAFAFA'
+                  }}>
+                    <span style={{ 
+                      fontSize: '14px', 
+                      fontWeight: '600', 
+                      color: '#374151' 
+                    }}>
+                      Run History
+                    </span>
+                    <span style={{ 
+                      fontSize: '12px', 
+                      color: '#6B7280' 
+                    }}>
+                      {report.runs?.length || 5} runs
+                    </span>
+                  </div>
+                  
+                  {/* Run History Items */}
+                  {(report.runs || []).map((run, index) => (
                     <div
-                      key={version.id}
+                      key={index}
                       style={{
-                        padding: '10px 12px',
-                        borderBottom: index === report.versions.length - 1 ? 'none' : '1px solid #F1F5F9',
+                        padding: '12px 16px',
+                        borderBottom: index < (report.runs?.length || 5) - 1 ? '1px solid #F3F4F6' : 'none',
                         cursor: 'pointer',
                         transition: 'background-color 0.2s ease'
                       }}
                       onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = '#F8FAFC';
+                        e.currentTarget.style.backgroundColor = '#F9FAFB';
                       }}
                       onMouseLeave={(e) => {
                         e.currentTarget.style.backgroundColor = 'white';
                       }}
                     >
-                      <div style={{ fontWeight: '500', marginBottom: '2px', fontSize: '12px', color: '#374151' }}>
-                        {version.version}
+                      <div style={{ 
+                        display: 'flex', 
+                        justifyContent: 'space-between', 
+                        alignItems: 'center', 
+                        marginBottom: '6px' 
+                      }}>
+                        <span style={{ 
+                          fontSize: '13px', 
+                          fontWeight: '500', 
+                          color: '#374151' 
+                        }}>
+                          {run.timestamp}
+                        </span>
+                        <div style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          padding: '4px 8px',
+                          borderRadius: '12px',
+                          fontSize: '11px',
+                          fontWeight: '600',
+                          backgroundColor: 
+                            run.status === 'completed' ? '#DCFCE7' :
+                            run.status === 'running' ? '#DBEAFE' :
+                            run.status === 'error' ? '#FEE2E2' : '#FEF3C7',
+                          color:
+                            run.status === 'completed' ? '#166534' :
+                            run.status === 'running' ? '#1D4ED8' :
+                            run.status === 'error' ? '#DC2626' : '#D97706'
+                        }}>
+                          {run.status === 'completed' && <CheckCircle size={10} />}
+                          {run.status === 'running' && <Loader size={10} />}
+                          {run.status === 'error' && <AlertCircle size={10} />}
+                          {run.status === 'queued' && <Clock size={10} />}
+                          {run.status.toUpperCase()}
+                        </div>
                       </div>
-                      <div style={{ fontSize: '11px', color: '#64748B' }}>
-                        {version.status === 'completed' ? 
-                          new Date(version.createdAt).toLocaleDateString() : 
-                          version.status === 'failed' ? 'Error' : 'In Progress'
-                        }
+                      <div style={{ 
+                        fontSize: '12px', 
+                        color: '#6B7280',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center'
+                      }}>
+                        <span>Duration: {run.duration}</span>
+                        {run.error && (
+                          <span style={{ 
+                            color: '#DC2626', 
+                            fontStyle: 'italic',
+                            fontSize: '11px'
+                          }}>
+                            {run.error}
+                          </span>
+                        )}
                       </div>
                     </div>
                   ))}
@@ -591,7 +705,7 @@ export const ReportCard: React.FC<ReportCardProps> = ({
             >
               <List size={14} />
               Logs
-              {report.status === 'error' && (
+              {(report.status === 'error' || (report.runs && report.runs.some(r => r.status === 'error'))) && (
                 <div style={{
                   position: 'absolute',
                   top: '-6px',
@@ -617,7 +731,7 @@ export const ReportCard: React.FC<ReportCardProps> = ({
         </div>
 
         {/* CSS Animations */}
-        <style jsx>{`
+        <style>{`
           @keyframes slideIn {
             from { opacity: 0; transform: translateY(-8px); }
             to { opacity: 1; transform: translateY(0); }
