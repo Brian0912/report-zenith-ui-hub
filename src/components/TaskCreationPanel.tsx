@@ -1,5 +1,6 @@
+
 import React, { useState, useEffect, useRef, useCallback, useMemo, useReducer } from 'react';
-import { X, Plus, Save, AlertCircle, CheckCircle, Sparkles, Clock, User, Search, HelpCircle, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
+import { X, Plus, Save, AlertCircle, CheckCircle, Sparkles, Clock, User, Search, HelpCircle, ChevronDown, ChevronUp, Loader2, Database } from 'lucide-react';
 
 interface TaskCreationPanelProps {
   onSuccess?: () => void;
@@ -19,8 +20,8 @@ const TEMPLATE_DATA = {
   goal: "Implement a user authentication system",
   background: "We need a secure and scalable authentication system for our web application. It should support email/password login, social logins, and multi-factor authentication. The system must integrate with our existing user database and comply with GDPR regulations.",
   metadata: [
-    { id: '1', category: 'employee', key: 'username', value: 'john.doe' },
-    { id: '2', category: 'policy', key: 'policy_name', value: 'Authentication Policy' }
+    { id: '1', category: 'employee' as const, key: 'username', value: 'john.doe' },
+    { id: '2', category: 'policy' as const, key: 'policy_name', value: 'Authentication Policy' }
   ]
 };
 
@@ -48,6 +49,18 @@ const METADATA_CATEGORIES = {
       { key: 'port', label: 'Port', placeholder: 'e.g., 443' },
       { key: 'bandwidth', label: 'Bandwidth', placeholder: 'e.g., 100 Mbps' },
       { key: 'region', label: 'Region', placeholder: 'e.g., us-east-1' }
+    ]
+  },
+  data_assets: {
+    name: 'Data Assets',
+    icon: Database,
+    options: [
+      { key: 'asset_name', label: 'Asset Name', placeholder: 'e.g., Customer Database' },
+      { key: 'data_type', label: 'Data Type', placeholder: 'e.g., PII' },
+      { key: 'classification', label: 'Classification', placeholder: 'e.g., Confidential' },
+      { key: 'owner', label: 'Data Owner', placeholder: 'e.g., Data Team' },
+      { key: 'location', label: 'Location', placeholder: 'e.g., AWS RDS' },
+      { key: 'retention_period', label: 'Retention Period', placeholder: 'e.g., 7 years' }
     ]
   },
   policy: {
@@ -546,6 +559,7 @@ export const TaskCreationPanel: React.FC<TaskCreationPanelProps> = ({ onSuccess 
       value: ''
     };
     dispatch({ type: 'ADD_METADATA', item: newItem });
+    updateUiState({ showMetadataSelector: false, metadataSearch: '' });
   };
 
   const handleUpdateMetadata = (id: string, value: string) => {
