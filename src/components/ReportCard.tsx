@@ -51,7 +51,7 @@ const Tooltip = ({ children, content, show }) => {
           }} />
         </div>
       )}
-      <style jsx>{`
+      <style>{`
         @keyframes fadeIn {
           from { opacity: 0; transform: translateY(-4px); }
           to { opacity: 1; transform: translateY(0); }
@@ -182,10 +182,10 @@ export const ReportCard: React.FC<ReportCardProps> = ({
   // Card container styles
   const cardStyle: React.CSSProperties = {
     width: '420px',
-    minHeight: '260px',
+    height: '280px',
     backgroundColor: '#FFFFFF',
     borderRadius: '12px',
-    padding: '24px',
+    padding: '20px',
     border: `1px solid ${isHovered ? '#D1D5DB' : '#E5E7EB'}`,
     boxShadow: isHovered 
       ? '0px 8px 25px rgba(0, 0, 0, 0.12)' 
@@ -195,6 +195,7 @@ export const ReportCard: React.FC<ReportCardProps> = ({
     position: 'relative',
     display: 'flex',
     flexDirection: 'column',
+    justifyContent: 'space-between',
     transform: isHovered ? 'translateY(-4px)' : 'translateY(0)',
     outline: focusedElement === 'card' ? '2px solid #4F46E5' : 'none',
     outlineOffset: '2px'
@@ -214,276 +215,268 @@ export const ReportCard: React.FC<ReportCardProps> = ({
         onFocus={() => setFocusedElement('card')}
         onBlur={() => setFocusedElement(null)}
       >
-        {/* Content Section */}
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-          {/* Header: Title + Status + Subscription */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
-            <Tooltip 
-              content={report.title} 
-              show={isTitleTruncated(report.title)}
-            >
-              <h3 style={{
-                fontSize: '18px',
-                fontWeight: '600',
-                color: '#111827',
-                margin: 0,
-                lineHeight: '24px',
-                height: '48px',
-                flex: 1,
-                paddingRight: '12px',
-                display: '-webkit-box',
-                WebkitLineClamp: 2,
-                WebkitBoxOrient: 'vertical',
-                overflow: 'hidden',
-                wordWrap: 'break-word',
-                hyphens: 'auto'
-              }}>
-                {report.title}
-              </h3>
-            </Tooltip>
-            
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
-              {/* Subscription Button */}
-              <button
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  backgroundColor: isSubscribed ? '#F0F9FF' : 'transparent',
-                  color: isSubscribed ? '#0369A1' : '#6B7280',
-                  border: `1px solid ${isSubscribed ? '#0369A1' : '#D1D5DB'}`,
-                  borderRadius: '6px',
-                  padding: '4px 8px',
-                  fontSize: '12px',
-                  fontWeight: '500',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                  minWidth: '80px',
-                  justifyContent: 'center',
-                  outline: focusedElement === 'subscribe' ? '2px solid #4F46E5' : 'none',
-                  outlineOffset: '2px'
-                }}
-                onClick={handleSubscribeClick}
-                onKeyDown={(e) => handleKeyDown(e, () => setIsSubscribed(!isSubscribed))}
-                onFocus={() => setFocusedElement('subscribe')}
-                onBlur={() => setFocusedElement(null)}
-                onMouseEnter={(e) => {
-                  if (!isSubscribed) {
-                    e.currentTarget.style.backgroundColor = '#F9FAFB';
-                    e.currentTarget.style.borderColor = '#9CA3AF';
-                  } else {
-                    e.currentTarget.style.backgroundColor = '#E0F2FE';
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = isSubscribed ? '#F0F9FF' : 'transparent';
-                  e.currentTarget.style.borderColor = isSubscribed ? '#0369A1' : '#D1D5DB';
-                }}
-                aria-label={isSubscribed ? 'Unfollow report' : 'Follow report'}
-              >
-                <span>{report.subscriberCount}</span>
-                <span>{isSubscribed ? 'Following' : 'Follow'}</span>
-              </button>
-
-              {/* Status Badge */}
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px',
-                backgroundColor: statusConfig.badge.bg,
-                color: statusConfig.badge.color,
-                padding: '6px 10px',
-                borderRadius: '12px',
-                fontSize: '11px',
-                fontWeight: '600',
-                animation: report.status === 'running' ? 'pulse 2s infinite' : 'none'
-              }}>
-                <StatusIcon size={10} />
-                {report.status.toUpperCase()}
-              </div>
-            </div>
-          </div>
-
-          {/* Meta Information Row */}
-          <div style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'space-between', 
-            marginBottom: '12px',
-            minHeight: '28px'
+        {/* Title Section - Fixed Height */}
+        <div style={{
+          height: '48px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'flex-start',
+          marginBottom: '12px'
+        }}>
+          <Tooltip 
+            content={report.title} 
+            show={isTitleTruncated(report.title)}
+          >
+            <h3 style={{
+              fontSize: '16px',
+              fontWeight: '600',
+              color: '#1E293B',
+              margin: 0,
+              lineHeight: '1.3',
+              flex: 1,
+              paddingRight: '12px',
+              display: '-webkit-box',
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden',
+              cursor: 'help'
+            }}>
+              {report.title}
+            </h3>
+          </Tooltip>
+          
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            flexShrink: 0
           }}>
-            {/* Owner Info */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1 }}>
-              <div style={{ position: 'relative' }}>
-                <div style={{
-                  width: '24px',
-                  height: '24px',
-                  borderRadius: '50%',
-                  backgroundColor: getAvatarColor(report.pointOfContact.name),
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: 'white',
-                  fontSize: '11px',
-                  fontWeight: '600'
-                }}>
-                  {report.pointOfContact.avatar}
-                </div>
-              </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ 
-                  fontSize: '13px', 
-                  color: '#374151', 
-                  fontWeight: '500',
-                  whiteSpace: 'nowrap',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis'
-                }}>
-                  {report.pointOfContact.name}
-                </div>
-                <div style={{ 
-                  fontSize: '11px', 
-                  color: '#6B7280',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px'
-                }}>
-                  <Calendar size={10} />
-                  {typeConfig.label}
-                </div>
-              </div>
-            </div>
+            <ReportStatusBadge status={report.status} />
+          </div>
+        </div>
 
-            {/* Version Dropdown */}
-            <div style={{ position: 'relative' }}>
-              <button
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                  backgroundColor: 'transparent',
-                  color: '#6B7280',
-                  border: 'none',
-                  fontSize: '12px',
-                  fontWeight: '500',
-                  cursor: 'pointer',
-                  padding: '4px 6px',
-                  borderRadius: '4px',
-                  transition: 'all 0.2s ease',
-                  outline: focusedElement === 'version' ? '2px solid #4F46E5' : 'none',
-                  outlineOffset: '2px'
-                }}
-                onClick={handleVersionClick}
-                onKeyDown={(e) => handleKeyDown(e, () => setShowVersionDropdown(!showVersionDropdown))}
-                onFocus={() => setFocusedElement('version')}
-                onBlur={() => setFocusedElement(null)}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#F3F4F6';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'transparent';
-                }}
-                aria-label="View version history"
-                aria-expanded={showVersionDropdown}
-              >
-                {report.version}
-                <ChevronDown size={10} style={{
-                  transform: showVersionDropdown ? 'rotate(180deg)' : 'rotate(0deg)',
-                  transition: 'transform 0.2s ease'
-                }} />
-              </button>
-
-              {/* Version History Dropdown */}
-              {showVersionDropdown && (
-                <div style={{
-                  position: 'absolute',
-                  top: '100%',
-                  right: 0,
-                  marginTop: '4px',
-                  backgroundColor: 'white',
-                  border: '1px solid #E5E7EB',
-                  borderRadius: '8px',
-                  boxShadow: '0 10px 25px rgba(0, 0, 0, 0.15)',
-                  zIndex: 1000,
-                  minWidth: '200px',
-                  maxHeight: '300px',
-                  overflowY: 'auto',
-                  animation: 'slideIn 0.2s ease-out'
-                }}>
-                  {report.versions.map((version, index) => (
-                    <div
-                      key={version.id}
-                      style={{
-                        padding: '10px 12px',
-                        borderBottom: index === report.versions.length - 1 ? 'none' : '1px solid #F1F5F9',
-                        cursor: 'pointer',
-                        transition: 'background-color 0.2s ease'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = '#F8FAFC';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = 'white';
-                      }}
-                    >
-                      <div style={{ fontWeight: '500', marginBottom: '2px', fontSize: '12px', color: '#374151' }}>
-                        {version.version}
-                      </div>
-                      <div style={{ fontSize: '11px', color: '#64748B' }}>
-                        {version.status === 'completed' ? 
-                          new Date(version.createdAt).toLocaleDateString() : 
-                          version.status === 'failed' ? 'Error' : 'In Progress'
-                        }
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
+        {/* Owner Section - Fixed Height */}
+        <div style={{
+          height: '32px',
+          display: 'flex',
+          alignItems: 'center',
+          marginBottom: '12px'
+        }}>
+          <div style={{ position: 'relative', marginRight: '8px' }}>
+            <div style={{
+              width: '24px',
+              height: '24px',
+              borderRadius: '50%',
+              backgroundColor: getAvatarColor(report.pointOfContact.name),
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'white',
+              fontSize: '11px',
+              fontWeight: '600'
+            }}>
+              {report.pointOfContact.avatar}
             </div>
           </div>
+          <div style={{
+            fontSize: '14px',
+            fontWeight: '500',
+            color: '#475569',
+            flex: 1
+          }}>
+            {report.pointOfContact.name}
+          </div>
+        </div>
 
-          {/* Description */}
+        {/* Content Area - Flexible */}
+        <div style={{
+          flex: 1,
+          overflow: 'hidden',
+          marginBottom: '16px'
+        }}>
           <Tooltip 
             content={report.description} 
             show={isDescriptionTruncated(report.description)}
           >
             <p style={{
               fontSize: '14px',
-              lineHeight: '20px',
-              color: '#374151',
-              margin: '0 0 12px 0',
-              height: '40px',
+              lineHeight: '1.4',
+              color: '#475569',
+              margin: 0,
               display: '-webkit-box',
-              WebkitLineClamp: 2,
+              WebkitLineClamp: 3,
               WebkitBoxOrient: 'vertical',
               overflow: 'hidden'
             }}>
               {report.description}
             </p>
           </Tooltip>
+        </div>
 
-          {/* Progress Status */}
+        {/* Tags Section - Single Line */}
+        <div style={{
+          display: 'flex',
+          gap: '8px',
+          marginBottom: '16px',
+          flexWrap: 'nowrap',
+          overflowX: 'auto'
+        }}>
+          {/* Report Type Tag */}
           <div style={{
-            fontSize: '12px',
-            color: statusConfig.progress.color,
-            fontWeight: '500',
-            marginBottom: '16px',
-            height: '16px',
             display: 'flex',
-            alignItems: 'center'
+            alignItems: 'center',
+            gap: '4px',
+            padding: '6px 10px',
+            borderRadius: '8px',
+            fontSize: '12px',
+            fontWeight: '500',
+            backgroundColor: typeConfig.bg,
+            color: typeConfig.color,
+            whiteSpace: 'nowrap',
+            flexShrink: 0
+          }}>
+            <Calendar size={12} />
+            {typeConfig.label}
+          </div>
+
+          {/* Version Dropdown Tag */}
+          <div style={{ position: 'relative', flexShrink: 0 }}>
+            <button
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+                padding: '6px 10px',
+                borderRadius: '8px',
+                fontSize: '12px',
+                fontWeight: '500',
+                backgroundColor: '#F3F4F6',
+                color: '#64748B',
+                border: 'none',
+                cursor: 'pointer',
+                whiteSpace: 'nowrap',
+                transition: 'all 0.2s ease'
+              }}
+              onClick={handleVersionClick}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#E2E8F0';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = '#F3F4F6';
+              }}
+            >
+              {report.version}
+              <ChevronDown size={12} style={{
+                transform: showVersionDropdown ? 'rotate(180deg)' : 'rotate(0deg)',
+                transition: 'transform 0.2s ease'
+              }} />
+            </button>
+
+            {/* Version History Dropdown */}
+            {showVersionDropdown && (
+              <div style={{
+                position: 'absolute',
+                top: '100%',
+                left: 0,
+                marginTop: '4px',
+                backgroundColor: 'white',
+                border: '1px solid #E2E8F0',
+                borderRadius: '8px',
+                boxShadow: '0 10px 25px rgba(0, 0, 0, 0.15)',
+                zIndex: 1000,
+                minWidth: '200px',
+                maxHeight: '300px',
+                overflowY: 'auto'
+              }}>
+                {report.versions.map((version, index) => (
+                  <div
+                    key={version.id}
+                    style={{
+                      padding: '10px 12px',
+                      borderBottom: index === report.versions.length - 1 ? 'none' : '1px solid #F1F5F9',
+                      cursor: 'pointer',
+                      transition: 'background-color 0.2s ease'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = '#F8FAFC';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = 'white';
+                    }}
+                  >
+                    <div style={{ fontWeight: '500', marginBottom: '2px', fontSize: '12px', color: '#374151' }}>
+                      {version.version}
+                    </div>
+                    <div style={{ fontSize: '11px', color: '#64748B' }}>
+                      {version.status === 'completed' ? 
+                        new Date(version.createdAt).toLocaleDateString() : 
+                        version.status === 'failed' ? 'Error' : 'In Progress'
+                      }
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Progress/Status Tag */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px',
+            padding: '6px 10px',
+            borderRadius: '8px',
+            fontSize: '12px',
+            fontWeight: '500',
+            backgroundColor: statusConfig.badge.bg,
+            color: statusConfig.badge.color,
+            whiteSpace: 'nowrap',
+            flexShrink: 0
           }}>
             {statusConfig.progress.text}
           </div>
+
+          {/* Subscribers Tag */}
+          <button
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              padding: '6px 10px',
+              borderRadius: '8px',
+              fontSize: '12px',
+              fontWeight: '500',
+              backgroundColor: isSubscribed ? '#DCFCE7' : '#F3F4F6',
+              color: isSubscribed ? '#166534' : '#64748B',
+              border: 'none',
+              cursor: 'pointer',
+              whiteSpace: 'nowrap',
+              flexShrink: 0,
+              transition: 'all 0.2s ease'
+            }}
+            onClick={handleSubscribeClick}
+            onMouseEnter={(e) => {
+              if (!isSubscribed) {
+                e.currentTarget.style.backgroundColor = '#E2E8F0';
+              }
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = isSubscribed ? '#DCFCE7' : '#F3F4F6';
+            }}
+          >
+            <Users size={12} />
+            {report.subscriberCount}
+            <span>{isSubscribed ? 'Subscribed' : 'Subscribe'}</span>
+          </button>
         </div>
 
-        {/* Enhanced Footer Actions */}
+        {/* Footer Section */}
         <div style={{
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          marginTop: 'auto',
           paddingTop: '12px',
-          borderTop: '1px solid #F3F4F6'
+          borderTop: '1px solid #F1F5F9'
         }}>
           <button 
             style={{
@@ -498,13 +491,9 @@ export const ReportCard: React.FC<ReportCardProps> = ({
               display: 'flex',
               alignItems: 'center',
               gap: '6px',
-              transition: 'all 0.2s ease',
-              outline: focusedElement === 'view' ? '2px solid #7C3AED' : 'none',
-              outlineOffset: '2px'
+              transition: 'all 0.2s ease'
             }}
             onClick={handleViewDetails}
-            onFocus={() => setFocusedElement('view')}
-            onBlur={() => setFocusedElement(null)}
             onMouseEnter={(e) => {
               e.currentTarget.style.backgroundColor = '#4338CA';
               e.currentTarget.style.transform = 'translateY(-1px)';
@@ -513,7 +502,6 @@ export const ReportCard: React.FC<ReportCardProps> = ({
               e.currentTarget.style.backgroundColor = '#4F46E5';
               e.currentTarget.style.transform = 'translateY(0)';
             }}
-            aria-label="View full report"
           >
             <Eye size={16} />
             View Report
@@ -523,8 +511,8 @@ export const ReportCard: React.FC<ReportCardProps> = ({
             <button 
               style={{
                 backgroundColor: 'transparent',
-                color: '#6B7280',
-                border: '1px solid #E5E7EB',
+                color: '#64748B',
+                border: '1px solid #E2E8F0',
                 borderRadius: '8px',
                 padding: '8px 12px',
                 fontSize: '12px',
@@ -533,24 +521,17 @@ export const ReportCard: React.FC<ReportCardProps> = ({
                 display: 'flex',
                 alignItems: 'center',
                 gap: '4px',
-                transition: 'all 0.2s ease',
-                outline: focusedElement === 'export' ? '2px solid #4F46E5' : 'none',
-                outlineOffset: '2px'
+                transition: 'all 0.2s ease'
               }}
               onClick={handleExportClick}
-              onFocus={() => setFocusedElement('export')}
-              onBlur={() => setFocusedElement(null)}
               onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = '#F9FAFB';
-                e.currentTarget.style.borderColor = '#D1D5DB';
+                e.currentTarget.style.backgroundColor = '#F8FAFC';
                 e.currentTarget.style.transform = 'translateY(-1px)';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.backgroundColor = 'transparent';
-                e.currentTarget.style.borderColor = '#E5E7EB';
                 e.currentTarget.style.transform = 'translateY(0)';
               }}
-              aria-label="Export report data"
             >
               <Download size={14} />
               Export
@@ -559,8 +540,8 @@ export const ReportCard: React.FC<ReportCardProps> = ({
             <button 
               style={{
                 backgroundColor: 'transparent',
-                color: '#6B7280',
-                border: '1px solid #E5E7EB',
+                color: '#64748B',
+                border: '1px solid #E2E8F0',
                 borderRadius: '8px',
                 padding: '8px 12px',
                 fontSize: '12px',
@@ -570,24 +551,17 @@ export const ReportCard: React.FC<ReportCardProps> = ({
                 alignItems: 'center',
                 gap: '4px',
                 position: 'relative',
-                transition: 'all 0.2s ease',
-                outline: focusedElement === 'logs' ? '2px solid #4F46E5' : 'none',
-                outlineOffset: '2px'
+                transition: 'all 0.2s ease'
               }}
               onClick={handleViewLogs}
-              onFocus={() => setFocusedElement('logs')}
-              onBlur={() => setFocusedElement(null)}
               onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = '#F9FAFB';
-                e.currentTarget.style.borderColor = '#D1D5DB';
+                e.currentTarget.style.backgroundColor = '#F8FAFC';
                 e.currentTarget.style.transform = 'translateY(-1px)';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.backgroundColor = 'transparent';
-                e.currentTarget.style.borderColor = '#E5E7EB';
                 e.currentTarget.style.transform = 'translateY(0)';
               }}
-              aria-label="View execution logs"
             >
               <List size={14} />
               Logs
@@ -606,8 +580,7 @@ export const ReportCard: React.FC<ReportCardProps> = ({
                   justifyContent: 'center',
                   fontSize: '10px',
                   fontWeight: '700',
-                  border: '2px solid white',
-                  animation: 'bounce 1s infinite'
+                  border: '2px solid white'
                 }}>
                   !
                 </div>
@@ -617,7 +590,7 @@ export const ReportCard: React.FC<ReportCardProps> = ({
         </div>
 
         {/* CSS Animations */}
-        <style jsx>{`
+        <style>{`
           @keyframes slideIn {
             from { opacity: 0; transform: translateY(-8px); }
             to { opacity: 1; transform: translateY(0); }
