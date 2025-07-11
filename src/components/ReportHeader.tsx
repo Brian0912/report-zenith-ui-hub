@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { useTheme } from './ThemeProvider';
 import { ReportStatusBadge } from './ReportStatusBadge';
 
 interface ReportHeaderProps {
@@ -9,8 +8,6 @@ interface ReportHeaderProps {
 }
 
 export const ReportHeader: React.FC<ReportHeaderProps> = ({ title, status }) => {
-  const { theme } = useTheme();
-
   const titleRowStyle: React.CSSProperties = {
     display: 'flex',
     justifyContent: 'space-between',
@@ -21,7 +18,7 @@ export const ReportHeader: React.FC<ReportHeaderProps> = ({ title, status }) => 
   const titleStyle: React.CSSProperties = {
     fontSize: '1.25rem',
     fontWeight: '700',
-    color: theme === 'dark' ? '#F3F4F6' : '#111827',
+    color: '#111827',
     margin: 0,
     flex: 1
   };

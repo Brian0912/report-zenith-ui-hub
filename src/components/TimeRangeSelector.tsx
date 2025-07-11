@@ -1,13 +1,11 @@
 
 import React, { useState } from 'react';
-import { useTheme } from './ThemeProvider';
 
 interface TimeRangeSelectorProps {
   onTimeRangeChange: (range: { start: Date; end: Date }) => void;
 }
 
 export const TimeRangeSelector: React.FC<TimeRangeSelectorProps> = ({ onTimeRangeChange }) => {
-  const { theme } = useTheme();
   const [selectedRange, setSelectedRange] = useState('7d');
 
   const timeRanges = [
@@ -29,13 +27,9 @@ export const TimeRangeSelector: React.FC<TimeRangeSelectorProps> = ({ onTimeRang
     borderRadius: '6px',
     border: 'none',
     background: isActive
-      ? (theme === 'dark' 
-          ? 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)'
-          : 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)')
-      : (theme === 'dark'
-          ? 'rgba(255, 255, 255, 0.1)'
-          : 'rgba(0, 0, 0, 0.1)'),
-    color: isActive ? 'white' : (theme === 'dark' ? '#D1D5DB' : '#6B7280'),
+      ? 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)'
+      : 'rgba(0, 0, 0, 0.1)',
+    color: isActive ? 'white' : '#6B7280',
     cursor: 'pointer',
     transition: 'all 0.2s ease',
     fontSize: '0.75rem',
@@ -58,16 +52,12 @@ export const TimeRangeSelector: React.FC<TimeRangeSelectorProps> = ({ onTimeRang
           onClick={() => handleRangeSelect(range)}
           onMouseEnter={(e) => {
             if (selectedRange !== range.value) {
-              e.currentTarget.style.background = theme === 'dark'
-                ? 'rgba(255, 255, 255, 0.15)'
-                : 'rgba(0, 0, 0, 0.15)';
+              e.currentTarget.style.background = 'rgba(0, 0, 0, 0.15)';
             }
           }}
           onMouseLeave={(e) => {
             if (selectedRange !== range.value) {
-              e.currentTarget.style.background = theme === 'dark'
-                ? 'rgba(255, 255, 255, 0.1)'
-                : 'rgba(0, 0, 0, 0.1)';
+              e.currentTarget.style.background = 'rgba(0, 0, 0, 0.1)';
             }
           }}
         >

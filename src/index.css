@@ -2,7 +2,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 :root {
-  /* Clean Color System - Matching reference design */
+  /* Clean Color System - Light theme only */
   --background: 0 0% 100%;
   --foreground: 222 84% 4.9%;
   
@@ -48,42 +48,6 @@
   --radius: 0.75rem;
 }
 
-[data-theme="dark"] {
-  --background: 222 84% 4.9%;
-  --foreground: 210 40% 98%;
-  
-  --card: 222 84% 4.9%;
-  --card-foreground: 210 40% 98%;
-  
-  --popover: 222 84% 4.9%;
-  --popover-foreground: 210 40% 98%;
-  
-  --primary: 221 83% 53%;
-  --primary-foreground: 222 84% 4.9%;
-  
-  --secondary: 217 32% 17%;
-  --secondary-foreground: 210 40% 98%;
-  
-  --muted: 217 32% 17%;
-  --muted-foreground: 215 20% 65%;
-  
-  --accent: 217 32% 17%;
-  --accent-foreground: 210 40% 98%;
-  
-  --success: 142 76% 36%;
-  --success-foreground: 142 76% 36%;
-  
-  --warning: 32 95% 44%;
-  --warning-foreground: 32 95% 44%;
-  
-  --destructive: 0 84% 60%;
-  --destructive-foreground: 210 40% 98%;
-  
-  --border: 217 32% 17%;
-  --input: 217 32% 17%;
-  --ring: 221 83% 53%;
-}
-
 /* Reset and base styles */
 * {
   margin: 0;
@@ -100,7 +64,6 @@ body {
   text-rendering: optimizeLegibility;
   background-color: hsl(var(--muted));
   color: hsl(var(--foreground));
-  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 #root {

@@ -9,7 +9,7 @@ interface SentinelHeaderProps {
 }
 
 export const SentinelHeader: React.FC<SentinelHeaderProps> = ({ onCreateTask }) => {
-  const { theme, toggleTheme } = useTheme();
+  const { theme } = useTheme();
   const [searchTerm, setSearchTerm] = useState('');
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [activeFilters, setActiveFilters] = useState<FilterState>({
@@ -234,18 +234,6 @@ export const SentinelHeader: React.FC<SentinelHeaderProps> = ({ onCreateTask }) 
               }}
             >
               Create Task
-            </button>
-            <button
-              style={themeToggleStyle}
-              onClick={toggleTheme}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = 'hsl(var(--accent))';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'hsl(var(--muted))';
-              }}
-            >
-              {theme === 'dark' ? '☀️' : '🌙'}
             </button>
           </div>
         </div>

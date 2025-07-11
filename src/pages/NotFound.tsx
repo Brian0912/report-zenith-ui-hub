@@ -1,11 +1,9 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useTheme } from '../components/ThemeProvider';
 
 export const NotFound: React.FC = () => {
   const navigate = useNavigate();
-  const { theme } = useTheme();
 
   const containerStyle: React.CSSProperties = {
     minHeight: '100vh',
@@ -13,10 +11,8 @@ export const NotFound: React.FC = () => {
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-    background: theme === 'dark' 
-      ? 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)'
-      : 'linear-gradient(135deg, #f8fafc 0%, #ffffff 100%)',
-    color: theme === 'dark' ? '#ffffff' : '#1a202c',
+    background: 'linear-gradient(135deg, #f8fafc 0%, #ffffff 100%)',
+    color: '#1a202c',
     textAlign: 'center',
     padding: '40px'
   };
@@ -34,12 +30,12 @@ export const NotFound: React.FC = () => {
   const subtitleStyle: React.CSSProperties = {
     fontSize: '24px',
     marginBottom: '8px',
-    color: theme === 'dark' ? '#f1f5f9' : '#334155'
+    color: '#334155'
   };
 
   const descriptionStyle: React.CSSProperties = {
     fontSize: '16px',
-    color: theme === 'dark' ? '#94a3b8' : '#64748b',
+    color: '#64748b',
     marginBottom: '32px',
     maxWidth: '500px'
   };
