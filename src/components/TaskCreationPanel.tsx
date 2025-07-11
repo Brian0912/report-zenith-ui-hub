@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef, useCallback, useMemo, useReducer } from 'react';
 import { X, Plus, Save, AlertCircle, CheckCircle, Sparkles, Clock, User, Search, HelpCircle, ChevronDown, ChevronUp, Loader2, Database } from 'lucide-react';
 
@@ -593,20 +592,6 @@ export const TaskCreationPanel: React.FC<TaskCreationPanelProps> = ({ onSuccess 
     }, 3000);
   };
 
-  // Keyboard shortcut: Ctrl + Enter to submit
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-        e.preventDefault();
-        if (validation.isFormValid && !uiState.isSubmitting) {
-          handleSubmit();
-        }
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [validation.isFormValid, uiState.isSubmitting]);
-
   return (
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       {/* Template Section */}
@@ -1029,27 +1014,8 @@ export const TaskCreationPanel: React.FC<TaskCreationPanelProps> = ({ onSuccess 
         <div style={{
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'space-between'
+          justifyContent: 'flex-end'
         }}>
-          <div style={{
-            fontSize: '14px',
-            color: '#6b7280'
-          }}>
-            <kbd style={{
-              padding: '4px 8px',
-              backgroundColor: '#f3f4f6',
-              borderRadius: '6px',
-              fontSize: '12px',
-              fontWeight: '500'
-            }}>Ctrl</kbd> + <kbd style={{
-              padding: '4px 8px',
-              backgroundColor: '#f3f4f6',
-              borderRadius: '6px',
-              fontSize: '12px',
-              fontWeight: '500'
-            }}>Enter</kbd> to submit
-          </div>
-          
           <button
             onClick={handleSubmit}
             disabled={!validation.isFormValid || uiState.isSubmitting}
