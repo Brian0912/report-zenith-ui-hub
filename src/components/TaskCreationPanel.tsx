@@ -593,19 +593,6 @@ export const TaskCreationPanel: React.FC<TaskCreationPanelProps> = ({ onSuccess 
     }, 3000);
   };
 
-  // Keyboard shortcut: Ctrl + Enter to submit
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-        e.preventDefault();
-        if (validation.isFormValid && !uiState.isSubmitting) {
-          handleSubmit();
-        }
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [validation.isFormValid, uiState.isSubmitting]);
 
   return (
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
@@ -1031,24 +1018,7 @@ export const TaskCreationPanel: React.FC<TaskCreationPanelProps> = ({ onSuccess 
           alignItems: 'center',
           justifyContent: 'space-between'
         }}>
-          <div style={{
-            fontSize: '14px',
-            color: '#6b7280'
-          }}>
-            <kbd style={{
-              padding: '4px 8px',
-              backgroundColor: '#f3f4f6',
-              borderRadius: '6px',
-              fontSize: '12px',
-              fontWeight: '500'
-            }}>Ctrl</kbd> + <kbd style={{
-              padding: '4px 8px',
-              backgroundColor: '#f3f4f6',
-              borderRadius: '6px',
-              fontSize: '12px',
-              fontWeight: '500'
-            }}>Enter</kbd> to submit
-          </div>
+          <div></div>
           
           <button
             onClick={handleSubmit}

@@ -4,7 +4,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from './components/ThemeProvider';
 import { Sidebar } from './components/Sidebar';
-import { Index } from './pages/Index';
+import { ReportCenter } from './components/ReportCenter';
 import { AplusRiskManagement } from './pages/AplusRiskManagement';
 import { GovernancePage } from './pages/GovernancePage';
 import { EntityDetailPage } from './pages/EntityDetailPage';
@@ -25,7 +25,7 @@ const App: React.FC = () => {
             <main style={{ flex: 1, overflow: 'auto' }}>
               <Routes>
                 <Route path="/" element={<Navigate to="/sentinel/report-center" replace />} />
-                <Route path="/sentinel/report-center" element={<Index />} />
+                <Route path="/sentinel/report-center" element={<ReportCenter />} />
                 <Route path="/aplus" element={<Navigate to="/aplus/enhancement" replace />} />
                 <Route path="/aplus/enhancement" element={<AplusRiskManagement />} />
                 <Route path="/aplus/finding" element={<RiskFindingDashboard />} />
