@@ -14,7 +14,10 @@ export const useReportFiltering = (reports: Report[], filters: FilterOptions) =>
       const matchesSearch = report.title.toLowerCase().includes(filters.searchTerm.toLowerCase()) ||
                            report.description.toLowerCase().includes(filters.searchTerm.toLowerCase());
       const matchesStatus = filters.statusFilter === 'all' || report.status === filters.statusFilter;
-      const matchesDate = !filters.dateFilter || report.createdAt.includes(filters.dateFilter);
+      
+      // Fix date filtering - convert Date to string for comparison
+      const matchesDate = !filters.dateFilter || 
+        report.createdAt.toISOString().split('T')[0] === filters.dateFilter;
       
       return matchesSearch && matchesStatus && matchesDate;
     });
