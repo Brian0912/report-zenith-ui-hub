@@ -19,29 +19,55 @@ const TEMPLATE_DATA = {
   goal: "Implement a user authentication system",
   background: "We need a secure and scalable authentication system for our web application. It should support email/password login, social logins, and multi-factor authentication. The system must integrate with our existing user database and comply with GDPR regulations.",
   metadata: [
-    { id: '1', category: 'priority' as const, value: 'high' },
-    { id: '2', category: 'type' as const, value: 'feature' }
+    { id: '1', category: 'employee', key: 'username', value: 'john.doe' },
+    { id: '2', category: 'policy', key: 'policy_name', value: 'Authentication Policy' }
   ]
 };
 
 const METADATA_CATEGORIES = {
-  priority: {
-    label: 'Priority',
-    options: ['low', 'medium', 'high']
+  employee: {
+    name: 'Employee',
+    icon: User,
+    options: [
+      { key: 'username', label: 'Username', placeholder: 'e.g., john.doe' },
+      { key: 'department', label: 'Department', placeholder: 'e.g., Engineering' },
+      { key: 'base_country', label: 'Base Country', placeholder: 'e.g., United States' },
+      { key: 'physical_country', label: 'Physical Country', placeholder: 'e.g., Canada' },
+      { key: 'manager', label: 'Manager', placeholder: 'e.g., Jane Smith' },
+      { key: 'role', label: 'Role', placeholder: 'e.g., Senior Developer' },
+      { key: 'employee_id', label: 'Employee ID', placeholder: 'e.g., EMP001' }
+    ]
   },
-  type: {
-    label: 'Type',
-    options: ['bug', 'feature', 'improvement']
+  traffic: {
+    name: 'Traffic',
+    icon: Clock,
+    options: [
+      { key: 'source_ip', label: 'Source IP', placeholder: 'e.g., 192.168.1.1' },
+      { key: 'destination', label: 'Destination', placeholder: 'e.g., api.example.com' },
+      { key: 'protocol', label: 'Protocol', placeholder: 'e.g., HTTPS' },
+      { key: 'port', label: 'Port', placeholder: 'e.g., 443' },
+      { key: 'bandwidth', label: 'Bandwidth', placeholder: 'e.g., 100 Mbps' },
+      { key: 'region', label: 'Region', placeholder: 'e.g., us-east-1' }
+    ]
   },
-  status: {
-    label: 'Status',
-    options: ['open', 'in progress', 'closed']
+  policy: {
+    name: 'Policy',
+    icon: AlertCircle,
+    options: [
+      { key: 'policy_name', label: 'Policy Name', placeholder: 'e.g., Data Retention Policy' },
+      { key: 'compliance_framework', label: 'Compliance Framework', placeholder: 'e.g., GDPR' },
+      { key: 'severity', label: 'Severity', placeholder: 'e.g., High' },
+      { key: 'approval_required', label: 'Approval Required', placeholder: 'e.g., Yes' },
+      { key: 'expiry_date', label: 'Expiry Date', placeholder: 'e.g., 2024-12-31' },
+      { key: 'owner', label: 'Policy Owner', placeholder: 'e.g., Security Team' }
+    ]
   }
 };
 
 type MetadataItemType = {
   id: string;
   category: keyof typeof METADATA_CATEGORIES;
+  key: string;
   value: string;
 };
 
@@ -159,41 +185,67 @@ const WordCounter: React.FC<{ count: number; minWords: number }> = ({ count, min
 
 const MetadataItem: React.FC<{
   item: MetadataItemType;
-  category: { label: string; options: string[] };
   onUpdate: (id: string, value: string) => void;
   onRemove: (id: string) => void;
-}> = ({ item, category, onUpdate, onRemove }) => {
+}> = ({ item, onUpdate, onRemove }) => {
+  const category = METADATA_CATEGORIES[item.category];
+  const option = category.options.find(opt => opt.key === item.key);
+  const IconComponent = category.icon;
+
   return (
     <div
       style={{
         display: 'flex',
         alignItems: 'center',
-        gap: '8px',
-        backgroundColor: '#f3e8ff',
-        padding: '8px 12px',
-        borderRadius: '8px'
+        gap: '12px',
+        padding: '12px',
+        backgroundColor: '#ffffff',
+        border: '1px solid #e5e7eb',
+        borderRadius: '8px',
+        transition: 'all 0.2s ease'
       }}
     >
-      <div style={{ fontWeight: '600', color: '#9333ea', minWidth: '80px' }}>{category.label}:</div>
-      <select
-        value={item.value}
-        onChange={(e) => onUpdate(item.id, e.target.value)}
-        style={{
-          flex: 1,
-          padding: '4px 8px',
-          borderRadius: '6px',
-          border: '1px solid #d1d5db',
-          fontSize: '14px',
-          outline: 'none',
-          cursor: 'pointer'
-        }}
-      >
-        {category.options.map((opt) => (
-          <option key={opt} value={opt}>
-            {opt.charAt(0).toUpperCase() + opt.slice(1)}
-          </option>
-        ))}
-      </select>
+      <div style={{
+        width: '24px',
+        height: '24px',
+        borderRadius: '50%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#dbeafe',
+        flexShrink: 0
+      }}>
+        <IconComponent size={12} style={{ color: '#2563eb' }} />
+      </div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+          <span style={{ fontSize: '12px', fontWeight: '500', color: '#6b7280' }}>{category.name}</span>
+          <span style={{ fontSize: '12px', color: '#9ca3af' }}>•</span>
+          <span style={{ fontSize: '12px', fontWeight: '500', color: '#1f2937' }}>{option?.label}</span>
+        </div>
+        <input
+          type="text"
+          value={item.value}
+          onChange={(e) => onUpdate(item.id, e.target.value)}
+          placeholder={option?.placeholder || 'Enter value...'}
+          style={{
+            width: '100%',
+            padding: '8px',
+            fontSize: '14px',
+            border: '1px solid #d1d5db',
+            borderRadius: '6px',
+            outline: 'none'
+          }}
+          onFocus={(e) => {
+            e.target.style.borderColor = '#3b82f6';
+            e.target.style.boxShadow = '0 0 0 1px #3b82f6';
+          }}
+          onBlur={(e) => {
+            e.target.style.borderColor = '#d1d5db';
+            e.target.style.boxShadow = 'none';
+          }}
+        />
+      </div>
       <button
         type="button"
         onClick={() => onRemove(item.id)}
@@ -202,17 +254,24 @@ const MetadataItem: React.FC<{
           background: 'none',
           border: 'none',
           cursor: 'pointer',
-          color: '#9333ea',
+          color: '#9ca3af',
           padding: '4px',
-          borderRadius: '6px',
+          borderRadius: '4px',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'center'
+          justifyContent: 'center',
+          flexShrink: 0
         }}
-        onMouseEnter={(e) => (e.currentTarget.style.color = '#6b21a8')}
-        onMouseLeave={(e) => (e.currentTarget.style.color = '#9333ea')}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.color = '#ef4444';
+          e.currentTarget.style.backgroundColor = '#fef2f2';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.color = '#9ca3af';
+          e.currentTarget.style.backgroundColor = 'transparent';
+        }}
       >
-        <X size={16} />
+        <X size={14} />
       </button>
     </div>
   );
@@ -221,32 +280,24 @@ const MetadataItem: React.FC<{
 const MetadataSelector: React.FC<{
   isOpen: boolean;
   onClose: () => void;
-  onSelect: (item: MetadataItemType) => void;
+  onSelect: (categoryKey: string, optionKey: string) => void;
   searchTerm: string;
   onSearchChange: (value: string) => void;
 }> = ({ isOpen, onClose, onSelect, searchTerm, onSearchChange }) => {
-  const allOptions = useMemo(() => {
-    const items: MetadataItemType[] = [];
-    Object.entries(METADATA_CATEGORIES).forEach(([categoryKey, category]) => {
-      category.options.forEach((opt) => {
-        items.push({
-          id: `${categoryKey}-${opt}`,
-          category: categoryKey as keyof typeof METADATA_CATEGORIES,
-          value: opt
-        });
-      });
-    });
-    return items;
-  }, []);
-
-  const filteredOptions = useMemo(() => {
-    if (!searchTerm) return allOptions;
-    return allOptions.filter(
-      (item) =>
-        item.value.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        METADATA_CATEGORIES[item.category].label.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [allOptions, searchTerm]);
+  const debouncedSearch = useDebounce(searchTerm, VALIDATION_RULES.DEBOUNCE_DELAY);
+  
+  const filteredOptions = useMemo(() => 
+    Object.entries(METADATA_CATEGORIES).map(([categoryKey, category]) => ({
+      categoryKey,
+      category,
+      options: category.options.filter(option =>
+        debouncedSearch === '' ||
+        option.label.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+        category.name.toLowerCase().includes(debouncedSearch.toLowerCase())
+      )
+    })).filter(({ options }) => options.length > 0),
+    [debouncedSearch]
+  );
 
   if (!isOpen) return null;
 
@@ -257,69 +308,149 @@ const MetadataSelector: React.FC<{
         top: 'calc(100% + 8px)',
         left: 0,
         right: 0,
-        maxHeight: '240px',
-        overflowY: 'auto',
+        maxHeight: '320px',
         backgroundColor: '#ffffff',
         border: '1px solid #d1d5db',
         borderRadius: '12px',
         boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12)',
         zIndex: 1000,
-        padding: '8px'
+        overflow: 'hidden'
       }}
-      role="listbox"
-      aria-label="Metadata options"
     >
-      <input
-        type="text"
-        value={searchTerm}
-        onChange={(e) => onSearchChange(e.target.value)}
-        placeholder="Search metadata..."
-        style={{
-          width: '100%',
-          padding: '8px 12px',
-          marginBottom: '8px',
-          borderRadius: '8px',
-          border: '1px solid #d1d5db',
-          outline: 'none',
-          fontSize: '14px'
-        }}
-        autoFocus
-      />
-      {filteredOptions.length === 0 && (
-        <div style={{ padding: '8px', color: '#6b7280', fontSize: '14px' }}>No metadata found</div>
-      )}
-      {filteredOptions.map((item) => (
-        <button
-          key={item.id}
-          type="button"
-          onClick={() => {
-            onSelect(item);
-            onClose();
-          }}
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            width: '100%',
-            padding: '8px 12px',
-            borderRadius: '8px',
-            backgroundColor: '#f9fafb',
-            border: 'none',
-            cursor: 'pointer',
-            fontSize: '14px',
-            color: '#374151',
-            marginBottom: '4px',
-            textAlign: 'left'
-          }}
-          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#e0e7ff')}
-          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#f9fafb')}
-        >
-          <span>
-            <strong>{METADATA_CATEGORIES[item.category].label}:</strong> {item.value}
-          </span>
-          <Plus size={14} />
-        </button>
-      ))}
+      {/* Header with search */}
+      <div style={{ padding: '12px', borderBottom: '1px solid #e5e7eb' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+          <h4 style={{ fontWeight: '500', color: '#1f2937', margin: 0, fontSize: '14px' }}>Select Metadata</h4>
+          <button 
+            onClick={onClose}
+            style={{
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              color: '#9ca3af',
+              padding: '4px',
+              borderRadius: '4px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = '#6b7280';
+              e.currentTarget.style.backgroundColor = '#f3f4f6';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = '#9ca3af';
+              e.currentTarget.style.backgroundColor = 'transparent';
+            }}
+            aria-label="Close metadata selector"
+          >
+            <X size={16} />
+          </button>
+        </div>
+        
+        <div style={{ position: 'relative' }}>
+          <Search size={14} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#9ca3af' }} />
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => onSearchChange(e.target.value)}
+            placeholder="Search metadata..."
+            style={{
+              width: '100%',
+              paddingLeft: '36px',
+              paddingRight: '12px',
+              paddingTop: '8px',
+              paddingBottom: '8px',
+              fontSize: '14px',
+              border: '1px solid #d1d5db',
+              borderRadius: '6px',
+              outline: 'none'
+            }}
+            onFocus={(e) => {
+              e.target.style.borderColor = '#3b82f6';
+              e.target.style.boxShadow = '0 0 0 1px #3b82f6';
+            }}
+            onBlur={(e) => {
+              e.target.style.borderColor = '#d1d5db';
+              e.target.style.boxShadow = 'none';
+            }}
+          />
+        </div>
+      </div>
+      
+      {/* Options list */}
+      <div style={{ maxHeight: '256px', overflowY: 'auto' }}>
+        {filteredOptions.length === 0 ? (
+          <div style={{ padding: '16px', textAlign: 'center', color: '#6b7280', fontSize: '14px' }}>
+            No metadata found matching "{searchTerm}"
+          </div>
+        ) : (
+          filteredOptions.map(({ categoryKey, category, options }) => {
+            const IconComponent = category.icon;
+            return (
+              <div key={categoryKey} style={{ padding: '12px', borderBottom: '1px solid #f3f4f6' }}>
+                {/* Category header */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                  <div style={{
+                    width: '20px',
+                    height: '20px',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: '#dbeafe'
+                  }}>
+                    <IconComponent size={12} style={{ color: '#2563eb' }} />
+                  </div>
+                  <span style={{ fontWeight: '500', color: '#1f2937', fontSize: '14px' }}>{category.name}</span>
+                  <span style={{
+                    fontSize: '12px',
+                    color: '#6b7280',
+                    backgroundColor: '#f3f4f6',
+                    padding: '2px 6px',
+                    borderRadius: '4px'
+                  }}>
+                    {options.length}
+                  </span>
+                </div>
+                
+                {/* Options */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  {options.map((option) => (
+                    <button
+                      key={option.key}
+                      onClick={() => onSelect(categoryKey, option.key)}
+                      style={{
+                        display: 'block',
+                        width: '100%',
+                        textAlign: 'left',
+                        padding: '8px',
+                        fontSize: '14px',
+                        color: '#374151',
+                        backgroundColor: 'transparent',
+                        border: 'none',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        transition: 'background-color 0.2s ease'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = '#f9fafb';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = 'transparent';
+                      }}
+                      title={option.placeholder}
+                    >
+                      <div style={{ fontWeight: '500' }}>{option.label}</div>
+                      <div style={{ fontSize: '12px', color: '#9ca3af' }}>{option.placeholder}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            );
+          })
+        )}
+      </div>
     </div>
   );
 };
@@ -407,8 +538,14 @@ export const TaskCreationPanel: React.FC<TaskCreationPanelProps> = ({ onSuccess 
     dispatch({ type: 'SET_FIELD', field, value });
   };
 
-  const handleAddMetadata = (item: MetadataItemType) => {
-    dispatch({ type: 'ADD_METADATA', item });
+  const handleAddMetadata = (categoryKey: string, optionKey: string) => {
+    const newItem: MetadataItemType = {
+      id: Date.now() + Math.random().toString(),
+      category: categoryKey as keyof typeof METADATA_CATEGORIES,
+      key: optionKey,
+      value: ''
+    };
+    dispatch({ type: 'ADD_METADATA', item: newItem });
   };
 
   const handleUpdateMetadata = (id: string, value: string) => {
@@ -813,7 +950,6 @@ export const TaskCreationPanel: React.FC<TaskCreationPanelProps> = ({ onSuccess 
                   <MetadataItem
                     key={item.id}
                     item={item}
-                    category={METADATA_CATEGORIES[item.category]}
                     onUpdate={handleUpdateMetadata}
                     onRemove={handleRemoveMetadata}
                   />
@@ -851,7 +987,10 @@ export const TaskCreationPanel: React.FC<TaskCreationPanelProps> = ({ onSuccess 
                   e.currentTarget.style.backgroundColor = '#ffffff';
                 }}
               >
-                <Plus size={18} />
+                <Plus size={18} style={{
+                  transition: 'transform 0.2s ease',
+                  transform: uiState.showMetadataSelector ? 'rotate(45deg)' : 'rotate(0deg)'
+                }} />
                 Add Metadata
               </button>
               
