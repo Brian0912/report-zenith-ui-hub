@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useTheme } from './ThemeProvider';
 import { Button } from './ui/button';
-import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { Filter } from 'lucide-react';
 import { FilterModal, FilterState } from './FilterModal';
 
@@ -17,7 +16,9 @@ export const SentinelHeader: React.FC<SentinelHeaderProps> = ({ onCreateTask }) 
     selectedFilters: [],
     taskStatus: [],
     creators: [],
-    tags: []
+    tags: [],
+    frequency: [],
+    timeRange: { start: null, end: null }
   });
 
   const headerStyle: React.CSSProperties = {
@@ -145,35 +146,21 @@ export const SentinelHeader: React.FC<SentinelHeaderProps> = ({ onCreateTask }) 
     transition: 'all 0.2s ease'
   };
 
-  const filterContentStyle: React.CSSProperties = {
-    width: '200px'
-  };
-
-  const filterOptionStyle = (isSelected: boolean): React.CSSProperties => ({
-    padding: '8px 12px',
-    cursor: 'pointer',
-    borderRadius: '4px',
-    backgroundColor: isSelected ? 'hsl(var(--accent))' : 'transparent',
-    color: 'hsl(var(--foreground))',
-    fontSize: '14px',
-    transition: 'background-color 0.2s ease'
-  });
-
-  const statusOptions = [
-    { value: '', label: 'All Statuses' },
-    { value: 'completed', label: 'Completed' },
-    { value: 'running', label: 'Running' },
-    { value: 'queued', label: 'Queued' },
-    { value: 'failed', label: 'Failed' }
-  ];
-
   const handleApplyFilters = (filters: FilterState) => {
     setActiveFilters(filters);
+    setIsFilterModalOpen(false);
     console.log('Applied filters:', filters);
     // Here you would typically update the reports based on the filters
   };
 
-  const activeFilterCount = activeFilters.selectedFilters.length;
+  const getTotalActiveFilters = () => {
+    return activeFilters.taskStatus.length + 
+           activeFilters.creators.length + 
+           activeFilters.frequency.length + 
+           (activeFilters.timeRange.start || activeFilters.timeRange.end ? 1 : 0);
+  };
+
+  const activeFilterCount = getTotalActiveFilters();
 
   return (
     <>
