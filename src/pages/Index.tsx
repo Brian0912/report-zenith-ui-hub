@@ -6,6 +6,7 @@ import { ReportGrid } from '../components/ReportGrid';
 import { SlideOutPanel } from '../components/SlideOutPanel';
 import { TaskCreationPanel } from '../components/TaskCreationPanel';
 import { TaskLogsSidebar } from '../components/TaskLogsSidebar';
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '../components/ui/resizable';
 import { mockReports } from '../components/mockData';
 
 export const Index: React.FC = () => {
@@ -26,19 +27,13 @@ export const Index: React.FC = () => {
   };
 
   const contentContainerStyle: React.CSSProperties = {
-    display: 'flex',
-    gap: isPanelOpen ? '24px' : '0',
     maxWidth: '1600px',
     margin: '0 auto',
     padding: '24px',
-    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-    alignItems: 'flex-start'
+    height: 'calc(100vh - 80px - 48px)'
   };
 
   const mainContentStyle: React.CSSProperties = {
-    flex: isPanelOpen ? '1 1 auto' : '1',
-    minWidth: isPanelOpen ? '600px' : '0',
-    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
     height: 'calc(100vh - 80px - 48px)',
     overflowY: 'auto',
     paddingRight: '8px'
@@ -46,9 +41,6 @@ export const Index: React.FC = () => {
 
   // Panel styles with fixed width and responsive behavior
   const panelContainerStyle: React.CSSProperties = {
-    flex: '0 0 400px',
-    maxWidth: '400px',
-    minWidth: '400px',
     height: 'calc(100vh - 80px - 48px)',
     backgroundColor: '#ffffff',
     borderRadius: '16px',
@@ -56,10 +48,7 @@ export const Index: React.FC = () => {
     boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12)',
     display: 'flex',
     flexDirection: 'column',
-    overflow: 'hidden',
-    animation: 'slideInFromRight 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-    position: 'sticky',
-    top: '24px'
+    overflow: 'hidden'
   };
 
   const panelHeaderStyle: React.CSSProperties = {
@@ -115,45 +104,6 @@ export const Index: React.FC = () => {
     padding: '0'
   };
 
-  // Responsive styles
-  const responsiveStyles = `
-    @media (max-width: 1200px) {
-      .panel-container {
-        flex: 0 0 350px !important;
-        max-width: 350px !important;
-        min-width: 350px !important;
-      }
-    }
-    
-    @media (max-width: 768px) {
-      .content-container {
-        flex-direction: column !important;
-        gap: 16px !important;
-        padding: 16px !important;
-      }
-      
-      .panel-container {
-        flex: none !important;
-        width: 100% !important;
-        min-width: unset !important;
-        max-width: unset !important;
-        height: 60vh !important;
-        position: fixed !important;
-        top: 80px !important;
-        left: 0 !important;
-        right: 0 !important;
-        z-index: 1000 !important;
-        border-radius: 16px 16px 0 0 !important;
-        box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.15) !important;
-      }
-      
-      .main-content {
-        min-width: unset !important;
-        height: auto !important;
-      }
-    }
-  `;
-
   // Filter reports based on search and status
   const filteredReports = useMemo(() => {
     return mockReports.filter(report => {
@@ -199,77 +149,88 @@ export const Index: React.FC = () => {
         onCreateTask={handleCreateTask}
       />
       
-      <div style={contentContainerStyle} className="content-container">
-        <div style={mainContentStyle} className="main-content">        
-          {dateFilter && (
-            <SearchAndFilters 
-              dateFilter={dateFilter} 
-              setDateFilter={setDateFilter} 
-            />
-          )}
-          
-          <ReportGrid 
-            reports={filteredReports} 
-            onSubscribe={handleSubscribe} 
-            onViewLogs={handleViewLogs} 
-          />
-        </div>
-
-        {/* Fixed-width Panel */}
-        {isPanelOpen && (
-          <div style={panelContainerStyle} className="panel-container">
-            {/* Enhanced Panel Header */}
-            <div style={panelHeaderStyle}>
-              <h2 style={panelTitleStyle}>
-                {isTaskPanelOpen ? 'Create New Task' : `Task Logs – ${selectedTask?.title}`}
-              </h2>
-              <button
-                onClick={isTaskPanelOpen ? handleCloseTaskPanel : handleCloseLogsPanel}
-                style={closeButtonStyle}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#f1f5f9';
-                  e.currentTarget.style.color = '#334155';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'transparent';
-                  e.currentTarget.style.color = '#64748b';
-                }}
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="m18 6-12 12"/>
-                  <path d="m6 6 12 12"/>
-                </svg>
-              </button>
-            </div>
-
-            {/* Panel Content */}
-            <div style={panelContentStyle}>
-              {isTaskPanelOpen ? (
-                <TaskCreationPanel onSuccess={handleTaskCreated} />
-              ) : selectedTask ? (
-                <TaskLogsSidebar 
-                  task={selectedTask} 
-                  isOpen={true} 
-                  onClose={handleCloseLogsPanel} 
+      <div style={contentContainerStyle}>
+        {isPanelOpen ? (
+          <ResizablePanelGroup direction="horizontal" style={{ height: '100%' }}>
+            <ResizablePanel defaultSize={65} minSize={40} style={{ paddingRight: '12px' }}>
+              <div style={mainContentStyle}>        
+                {dateFilter && (
+                  <SearchAndFilters 
+                    dateFilter={dateFilter} 
+                    setDateFilter={setDateFilter} 
+                  />
+                )}
+                
+                <ReportGrid 
+                  reports={filteredReports} 
+                  onSubscribe={handleSubscribe} 
+                  onViewLogs={handleViewLogs} 
                 />
-              ) : null}
-            </div>
+              </div>
+            </ResizablePanel>
+
+            <ResizableHandle withHandle />
+
+            <ResizablePanel defaultSize={35} minSize={25} style={{ paddingLeft: '12px' }}>
+              <div style={panelContainerStyle}>
+                {/* Enhanced Panel Header */}
+                <div style={panelHeaderStyle}>
+                  <h2 style={panelTitleStyle}>
+                    {isTaskPanelOpen ? 'Create New Task' : `Task Logs – ${selectedTask?.title}`}
+                  </h2>
+                  <button
+                    onClick={isTaskPanelOpen ? handleCloseTaskPanel : handleCloseLogsPanel}
+                    style={closeButtonStyle}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = '#f1f5f9';
+                      e.currentTarget.style.color = '#334155';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = 'transparent';
+                      e.currentTarget.style.color = '#64748b';
+                    }}
+                  >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="m18 6-12 12"/>
+                      <path d="m6 6 12 12"/>
+                    </svg>
+                  </button>
+                </div>
+
+                {/* Panel Content */}
+                <div style={panelContentStyle}>
+                  {isTaskPanelOpen ? (
+                    <TaskCreationPanel onSuccess={handleTaskCreated} />
+                  ) : selectedTask ? (
+                    <TaskLogsSidebar 
+                      task={selectedTask} 
+                      isOpen={true} 
+                      onClose={handleCloseLogsPanel} 
+                    />
+                  ) : null}
+                </div>
+              </div>
+            </ResizablePanel>
+          </ResizablePanelGroup>
+        ) : (
+          <div style={mainContentStyle}>        
+            {dateFilter && (
+              <SearchAndFilters 
+                dateFilter={dateFilter} 
+                setDateFilter={setDateFilter} 
+              />
+            )}
+            
+            <ReportGrid 
+              reports={filteredReports} 
+              onSubscribe={handleSubscribe} 
+              onViewLogs={handleViewLogs} 
+            />
           </div>
         )}
       </div>
 
       <style>{`
-        @keyframes slideInFromRight {
-          from {
-            transform: translateX(100%);
-            opacity: 0;
-          }
-          to {
-            transform: translateX(0);
-            opacity: 1;
-          }
-        }
-
         /* Enhanced scrollbar styling */
         ::-webkit-scrollbar {
           width: 6px;
@@ -289,7 +250,11 @@ export const Index: React.FC = () => {
           background: #94a3b8;
         }
 
-        ${responsiveStyles}
+        @media (max-width: 768px) {
+          .resizable-panel-group {
+            flex-direction: column !important;
+          }
+        }
       `}</style>
     </div>
   );
