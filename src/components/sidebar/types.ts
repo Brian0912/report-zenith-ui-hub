@@ -6,13 +6,12 @@ export interface MenuItem {
   label: string;
   icon: React.ComponentType<any>;
   path: string;
-  description: string;
 }
 
 export interface ProductGroup {
   id: string;
   label: string;
-  icon: React.ComponentType<any>;
+  icon: React.ComponentType<any> | null;
   subItems: MenuItem[];
 }
 

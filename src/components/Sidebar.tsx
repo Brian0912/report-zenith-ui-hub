@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ChevronRight, ChevronLeft } from 'lucide-react';
@@ -30,8 +29,8 @@ export const Sidebar: React.FC = () => {
   const sidebarStyle: React.CSSProperties = {
     width: isCollapsed ? '80px' : '280px',
     height: '100vh',
-    backgroundColor: '#ffffff',
-    borderRight: '1px solid #e5e7eb',
+    backgroundColor: 'hsl(var(--card))',
+    borderRight: '1px solid hsl(var(--border))',
     transition: 'all 0.3s ease',
     position: 'relative',
     display: 'flex',
@@ -40,7 +39,7 @@ export const Sidebar: React.FC = () => {
 
   const headerStyle: React.CSSProperties = {
     padding: '1.5rem',
-    borderBottom: '1px solid #e5e7eb',
+    borderBottom: '1px solid hsl(var(--border))',
     display: 'flex',
     alignItems: 'center',
     justifyContent: isCollapsed ? 'center' : 'flex-start'
@@ -49,7 +48,7 @@ export const Sidebar: React.FC = () => {
   const logoStyle: React.CSSProperties = {
     fontSize: isCollapsed ? '1.25rem' : '1.5rem',
     fontWeight: '700',
-    color: '#1f2937',
+    color: 'hsl(var(--foreground))',
     transition: 'all 0.3s ease'
   };
 
@@ -69,8 +68,8 @@ export const Sidebar: React.FC = () => {
     borderRadius: '8px',
     cursor: 'pointer',
     transition: 'all 0.2s ease',
-    backgroundColor: isActive ? '#3b82f6' : 'transparent',
-    color: isActive ? '#ffffff' : '#1f2937',
+    backgroundColor: isActive ? 'hsl(var(--primary))' : 'transparent',
+    color: isActive ? 'hsl(var(--primary-foreground))' : 'hsl(var(--foreground))',
     fontWeight: '600',
     minHeight: '48px'
   });
@@ -83,8 +82,8 @@ export const Sidebar: React.FC = () => {
     borderRadius: '6px',
     cursor: 'pointer',
     transition: 'all 0.2s ease',
-    backgroundColor: isActive ? '#f3f4f6' : 'transparent',
-    color: isActive ? '#1f2937' : '#6b7280',
+    backgroundColor: isActive ? 'hsl(var(--accent))' : 'transparent',
+    color: isActive ? 'hsl(var(--accent-foreground))' : 'hsl(var(--muted-foreground))',
     fontSize: '0.875rem',
     minHeight: '40px'
   });
@@ -126,13 +125,13 @@ export const Sidebar: React.FC = () => {
     width: '24px',
     height: '24px',
     borderRadius: '50%',
-    backgroundColor: '#ffffff',
-    border: '1px solid #e5e7eb',
+    backgroundColor: 'hsl(var(--background))',
+    border: '1px solid hsl(var(--border))',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     cursor: 'pointer',
-    color: '#6b7280',
+    color: 'hsl(var(--muted-foreground))',
     transition: 'all 0.2s ease',
     zIndex: 1001,
     boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
@@ -152,10 +151,10 @@ export const Sidebar: React.FC = () => {
         onClick={() => setIsCollapsed(!isCollapsed)}
         aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         onMouseEnter={e => {
-          e.currentTarget.style.backgroundColor = '#f9fafb';
+          e.currentTarget.style.backgroundColor = 'hsl(var(--accent))';
         }}
         onMouseLeave={e => {
-          e.currentTarget.style.backgroundColor = '#ffffff';
+          e.currentTarget.style.backgroundColor = 'hsl(var(--background))';
         }}
       >
         {isCollapsed ? <ChevronRight size={12} /> : <ChevronLeft size={12} />}
@@ -171,7 +170,6 @@ export const Sidebar: React.FC = () => {
         {productGroups.map(group => {
           const isGroupExpanded = expandedGroups.includes(group.id);
           const isActive = isGroupActive(group);
-          const IconComponent = group.icon;
           
           return (
             <div key={group.id} style={groupStyle(isActive)}>
@@ -184,7 +182,7 @@ export const Sidebar: React.FC = () => {
                 }}
                 onMouseEnter={e => {
                   if (!isActive) {
-                    e.currentTarget.style.backgroundColor = '#f3f4f6';
+                    e.currentTarget.style.backgroundColor = 'hsl(var(--accent))';
                   }
                 }}
                 onMouseLeave={e => {
@@ -196,9 +194,6 @@ export const Sidebar: React.FC = () => {
                 aria-expanded={!isCollapsed ? isGroupExpanded : undefined}
                 aria-label={`${group.label} section`}
               >
-                <div style={iconContainerStyle}>
-                  <IconComponent size={20} />
-                </div>
                 {!isCollapsed && (
                   <div style={labelContainerStyle}>
                     <span>{group.label}</span>
@@ -224,7 +219,7 @@ export const Sidebar: React.FC = () => {
                         onClick={() => navigate(item.path)}
                         onMouseEnter={e => {
                           if (!isItemActiveState) {
-                            e.currentTarget.style.backgroundColor = '#f9fafb';
+                            e.currentTarget.style.backgroundColor = 'hsl(var(--muted))';
                           }
                         }}
                         onMouseLeave={e => {
@@ -248,9 +243,6 @@ export const Sidebar: React.FC = () => {
                         <div style={labelContainerStyle}>
                           <div style={{ fontSize: '0.875rem', fontWeight: '500' }}>
                             {item.label}
-                          </div>
-                          <div style={{ fontSize: '0.75rem', opacity: 0.7, marginTop: '0.125rem' }}>
-                            {item.description}
                           </div>
                         </div>
                       </div>
