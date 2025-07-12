@@ -1,9 +1,11 @@
 
 import React, { useState } from 'react';
-import { Clock, User, AlertCircle, Info, AlertTriangle, Bug, Copy, Calendar, Target, FileText, ChevronDown } from 'lucide-react';
+import { Clock, User, AlertCircle, Info, AlertTriangle, Bug, Copy, Calendar, Target, FileText, ChevronDown, Eye, Download, Play, Users } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { Report } from './mockData';
 import { ReportStatusBadge } from './ReportStatusBadge';
 import { sharedStyles } from './shared/styles';
+import { useDownload } from '../hooks/useDownload';
 
 interface TaskLogsSidebarProps {
   task: Report;
@@ -12,8 +14,17 @@ interface TaskLogsSidebarProps {
 }
 
 export const TaskLogsSidebar: React.FC<TaskLogsSidebarProps> = ({ task, isOpen, onClose }) => {
+  const navigate = useNavigate();
+  const { startDownload } = useDownload();
   const [logFilter, setLogFilter] = useState<string>('all');
   const [showRunHistory, setShowRunHistory] = useState(false);
+  const [showFrequencyDropdown, setShowFrequencyDropdown] = useState(false);
+  const [showActionDropdown, setShowActionDropdown] = useState(false);
+  const [currentFrequency, setCurrentFrequency] = useState(task.schedule?.frequency || 'Monthly');
+  const [isSubscribed, setIsSubscribed] = useState(task.isSubscribed || false);
+  const [subscriberCount, setSubscriberCount] = useState(task.subscriberCount || 0);
+
+  const frequencyOptions = ['Daily', 'Weekly', 'Bi-weekly', 'Monthly', 'Quarterly'];
 
   const getLogIcon = (level: string) => {
     switch (level) {
@@ -74,6 +85,36 @@ export const TaskLogsSidebar: React.FC<TaskLogsSidebarProps> = ({ task, isOpen, 
     navigator.clipboard.writeText(logsText);
   };
 
+  const handleFrequencyChange = (frequency: string) => {
+    setCurrentFrequency(frequency);
+    setShowFrequencyDropdown(false);
+    // Here you would typically call an API to update the frequency
+    console.log(`Frequency updated to: ${frequency}`);
+  };
+
+  const handleSubscribeClick = () => {
+    setIsSubscribed(!isSubscribed);
+    setSubscriberCount(prev => isSubscribed ? prev - 1 : prev + 1);
+    // Here you would typically call an API to handle subscription
+    console.log(`${isSubscribed ? 'Unsubscribed from' : 'Subscribed to'} task: ${task.id}`);
+  };
+
+  const handleViewReport = () => {
+    setShowActionDropdown(false);
+    navigate(`/tasks/${task.id}/report`);
+  };
+
+  const handleExport = () => {
+    setShowActionDropdown(false);
+    startDownload(`${task.title} - Complete Package`, task.id);
+  };
+
+  const handleRerun = () => {
+    setShowActionDropdown(false);
+    // Here you would typically call an API to rerun the task
+    console.log(`Rerunning task: ${task.id}`);
+  };
+
   const generateAvatar = (name: string) => {
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
   };
@@ -120,35 +161,168 @@ export const TaskLogsSidebar: React.FC<TaskLogsSidebarProps> = ({ task, isOpen, 
             Overview
           </h3>
           <div style={sharedStyles.card}>
+            {/* Header with Owner, Status, and Actions */}
             <div style={{ 
               display: 'flex', 
               alignItems: 'center', 
-              gap: '16px',
+              justifyContent: 'space-between',
               marginBottom: '20px' 
             }}>
-              <div style={{
-                width: '48px',
-                height: '48px',
-                borderRadius: '50%',
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: 'white',
-                fontWeight: '600',
-                fontSize: '16px'
-              }}>
-                {generateAvatar(task.pointOfContact.name)}
-              </div>
-              <div style={{ flex: 1 }}>
-                <div style={{ ...sharedStyles.value, marginBottom: '4px' }}>
-                  {task.pointOfContact.name}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1 }}>
+                <div style={{
+                  width: '48px',
+                  height: '48px',
+                  borderRadius: '50%',
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'white',
+                  fontWeight: '600',
+                  fontSize: '16px'
+                }}>
+                  {generateAvatar(task.pointOfContact.name)}
                 </div>
-                <div style={{ ...sharedStyles.label, margin: '0' }}>
-                  Task Owner
+                <div style={{ flex: 1 }}>
+                  <div style={{ ...sharedStyles.value, marginBottom: '4px' }}>
+                    {task.pointOfContact.name}
+                  </div>
+                  <div style={{ ...sharedStyles.label, margin: '0' }}>
+                    Task Owner
+                  </div>
                 </div>
+                <ReportStatusBadge status={task.status} />
               </div>
-              <ReportStatusBadge status={task.status} />
+
+              {/* Action Dropdown */}
+              <div style={{ position: 'relative', marginLeft: '16px' }}>
+                <button
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    backgroundColor: 'transparent',
+                    color: '#6B7280',
+                    border: '1px solid #D1D5DB',
+                    borderRadius: '6px',
+                    padding: '6px 10px',
+                    fontSize: '12px',
+                    fontWeight: '500',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onClick={() => setShowActionDropdown(!showActionDropdown)}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#F9FAFB';
+                    e.currentTarget.style.borderColor = '#9CA3AF';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                    e.currentTarget.style.borderColor = '#D1D5DB';
+                  }}
+                >
+                  Actions
+                  <ChevronDown size={12} style={{
+                    transform: showActionDropdown ? 'rotate(180deg)' : 'rotate(0deg)',
+                    transition: 'transform 0.2s ease'
+                  }} />
+                </button>
+
+                {showActionDropdown && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '100%',
+                    right: '0',
+                    marginTop: '4px',
+                    backgroundColor: 'white',
+                    border: '1px solid #E5E7EB',
+                    borderRadius: '8px',
+                    boxShadow: '0 10px 25px rgba(0, 0, 0, 0.15)',
+                    zIndex: 1000,
+                    minWidth: '160px',
+                    overflow: 'hidden'
+                  }}>
+                    <button
+                      style={{
+                        width: '100%',
+                        padding: '12px 16px',
+                        backgroundColor: 'transparent',
+                        border: 'none',
+                        textAlign: 'left',
+                        fontSize: '13px',
+                        color: '#374151',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        transition: 'background-color 0.2s ease'
+                      }}
+                      onClick={handleViewReport}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = '#F9FAFB';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = 'transparent';
+                      }}
+                    >
+                      <Eye size={14} />
+                      View Report
+                    </button>
+                    <button
+                      style={{
+                        width: '100%',
+                        padding: '12px 16px',
+                        backgroundColor: 'transparent',
+                        border: 'none',
+                        textAlign: 'left',
+                        fontSize: '13px',
+                        color: '#374151',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        transition: 'background-color 0.2s ease'
+                      }}
+                      onClick={handleExport}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = '#F9FAFB';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = 'transparent';
+                      }}
+                    >
+                      <Download size={14} />
+                      Export
+                    </button>
+                    <button
+                      style={{
+                        width: '100%',
+                        padding: '12px 16px',
+                        backgroundColor: 'transparent',
+                        border: 'none',
+                        textAlign: 'left',
+                        fontSize: '13px',
+                        color: '#374151',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        transition: 'background-color 0.2s ease'
+                      }}
+                      onClick={handleRerun}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = '#F9FAFB';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = 'transparent';
+                      }}
+                    >
+                      <Play size={14} />
+                      Rerun
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
             
             {task.status === 'running' && (
@@ -185,7 +359,8 @@ export const TaskLogsSidebar: React.FC<TaskLogsSidebarProps> = ({ task, isOpen, 
             <div style={{ 
               display: 'grid', 
               gridTemplateColumns: '1fr 1fr', 
-              gap: '20px'
+              gap: '20px',
+              marginBottom: '20px'
             }}>
               <div>
                 <div style={sharedStyles.label}>Created</div>
@@ -257,7 +432,7 @@ export const TaskLogsSidebar: React.FC<TaskLogsSidebarProps> = ({ task, isOpen, 
                             padding: '12px 16px',
                             borderBottom: index < runHistory.length - 1 ? '1px solid #f8fafc' : 'none',
                             display: 'flex',
-                            justifyContent: 'space-between',
+                            justifiContent: 'space-between',
                             alignItems: 'center',
                             fontSize: '13px',
                             cursor: 'pointer',
@@ -300,6 +475,135 @@ export const TaskLogsSidebar: React.FC<TaskLogsSidebarProps> = ({ task, isOpen, 
                     </div>
                   </div>
                 )}
+              </div>
+            </div>
+
+            {/* Frequency and Subscribe Row */}
+            <div style={{ 
+              display: 'grid', 
+              gridTemplateColumns: '1fr 1fr', 
+              gap: '20px'
+            }}>
+              {/* Frequency */}
+              <div style={{ position: 'relative' }}>
+                <div style={sharedStyles.label}>Frequency</div>
+                <div 
+                  style={{
+                    ...sharedStyles.value,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    cursor: 'pointer',
+                    padding: '4px 8px',
+                    borderRadius: '6px',
+                    border: '1px solid transparent',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onClick={() => setShowFrequencyDropdown(!showFrequencyDropdown)}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#F9FAFB';
+                    e.currentTarget.style.borderColor = '#E5E7EB';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                    e.currentTarget.style.borderColor = 'transparent';
+                  }}
+                >
+                  <Calendar size={16} style={{ color: '#6b7280' }} />
+                  {currentFrequency}
+                  <ChevronDown 
+                    size={14} 
+                    style={{ 
+                      transform: showFrequencyDropdown ? 'rotate(180deg)' : 'rotate(0deg)',
+                      transition: 'transform 0.2s ease'
+                    }} 
+                  />
+                </div>
+
+                {showFrequencyDropdown && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '100%',
+                    left: '0',
+                    marginTop: '4px',
+                    backgroundColor: 'white',
+                    border: '1px solid #E5E7EB',
+                    borderRadius: '8px',
+                    boxShadow: '0 10px 25px rgba(0, 0, 0, 0.15)',
+                    zIndex: 1000,
+                    minWidth: '140px',
+                    overflow: 'hidden'
+                  }}>
+                    {frequencyOptions.map((freq) => (
+                      <button
+                        key={freq}
+                        style={{
+                          width: '100%',
+                          padding: '10px 12px',
+                          backgroundColor: freq === currentFrequency ? '#F0F9FF' : 'transparent',
+                          border: 'none',
+                          textAlign: 'left',
+                          fontSize: '13px',
+                          color: freq === currentFrequency ? '#0369A1' : '#374151',
+                          cursor: 'pointer',
+                          fontWeight: freq === currentFrequency ? '600' : '400',
+                          transition: 'background-color 0.2s ease'
+                        }}
+                        onClick={() => handleFrequencyChange(freq)}
+                        onMouseEnter={(e) => {
+                          if (freq !== currentFrequency) {
+                            e.currentTarget.style.backgroundColor = '#F9FAFB';
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (freq !== currentFrequency) {
+                            e.currentTarget.style.backgroundColor = 'transparent';
+                          }
+                        }}
+                      >
+                        {freq}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Subscribe */}
+              <div>
+                <div style={sharedStyles.label}>Follow Updates</div>
+                <button
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    backgroundColor: isSubscribed ? '#F0F9FF' : 'transparent',
+                    color: isSubscribed ? '#0369A1' : '#6B7280',
+                    border: `1px solid ${isSubscribed ? '#0369A1' : '#D1D5DB'}`,
+                    borderRadius: '6px',
+                    padding: '6px 12px',
+                    fontSize: '13px',
+                    fontWeight: '500',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onClick={handleSubscribeClick}
+                  onMouseEnter={(e) => {
+                    if (!isSubscribed) {
+                      e.currentTarget.style.backgroundColor = '#F9FAFB';
+                      e.currentTarget.style.borderColor = '#9CA3AF';
+                    } else {
+                      e.currentTarget.style.backgroundColor = '#E0F2FE';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = isSubscribed ? '#F0F9FF' : 'transparent';
+                    e.currentTarget.style.borderColor = isSubscribed ? '#0369A1' : '#D1D5DB';
+                  }}
+                >
+                  <Users size={14} />
+                  <span>{subscriberCount}</span>
+                  <span>{isSubscribed ? 'Following' : 'Follow'}</span>
+                </button>
               </div>
             </div>
           </div>
