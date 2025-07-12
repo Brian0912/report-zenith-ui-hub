@@ -6,8 +6,8 @@ import { ReportStatusBadge } from './ReportStatusBadge';
 import { sharedStyles } from './shared/styles';
 import { useDownload } from '../hooks/useDownload';
 import { useTaskEditor } from '../hooks/useTaskEditor';
-import { DateRangePicker } from './DateRangePicker';
-import { EditableMetadata } from './EditableMetadata';
+import { EnhancedTimeRangePicker } from './EnhancedTimeRangePicker';
+import { EnhancedMetadataEditor } from './EnhancedMetadataEditor';
 
 interface TaskLogsSidebarProps {
   task: Report;
@@ -164,7 +164,6 @@ export const TaskLogsSidebar: React.FC<TaskLogsSidebarProps> = ({ task, isOpen, 
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
   };
 
-  // Generate run history similar to ReportCard
   const runHistory = task.versions?.map((version, index) => ({
     timestamp: index === 0 ? '2h ago' : 
                index === 1 ? '1d ago' : 
@@ -194,17 +193,71 @@ export const TaskLogsSidebar: React.FC<TaskLogsSidebarProps> = ({ task, isOpen, 
         overflow: 'auto', 
         padding: '32px'
       }}>
-        {/* Overview Section */}
+        {/* Overview Section - Updated with unsaved indicator */}
         <div style={sharedStyles.section}>
-          <h3 style={{
-            ...sharedStyles.heading,
+          <div style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '8px'
+            justifyContent: 'space-between',
+            marginBottom: '16px'
           }}>
-            <Clock size={20} />
-            Overview
-          </h3>
+            <h3 style={{
+              ...sharedStyles.heading,
+              margin: 0,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}>
+              <Clock size={20} />
+              Overview
+            </h3>
+            
+            {/* Unsaved Changes Indicator - Moved to Overview section */}
+            {hasUnsavedChanges && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{
+                  fontSize: '12px',
+                  color: '#F59E0B',
+                  fontWeight: '500'
+                }}>
+                  unsaved
+                </span>
+                <button
+                  onClick={saveChanges}
+                  disabled={isSaving}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '6px 12px',
+                    background: '#10B981',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '6px',
+                    fontSize: '12px',
+                    fontWeight: '500',
+                    cursor: isSaving ? 'not-allowed' : 'pointer',
+                    opacity: isSaving ? 0.7 : 1,
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isSaving) {
+                      e.currentTarget.style.backgroundColor = '#059669';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isSaving) {
+                      e.currentTarget.style.backgroundColor = '#10B981';
+                    }
+                  }}
+                >
+                  <Save size={12} />
+                  {isSaving ? 'Saving...' : 'Save'}
+                </button>
+              </div>
+            )}
+          </div>
+          
           <div style={sharedStyles.card}>
             {/* Header with Owner, Status, and Actions */}
             <div style={{ 
@@ -523,13 +576,11 @@ export const TaskLogsSidebar: React.FC<TaskLogsSidebarProps> = ({ task, isOpen, 
               </div>
             </div>
 
-            {/* Frequency and Subscribe Row */}
             <div style={{ 
               display: 'grid', 
               gridTemplateColumns: '1fr 1fr', 
               gap: '20px'
             }}>
-              {/* Frequency */}
               <div style={{ position: 'relative' }}>
                 <div style={sharedStyles.label}>Frequency</div>
                 {isEditable ? (
@@ -640,7 +691,6 @@ export const TaskLogsSidebar: React.FC<TaskLogsSidebarProps> = ({ task, isOpen, 
                 )}
               </div>
 
-              {/* Subscribe */}
               <div>
                 <div style={sharedStyles.label}>Follow Updates</div>
                 <button
@@ -681,76 +731,81 @@ export const TaskLogsSidebar: React.FC<TaskLogsSidebarProps> = ({ task, isOpen, 
           </div>
         </div>
 
-        {/* Details Section */}
-        {task.taskCreation && (
-          <div style={sharedStyles.section}>
-            <h3 style={{
-              ...sharedStyles.heading,
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px'
-            }}>
-              <FileText size={20} />
-              Details
-            </h3>
-            <div style={sharedStyles.card}>
-              {/* Goal */}
-              <div style={{ marginBottom: '24px' }}>
-                <div style={sharedStyles.label}>Goal</div>
-                <div style={sharedStyles.value}>
-                  {task.taskCreation.goal}
+        {/* Details Section - Now shown for all statuses */}
+        <div style={sharedStyles.section}>
+          <h3 style={{
+            ...sharedStyles.heading,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
+          }}>
+            <FileText size={20} />
+            Details
+          </h3>
+          <div style={sharedStyles.card}>
+            {task.taskCreation ? (
+              <>
+                <div style={{ marginBottom: '24px' }}>
+                  <div style={sharedStyles.label}>Goal</div>
+                  <div style={sharedStyles.value}>
+                    {task.taskCreation.goal}
+                  </div>
                 </div>
-              </div>
-              
-              {/* Analysis Type */}
-              <div style={{ marginBottom: '24px' }}>
-                <div style={sharedStyles.label}>Analysis Type</div>
-                <div style={{
-                  ...sharedStyles.value,
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px'
-                }}>
-                  <Target size={16} style={{ color: '#10b981' }} />
-                  {getAnalysisTypeDisplay(task.taskCreation.analysisType)}
+                
+                <div style={{ marginBottom: '24px' }}>
+                  <div style={sharedStyles.label}>Analysis Type</div>
+                  <div style={{
+                    ...sharedStyles.value,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px'
+                  }}>
+                    <Target size={16} style={{ color: '#10b981' }} />
+                    {getAnalysisTypeDisplay(task.taskCreation.analysisType)}
+                  </div>
                 </div>
-              </div>
-              
-              {/* Background */}
-              <div style={{ marginBottom: '24px' }}>
-                <div style={sharedStyles.label}>Background</div>
-                <div style={sharedStyles.value}>
-                  {task.taskCreation.background}
+                
+                <div style={{ marginBottom: '24px' }}>
+                  <div style={sharedStyles.label}>Background</div>
+                  <div style={sharedStyles.value}>
+                    {task.taskCreation.background}
+                  </div>
                 </div>
-              </div>
-              
-              {/* Time Range */}
-              <div style={{ marginBottom: '24px' }}>
-                <div style={sharedStyles.label}>Time Range</div>
-                <DateRangePicker
-                  startDate={currentValues.timeRange.start}
-                  endDate={currentValues.timeRange.end}
-                  onChange={updateTimeRange}
-                  disabled={!isEditable}
-                />
-              </div>
-              
-              {/* Metadata */}
-              {currentValues.metadata.length > 0 && (
-                <div>
-                  <div style={sharedStyles.label}>Metadata</div>
-                  <EditableMetadata
-                    metadata={currentValues.metadata}
-                    onChange={updateMetadata}
+                
+                <div style={{ marginBottom: '24px' }}>
+                  <div style={sharedStyles.label}>Time Range</div>
+                  <EnhancedTimeRangePicker
+                    value={currentValues.timeRange}
+                    onChange={updateTimeRange}
                     disabled={!isEditable}
                   />
                 </div>
-              )}
-            </div>
+                
+                {currentValues.metadata.length > 0 && (
+                  <div>
+                    <div style={sharedStyles.label}>Metadata</div>
+                    <EnhancedMetadataEditor
+                      metadata={currentValues.metadata}
+                      onChange={updateMetadata}
+                      disabled={!isEditable}
+                    />
+                  </div>
+                )}
+              </>
+            ) : (
+              <div style={{ 
+                textAlign: 'center', 
+                padding: '48px 24px',
+                color: '#6b7280',
+                fontSize: '14px'
+              }}>
+                No task creation details available
+              </div>
+            )}
           </div>
-        )}
+        </div>
 
-        {/* Execution Logs Section */}
+        {/* Execution Logs Section - Updated without unsaved indicator */}
         <div style={sharedStyles.section}>
           <div style={{ 
             display: 'flex', 
@@ -765,80 +820,33 @@ export const TaskLogsSidebar: React.FC<TaskLogsSidebarProps> = ({ task, isOpen, 
               Execution Logs
             </h3>
             
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              {/* Unsaved Changes Indicator */}
-              {hasUnsavedChanges && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{
-                    fontSize: '12px',
-                    color: '#F59E0B',
-                    fontWeight: '500'
-                  }}>
-                    unsaved
-                  </span>
-                  <button
-                    onClick={saveChanges}
-                    disabled={isSaving}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '6px',
-                      padding: '6px 12px',
-                      background: '#10B981',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '6px',
-                      fontSize: '12px',
-                      fontWeight: '500',
-                      cursor: isSaving ? 'not-allowed' : 'pointer',
-                      opacity: isSaving ? 0.7 : 1,
-                      transition: 'all 0.2s ease'
-                    }}
-                    onMouseEnter={(e) => {
-                      if (!isSaving) {
-                        e.currentTarget.style.backgroundColor = '#059669';
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      if (!isSaving) {
-                        e.currentTarget.style.backgroundColor = '#10B981';
-                      }
-                    }}
-                  >
-                    <Save size={12} />
-                    {isSaving ? 'Saving...' : 'Save'}
-                  </button>
-                </div>
-              )}
-              
-              <button
-                onClick={handleCopyLogs}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  padding: '8px 12px',
-                  background: 'none',
-                  border: '1px solid #d1d5db',
-                  borderRadius: '8px',
-                  color: '#6b7280',
-                  fontSize: '12px',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#f8fafc';
-                  e.currentTarget.style.borderColor = '#9ca3af';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'transparent';
-                  e.currentTarget.style.borderColor = '#d1d5db';
-                }}
-              >
-                <Copy size={12} />
-                Copy Logs
-              </button>
-            </div>
+            <button
+              onClick={handleCopyLogs}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '8px 12px',
+                background: 'none',
+                border: '1px solid #d1d5db',
+                borderRadius: '8px',
+                color: '#6b7280',
+                fontSize: '12px',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#f8fafc';
+                e.currentTarget.style.borderColor = '#9ca3af';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent';
+                e.currentTarget.style.borderColor = '#d1d5db';
+              }}
+            >
+              <Copy size={12} />
+              Copy Logs
+            </button>
           </div>
           
           <select 
