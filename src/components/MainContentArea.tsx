@@ -20,35 +20,25 @@ export const MainContentArea: React.FC<MainContentAreaProps> = ({
   onViewLogs
 }) => {
   const mainContentStyle: React.CSSProperties = {
-    flex: 1,
-    display: 'flex',
-    flexDirection: 'column',
-    minHeight: 0,
-    overflow: 'hidden'
-  };
-
-  const scrollableContentStyle: React.CSSProperties = {
-    flex: 1,
+    height: 'calc(100vh - 80px - 48px)',
     overflowY: 'auto',
     paddingRight: '8px'
   };
 
   return (
     <div style={mainContentStyle}>
-      <div style={scrollableContentStyle}>
-        {dateFilter && (
-          <SearchAndFilters 
-            dateFilter={dateFilter} 
-            setDateFilter={setDateFilter} 
-          />
-        )}
-        
-        <ReportGrid 
-          reports={filteredReports} 
-          onSubscribe={onSubscribe} 
-          onViewLogs={onViewLogs} 
+      {dateFilter && (
+        <SearchAndFilters 
+          dateFilter={dateFilter} 
+          setDateFilter={setDateFilter} 
         />
-      </div>
+      )}
+      
+      <ReportGrid 
+        reports={filteredReports} 
+        onSubscribe={onSubscribe} 
+        onViewLogs={onViewLogs} 
+      />
     </div>
   );
 };
