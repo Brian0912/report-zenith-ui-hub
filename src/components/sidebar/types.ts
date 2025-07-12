@@ -4,7 +4,7 @@ import React from 'react';
 export interface MenuItem {
   id: string;
   label: string;
-  icon: React.ComponentType<{ size?: number; className?: string }>;
+  icon: React.ComponentType<any>;
   path: string;
   description: string;
 }
@@ -12,7 +12,7 @@ export interface MenuItem {
 export interface ProductGroup {
   id: string;
   label: string;
-  icon: React.ComponentType<{ size?: number; className?: string }>;
+  icon: React.ComponentType<any>;
   subItems: MenuItem[];
 }
 

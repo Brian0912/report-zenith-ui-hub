@@ -197,13 +197,7 @@ export const Sidebar: React.FC = () => {
                 aria-label={`${group.label} section`}
               >
                 <div style={iconContainerStyle}>
-                  <IconComponent 
-                    size={20} 
-                    style={{ 
-                      color: 'currentColor',
-                      display: 'block'
-                    }} 
-                  />
+                  <IconComponent size={20} />
                 </div>
                 {!isCollapsed && (
                   <div style={labelContainerStyle}>
@@ -249,13 +243,7 @@ export const Sidebar: React.FC = () => {
                         }}
                       >
                         <div style={subIconContainerStyle}>
-                          <ItemIconComponent 
-                            size={16} 
-                            style={{ 
-                              color: 'currentColor',
-                              display: 'block'
-                            }} 
-                          />
+                          <ItemIconComponent size={16} />
                         </div>
                         <div style={labelContainerStyle}>
                           <div style={{ fontSize: '0.875rem', fontWeight: '500' }}>
