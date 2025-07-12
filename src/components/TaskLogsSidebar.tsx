@@ -25,6 +25,41 @@ export const TaskLogsSidebar: React.FC<TaskLogsSidebarProps> = ({ task, isOpen, 
 
   const frequencyOptions = ['Daily', 'Weekly', 'Bi-weekly', 'Monthly', 'Quarterly'];
 
+  const calculateNextRun = (frequency: string, baseDate: Date = new Date()) => {
+    const nextRun = new Date(baseDate);
+    
+    switch (frequency) {
+      case 'Daily':
+        nextRun.setDate(nextRun.getDate() + 1);
+        break;
+      case 'Weekly':
+        nextRun.setDate(nextRun.getDate() + 7);
+        break;
+      case 'Bi-weekly':
+        nextRun.setDate(nextRun.getDate() + 14);
+        break;
+      case 'Monthly':
+        nextRun.setMonth(nextRun.getMonth() + 1);
+        break;
+      case 'Quarterly':
+        nextRun.setMonth(nextRun.getMonth() + 3);
+        break;
+      default:
+        nextRun.setDate(nextRun.getDate() + 1);
+    }
+    
+    return nextRun;
+  };
+
+  const formatNextRunTimestamp = (date: Date) => {
+    return new Intl.DateTimeFormat('en-US', {
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    }).format(date);
+  };
+
   const getLogIcon = (level: string) => {
     switch (level) {
       case 'error': return <AlertCircle size={16} style={{ color: '#EF4444' }} />;
@@ -530,39 +565,54 @@ export const TaskLogsSidebar: React.FC<TaskLogsSidebarProps> = ({ task, isOpen, 
                     borderRadius: '8px',
                     boxShadow: '0 10px 25px rgba(0, 0, 0, 0.15)',
                     zIndex: 1000,
-                    minWidth: '140px',
+                    minWidth: '200px',
                     overflow: 'hidden'
                   }}>
-                    {frequencyOptions.map((freq) => (
-                      <button
-                        key={freq}
-                        style={{
-                          width: '100%',
-                          padding: '10px 12px',
-                          backgroundColor: freq === currentFrequency ? '#F0F9FF' : 'transparent',
-                          border: 'none',
-                          textAlign: 'left',
-                          fontSize: '13px',
-                          color: freq === currentFrequency ? '#0369A1' : '#374151',
-                          cursor: 'pointer',
-                          fontWeight: freq === currentFrequency ? '600' : '400',
-                          transition: 'background-color 0.2s ease'
-                        }}
-                        onClick={() => handleFrequencyChange(freq)}
-                        onMouseEnter={(e) => {
-                          if (freq !== currentFrequency) {
-                            e.currentTarget.style.backgroundColor = '#F9FAFB';
-                          }
-                        }}
-                        onMouseLeave={(e) => {
-                          if (freq !== currentFrequency) {
-                            e.currentTarget.style.backgroundColor = 'transparent';
-                          }
-                        }}
-                      >
-                        {freq}
-                      </button>
-                    ))}
+                    {frequencyOptions.map((freq) => {
+                      const nextRun = calculateNextRun(freq);
+                      const nextRunDisplay = formatNextRunTimestamp(nextRun);
+                      
+                      return (
+                        <button
+                          key={freq}
+                          style={{
+                            width: '100%',
+                            padding: '12px 16px',
+                            backgroundColor: freq === currentFrequency ? '#F0F9FF' : 'transparent',
+                            border: 'none',
+                            textAlign: 'left',
+                            fontSize: '13px',
+                            color: freq === currentFrequency ? '#0369A1' : '#374151',
+                            cursor: 'pointer',
+                            fontWeight: freq === currentFrequency ? '600' : '400',
+                            transition: 'background-color 0.2s ease',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '2px'
+                          }}
+                          onClick={() => handleFrequencyChange(freq)}
+                          onMouseEnter={(e) => {
+                            if (freq !== currentFrequency) {
+                              e.currentTarget.style.backgroundColor = '#F9FAFB';
+                            }
+                          }}
+                          onMouseLeave={(e) => {
+                            if (freq !== currentFrequency) {
+                              e.currentTarget.style.backgroundColor = 'transparent';
+                            }
+                          }}
+                        >
+                          <span>{freq}</span>
+                          <span style={{
+                            fontSize: '11px',
+                            color: freq === currentFrequency ? '#0369A1' : '#9CA3AF',
+                            fontWeight: '400'
+                          }}>
+                            Next: {nextRunDisplay}
+                          </span>
+                        </button>
+                      );
+                    })}
                   </div>
                 )}
               </div>
