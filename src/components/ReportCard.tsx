@@ -127,9 +127,9 @@ export const ReportCard: React.FC<ReportCardProps> = ({
                  index === 2 ? '2w ago' : 
                  index === 3 ? '3w ago' : '1mo ago',
       status: version.status === 'completed' ? 'completed' : 
-              version.status === 'failed' ? 'error' : 'completed',
+              version.status === 'error' ? 'error' : 'completed',
       duration: ['45s', '52s', '12s', '48s', '41s'][index] || '45s',
-      error: version.status === 'failed' ? 'Data connection timeout' : undefined
+      error: version.status === 'error' ? 'Data connection timeout' : undefined
     })) || [
       { timestamp: '2h ago', status: 'completed', duration: '45s' },
       { timestamp: '1w ago', status: 'completed', duration: '52s' },

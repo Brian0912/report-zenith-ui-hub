@@ -294,7 +294,7 @@ export const TaskReportDetailPage: React.FC = () => {
               <div>
                 <h3 style={{ fontSize: '1rem', fontWeight: '500', marginBottom: '0.75rem', color: '#374151' }}>Metadata</h3>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-                  {Object.entries(currentVersion.metadata).map(([key, values]) => (
+                  {currentVersion.metadata && Object.entries(currentVersion.metadata).map(([key, values]) => (
                     <div key={key} style={{ 
                       background: 'rgba(59, 130, 246, 0.1)',
                       padding: '0.5rem 0.75rem',
@@ -302,7 +302,7 @@ export const TaskReportDetailPage: React.FC = () => {
                       fontSize: '0.875rem',
                       color: '#1D4ED8'
                     }}>
-                      <strong>{key}:</strong> {values.join(', ')}
+                      <strong>{key}:</strong> {Array.isArray(values) ? values.join(', ') : String(values)}
                     </div>
                   ))}
                 </div>
