@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTheme } from './ThemeProvider';
@@ -112,7 +113,7 @@ export const Sidebar: React.FC<SidebarProps> = () => {
     display: 'flex',
     alignItems: 'center',
     justifyContent: isCollapsed ? 'center' : 'flex-start',
-    padding: isCollapsed ? '0' : '10px 16px',
+    padding: isCollapsed ? '12px' : '10px 16px',
     color: isActive ? '#1f2937' : '#6b7280',
     textDecoration: 'none',
     transition: 'all 0.2s ease',
@@ -129,12 +130,10 @@ export const Sidebar: React.FC<SidebarProps> = () => {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    width: isCollapsed ? '48px' : '18px',
-    height: isCollapsed ? '48px' : '18px',
+    width: isCollapsed ? '24px' : '18px',
+    height: isCollapsed ? '24px' : '18px',
     marginRight: isCollapsed ? '0' : '10px',
-    flexShrink: 0,
-    backgroundColor: isCollapsed && isActive ? '#f3f4f6' : 'transparent',
-    borderRadius: isCollapsed ? '8px' : '0'
+    flexShrink: 0
   });
 
   const labelStyle: React.CSSProperties = {
