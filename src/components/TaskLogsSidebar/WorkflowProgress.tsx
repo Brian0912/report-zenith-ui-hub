@@ -23,19 +23,6 @@ interface WorkflowProgressProps {
 }
 
 export const WorkflowProgress: React.FC<WorkflowProgressProps> = ({ steps, className = '' }) => {
-  const getStepIcon = (status: WorkflowStep['status']) => {
-    switch (status) {
-      case 'completed':
-        return <CheckCircle size={16} style={{ color: '#10B981' }} />;
-      case 'current':
-        return <Clock size={16} style={{ color: '#3B82F6' }} />;
-      case 'error':
-        return <AlertCircle size={16} style={{ color: '#EF4444' }} />;
-      default:
-        return <Circle size={16} style={{ color: '#9CA3AF' }} />;
-    }
-  };
-
   const getStepColor = (status: WorkflowStep['status']) => {
     switch (status) {
       case 'completed':
@@ -50,54 +37,23 @@ export const WorkflowProgress: React.FC<WorkflowProgressProps> = ({ steps, class
   };
 
   const completedSteps = steps.filter(step => step.status === 'completed').length;
-  const progressPercentage = (completedSteps / steps.length) * 100;
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }} className={className}>
-      {/* Progress Bar */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          fontSize: '12px',
-          fontWeight: '500',
-          color: '#6B7280'
-        }}>
-          <span>Progress</span>
-          <span>{Math.round(progressPercentage)}%</span>
-        </div>
-        <div style={{
-          width: '100%',
-          height: '6px',
-          backgroundColor: '#F3F4F6',
-          borderRadius: '3px',
-          overflow: 'hidden'
-        }}>
-          <div style={{
-            height: '100%',
-            backgroundColor: '#10B981',
-            width: `${progressPercentage}%`,
-            borderRadius: '3px',
-            transition: 'width 0.3s ease'
-          }} />
-        </div>
-      </div>
-
       {/* Horizontal Steps */}
       <div style={{
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
         position: 'relative',
-        paddingTop: '8px'
+        padding: '16px 0'
       }}>
         {/* Connection Line */}
         <div style={{
           position: 'absolute',
-          top: '16px',
-          left: '8px',
-          right: '8px',
+          top: '28px',
+          left: '12px',
+          right: '12px',
           height: '2px',
           backgroundColor: '#E5E7EB',
           zIndex: 1
@@ -110,45 +66,51 @@ export const WorkflowProgress: React.FC<WorkflowProgressProps> = ({ steps, class
           }} />
         </div>
 
-        {/* Step Markers */}
+        {/* Step Nodes */}
         {steps.map((step, index) => (
           <div key={step.id} style={{
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            gap: '8px',
+            gap: '12px',
             position: 'relative',
             zIndex: 2,
             flex: 1,
             maxWidth: '80px'
           }}>
+            {/* Node */}
             <div style={{
               width: '24px',
               height: '24px',
               borderRadius: '50%',
-              backgroundColor: 'white',
+              backgroundColor: step.status === 'completed' ? '#10B981' : 
+                              step.status === 'current' ? '#3B82F6' : 
+                              step.status === 'error' ? '#EF4444' : 'white',
               border: `2px solid ${getStepColor(step.status)}`,
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center'
+              justifyContent: 'center',
+              transition: 'all 0.2s ease'
             }}>
               {step.status === 'completed' ? (
-                <CheckCircle size={12} style={{ color: '#10B981' }} />
+                <CheckCircle size={14} style={{ color: 'white' }} />
               ) : step.status === 'current' ? (
-                <Clock size={12} style={{ color: '#3B82F6' }} />
+                <Clock size={12} style={{ color: 'white' }} />
               ) : step.status === 'error' ? (
-                <AlertCircle size={12} style={{ color: '#EF4444' }} />
+                <AlertCircle size={12} style={{ color: 'white' }} />
               ) : (
-                <Circle size={8} style={{ color: '#9CA3AF', fill: '#9CA3AF' }} />
+                <Circle size={8} style={{ color: '#9CA3AF', fill: 'transparent' }} />
               )}
             </div>
+            
+            {/* Step Label */}
             <div style={{
               fontSize: '11px',
               fontWeight: '500',
               color: getStepColor(step.status),
               textAlign: 'center',
-              lineHeight: '1.2',
-              maxWidth: '60px'
+              lineHeight: '1.3',
+              maxWidth: '70px'
             }}>
               {step.label.split(' ').map((word, i) => (
                 <div key={i}>{word}</div>
@@ -159,4 +121,9 @@ export const WorkflowProgress: React.FC<WorkflowProgressProps> = ({ steps, class
       </div>
     </div>
   );
+};
+
+export const calculateProgress = (steps: WorkflowStep[]): number => {
+  const completedSteps = steps.filter(step => step.status === 'completed').length;
+  return Math.round((completedSteps / steps.length) * 100);
 };

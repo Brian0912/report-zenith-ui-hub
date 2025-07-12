@@ -7,7 +7,7 @@ import { sharedStyles } from './shared/styles';
 import { useDownload } from '../hooks/useDownload';
 import { useTaskEditor } from '../hooks/useTaskEditor';
 import { EnhancedTimeRangePicker } from './EnhancedTimeRangePicker';
-import { WorkflowProgress, WorkflowStep, WORKFLOW_STEPS } from './TaskLogsSidebar/WorkflowProgress';
+import { WorkflowProgress, WorkflowStep, WORKFLOW_STEPS, calculateProgress } from './TaskLogsSidebar/WorkflowProgress';
 import { MetadataEditMode } from './TaskLogsSidebar/MetadataEditMode';
 
 interface TaskLogsSidebarProps {
@@ -207,6 +207,9 @@ export const TaskLogsSidebar: React.FC<TaskLogsSidebarProps> = ({ task, isOpen, 
     { timestamp: '1mo ago', status: 'completed', duration: '48s' },
     { timestamp: '2mo ago', status: 'completed', duration: '41s' }
   ];
+
+  const workflowSteps = getWorkflowSteps();
+  const progressPercentage = calculateProgress(workflowSteps);
 
   return (
     <div style={{ 
@@ -830,20 +833,31 @@ export const TaskLogsSidebar: React.FC<TaskLogsSidebarProps> = ({ task, isOpen, 
           </div>
         </div>
 
-        {/* Steps Section - Renamed from Progress Flow */}
+        {/* Steps Section - Redesigned with percentage in header */}
         <div style={sharedStyles.section}>
           <h3 style={{
             ...sharedStyles.heading,
             display: 'flex',
             alignItems: 'center',
-            gap: '8px'
+            justifyContent: 'space-between'
           }}>
-            <List size={20} />
-            Steps
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}>
+              <List size={20} />
+              Steps
+            </div>
+            <span style={{
+              fontSize: '14px',
+              fontWeight: '500',
+              color: '#6B7280'
+            }}>
+              {progressPercentage}%
+            </span>
           </h3>
-          <div style={sharedStyles.card}>
-            <WorkflowProgress steps={getWorkflowSteps()} />
-          </div>
+          <WorkflowProgress steps={workflowSteps} />
         </div>
 
         {/* Execution Logs Section */}
