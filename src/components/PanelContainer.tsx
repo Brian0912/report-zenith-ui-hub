@@ -20,16 +20,14 @@ export const PanelContainer: React.FC<PanelContainerProps> = ({
   onCloseLogsPanel
 }) => {
   const panelContainerStyle: React.CSSProperties = {
-    height: '100%',
+    height: 'calc(100vh - 80px - 48px)',
     backgroundColor: '#ffffff',
     borderRadius: '16px',
     border: '1px solid #e2e8f0',
     boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12)',
     display: 'flex',
     flexDirection: 'column',
-    overflow: 'hidden',
-    flex: 1,
-    minHeight: 0
+    overflow: 'hidden'
   };
 
   const panelHeaderStyle: React.CSSProperties = {
@@ -44,8 +42,7 @@ export const PanelContainer: React.FC<PanelContainerProps> = ({
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    overflow: 'hidden',
-    flexShrink: 0
+    overflow: 'hidden'
   };
 
   const panelTitleStyle: React.CSSProperties = {
@@ -83,8 +80,7 @@ export const PanelContainer: React.FC<PanelContainerProps> = ({
     flex: 1,
     overflow: 'auto',
     backgroundColor: '#f8fafc',
-    padding: '0',
-    minHeight: 0
+    padding: '0'
   };
 
   return (
