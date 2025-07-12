@@ -9,12 +9,11 @@ export interface WorkflowStep {
 }
 
 export const WORKFLOW_STEPS = [
-  'Task Submitted',
-  'Data Collection', 
-  'Metrics Generation',
+  'Submitted',
+  'Data', 
+  'Metrics',
   'Analysis',
-  'Report',
-  'Completion'
+  'Report'
 ] as const;
 
 interface WorkflowProgressProps {
@@ -48,15 +47,14 @@ export const WorkflowProgress: React.FC<WorkflowProgressProps> = ({ steps, class
         position: 'relative',
         padding: '0 12px'
       }}>
-        {/* Connection Line */}
+        {/* Connection Line - Now in the middle of nodes */}
         <div style={{
           position: 'absolute',
-          top: '50%',
+          top: '12px', // Half of node height (24px / 2)
           left: '24px',
           right: '24px',
           height: '2px',
           backgroundColor: '#E5E7EB',
-          transform: 'translateY(-50%)',
           zIndex: 1
         }}>
           <div style={{
@@ -73,7 +71,7 @@ export const WorkflowProgress: React.FC<WorkflowProgressProps> = ({ steps, class
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            gap: '12px',
+            gap: '8px',
             position: 'relative',
             zIndex: 2,
             flex: 1,
@@ -110,16 +108,10 @@ export const WorkflowProgress: React.FC<WorkflowProgressProps> = ({ steps, class
               fontWeight: '500',
               color: getStepColor(step.status),
               textAlign: 'center',
-              lineHeight: '1.3',
-              maxWidth: '70px',
-              minHeight: '26px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
+              lineHeight: '1.2',
+              whiteSpace: 'nowrap'
             }}>
-              {step.label.split(' ').map((word, i) => (
-                <div key={i}>{word}</div>
-              ))}
+              {step.label}
             </div>
           </div>
         ))}
