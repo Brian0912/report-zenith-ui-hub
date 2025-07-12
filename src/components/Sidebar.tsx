@@ -155,7 +155,7 @@ export const Sidebar: React.FC = () => {
 
       <div style={headerStyle}>
         <div style={logoStyle}>
-          {isCollapsed ? '💎' : '💎  Crystal'}
+          {isCollapsed ? '💎' : '💎   Crystal'}
         </div>
       </div>
 
