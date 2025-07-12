@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTheme } from '../components/ThemeProvider';
@@ -126,10 +125,8 @@ export const EntityRiskDetailPage: React.FC = () => {
 
   const containerStyle: React.CSSProperties = {
     minHeight: '100vh',
-    background: theme === 'dark' 
-      ? 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)'
-      : 'linear-gradient(135deg, #f8fafc 0%, #ffffff 100%)',
-    color: theme === 'dark' ? '#ffffff' : '#1a202c',
+    background: 'linear-gradient(135deg, #f8fafc 0%, #ffffff 100%)',
+    color: '#1a202c',
     padding: '32px'
   };
 
@@ -162,28 +159,24 @@ export const EntityRiskDetailPage: React.FC = () => {
 
   const subtitleStyle: React.CSSProperties = {
     fontSize: '16px',
-    color: theme === 'dark' ? '#94a3b8' : '#64748b',
+    color: '#64748b',
     marginBottom: '24px'
   };
 
   const sectionStyle: React.CSSProperties = {
-    background: theme === 'dark' 
-      ? 'rgba(30, 41, 59, 0.6)'
-      : 'rgba(255, 255, 255, 0.9)',
+    background: 'rgba(255, 255, 255, 0.9)',
     borderRadius: '16px',
     padding: '24px',
     marginBottom: '24px',
-    border: `1px solid ${theme === 'dark' ? 'rgba(55, 65, 81, 0.3)' : 'rgba(226, 232, 240, 0.5)'}`,
+    border: '1px solid rgba(226, 232, 240, 0.5)',
     backdropFilter: 'blur(10px)',
-    boxShadow: theme === 'dark' 
-      ? '0 8px 32px rgba(0, 0, 0, 0.3)'
-      : '0 8px 32px rgba(0, 0, 0, 0.1)'
+    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
   };
 
   const sectionTitleStyle: React.CSSProperties = {
     fontSize: '20px',
     fontWeight: 'bold',
-    color: theme === 'dark' ? '#f1f5f9' : '#334155',
+    color: '#334155',
     marginBottom: '16px'
   };
 
@@ -201,14 +194,14 @@ export const EntityRiskDetailPage: React.FC = () => {
 
   const metadataLabelStyle: React.CSSProperties = {
     fontSize: '12px',
-    color: theme === 'dark' ? '#94a3b8' : '#64748b',
+    color: '#64748b',
     fontWeight: '600',
     textTransform: 'uppercase'
   };
 
   const metadataValueStyle: React.CSSProperties = {
     fontSize: '14px',
-    color: theme === 'dark' ? '#f1f5f9' : '#334155',
+    color: '#334155',
     fontFamily: 'monospace'
   };
 
@@ -220,10 +213,8 @@ export const EntityRiskDetailPage: React.FC = () => {
   };
 
   const tableHeaderStyle: React.CSSProperties = {
-    background: theme === 'dark' 
-      ? 'linear-gradient(135deg, #1e293b 0%, #334155 100%)'
-      : 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
-    borderBottom: `2px solid ${theme === 'dark' ? '#475569' : '#cbd5e1'}`
+    background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+    borderBottom: '2px solid #cbd5e1'
   };
 
   const tableHeaderCellStyle: React.CSSProperties = {
@@ -231,21 +222,19 @@ export const EntityRiskDetailPage: React.FC = () => {
     textAlign: 'left',
     fontWeight: '600',
     fontSize: '13px',
-    color: theme === 'dark' ? '#f1f5f9' : '#334155'
+    color: '#334155'
   };
 
   const tableRowStyle = (index: number): React.CSSProperties => ({
-    background: index % 2 === 0 
-      ? (theme === 'dark' ? 'rgba(30, 41, 59, 0.3)' : 'rgba(248, 250, 252, 0.8)')
-      : 'transparent',
-    borderBottom: `1px solid ${theme === 'dark' ? '#334155' : '#e2e8f0'}`,
+    background: index % 2 === 0 ? 'rgba(248, 250, 252, 0.8)' : 'transparent',
+    borderBottom: '1px solid #e2e8f0',
     transition: 'all 0.2s ease'
   });
 
   const tableCellStyle: React.CSSProperties = {
     padding: '12px',
     fontSize: '13px',
-    color: theme === 'dark' ? '#f1f5f9' : '#334155'
+    color: '#334155'
   };
 
   const tagStyle: React.CSSProperties = {
@@ -269,8 +258,8 @@ export const EntityRiskDetailPage: React.FC = () => {
   };
 
   const pageButtonStyle: React.CSSProperties = {
-    background: theme === 'dark' ? '#334155' : '#f1f5f9',
-    border: `1px solid ${theme === 'dark' ? '#475569' : '#cbd5e1'}`,
+    background: '#f1f5f9',
+    border: '1px solid #cbd5e1',
     borderRadius: '4px',
     padding: '6px 12px',
     fontSize: '12px',
@@ -287,12 +276,12 @@ export const EntityRiskDetailPage: React.FC = () => {
   };
 
   const selectStyle: React.CSSProperties = {
-    background: theme === 'dark' ? '#334155' : '#f1f5f9',
-    border: `1px solid ${theme === 'dark' ? '#475569' : '#cbd5e1'}`,
+    background: '#f1f5f9',
+    border: '1px solid #cbd5e1',
     borderRadius: '4px',
     padding: '6px 12px',
     fontSize: '12px',
-    color: theme === 'dark' ? '#f1f5f9' : '#334155'
+    color: '#334155'
   };
 
   const goToPage = (page: number) => {
@@ -392,12 +381,10 @@ export const EntityRiskDetailPage: React.FC = () => {
                 key={field.fieldName} 
                 style={tableRowStyle(index)}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.background = theme === 'dark' ? 'rgba(55, 65, 81, 0.3)' : 'rgba(226, 232, 240, 0.3)';
+                  e.currentTarget.style.background = 'rgba(226, 232, 240, 0.3)';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.background = index % 2 === 0 
-                    ? (theme === 'dark' ? 'rgba(30, 41, 59, 0.3)' : 'rgba(248, 250, 252, 0.8)')
-                    : 'transparent';
+                  e.currentTarget.style.background = index % 2 === 0 ? 'rgba(248, 250, 252, 0.8)' : 'transparent';
                 }}
               >
                 <td style={{...tableCellStyle, fontFamily: 'monospace'}}>{field.fieldName}</td>
@@ -424,7 +411,7 @@ export const EntityRiskDetailPage: React.FC = () => {
         </table>
 
         <div style={paginationStyle}>
-          <div style={{ fontSize: '13px', color: theme === 'dark' ? '#94a3b8' : '#64748b' }}>
+          <div style={{ fontSize: '13px', color: '#64748b' }}>
             Showing {startIndex + 1}-{Math.min(endIndex, mockFields.length)} of {mockFields.length} fields
           </div>
           

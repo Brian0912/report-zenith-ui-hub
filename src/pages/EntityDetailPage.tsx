@@ -16,7 +16,7 @@ export const EntityDetailPage: React.FC = () => {
       <div style={{ 
         padding: '40px', 
         textAlign: 'center',
-        color: theme === 'dark' ? '#94a3b8' : '#64748b'
+        color: '#64748b'
       }}>
         <h1>Entity not found</h1>
         <button onClick={() => navigate('/aplus')}>Back to Dashboard</button>
@@ -26,10 +26,8 @@ export const EntityDetailPage: React.FC = () => {
 
   const containerStyle: React.CSSProperties = {
     minHeight: '100vh',
-    background: theme === 'dark' 
-      ? 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)'
-      : 'linear-gradient(135deg, #f8fafc 0%, #ffffff 100%)',
-    color: theme === 'dark' ? '#ffffff' : '#1a202c',
+    background: 'linear-gradient(135deg, #f8fafc 0%, #ffffff 100%)',
+    color: '#1a202c',
     padding: '40px'
   };
 
@@ -39,7 +37,7 @@ export const EntityDetailPage: React.FC = () => {
 
   const breadcrumbStyle: React.CSSProperties = {
     fontSize: '14px',
-    color: theme === 'dark' ? '#94a3b8' : '#64748b',
+    color: '#64748b',
     marginBottom: '16px'
   };
 
@@ -54,24 +52,20 @@ export const EntityDetailPage: React.FC = () => {
   };
 
   const cardStyle: React.CSSProperties = {
-    background: theme === 'dark' 
-      ? 'rgba(30, 41, 59, 0.6)'
-      : 'rgba(255, 255, 255, 0.9)',
+    background: 'rgba(255, 255, 255, 0.9)',
     borderRadius: '16px',
     padding: '24px',
     marginBottom: '24px',
-    border: `1px solid ${theme === 'dark' ? 'rgba(55, 65, 81, 0.3)' : 'rgba(226, 232, 240, 0.5)'}`,
+    border: '1px solid rgba(226, 232, 240, 0.5)',
     backdropFilter: 'blur(10px)',
-    boxShadow: theme === 'dark' 
-      ? '0 8px 32px rgba(0, 0, 0, 0.3)'
-      : '0 8px 32px rgba(0, 0, 0, 0.1)'
+    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
   };
 
   const sectionTitleStyle: React.CSSProperties = {
     fontSize: '18px',
     fontWeight: '600',
     marginBottom: '16px',
-    color: theme === 'dark' ? '#f1f5f9' : '#334155'
+    color: '#334155'
   };
 
   const methodBadgeStyle: React.CSSProperties = {
@@ -94,9 +88,9 @@ export const EntityDetailPage: React.FC = () => {
     alignItems: 'center',
     padding: '16px',
     marginBottom: '12px',
-    background: theme === 'dark' ? 'rgba(15, 23, 42, 0.5)' : 'rgba(248, 250, 252, 0.8)',
+    background: 'rgba(248, 250, 252, 0.8)',
     borderRadius: '8px',
-    border: `1px solid ${theme === 'dark' ? '#334155' : '#e2e8f0'}`
+    border: '1px solid #e2e8f0'
   };
 
   return (
@@ -124,7 +118,7 @@ export const EntityDetailPage: React.FC = () => {
         <h2 style={sectionTitleStyle}>📋 Entity Information</h2>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
           <div>
-            <div style={{ fontSize: '14px', color: theme === 'dark' ? '#94a3b8' : '#64748b' }}>
+            <div style={{ fontSize: '14px', color: '#64748b' }}>
               Service (P.S.M)
             </div>
             <div style={{ fontSize: '16px', fontWeight: '500' }}>
@@ -132,7 +126,7 @@ export const EntityDetailPage: React.FC = () => {
             </div>
           </div>
           <div>
-            <div style={{ fontSize: '14px', color: theme === 'dark' ? '#94a3b8' : '#64748b' }}>
+            <div style={{ fontSize: '14px', color: '#64748b' }}>
               API Path
             </div>
             <div style={{ fontSize: '16px', fontFamily: 'monospace' }}>
@@ -157,7 +151,7 @@ export const EntityDetailPage: React.FC = () => {
                 </div>
                 <div style={{ 
                   fontSize: '12px', 
-                  color: theme === 'dark' ? '#94a3b8' : '#64748b',
+                  color: '#64748b',
                   marginTop: '4px'
                 }}>
                   {risk.description}
@@ -209,7 +203,7 @@ export const EntityDetailPage: React.FC = () => {
                 </div>
                 <div style={{ 
                   fontSize: '12px', 
-                  color: theme === 'dark' ? '#94a3b8' : '#64748b',
+                  color: '#64748b',
                   marginTop: '4px'
                 }}>
                   Created: {new Date(group.createdDate).toLocaleDateString()} • 

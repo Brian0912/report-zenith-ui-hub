@@ -105,7 +105,7 @@ export const GovernancePage: React.FC = () => {
       <div style={{ 
         padding: '40px', 
         textAlign: 'center',
-        color: theme === 'dark' ? '#94a3b8' : '#64748b'
+        color: '#64748b'
       }}>
         <h1>Governance not found</h1>
         <button onClick={() => navigate('/aplus')}>Back to Dashboard</button>
@@ -117,15 +117,13 @@ export const GovernancePage: React.FC = () => {
 
   const containerStyle: React.CSSProperties = {
     minHeight: '100vh',
-    background: theme === 'dark' 
-      ? 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)'
-      : 'linear-gradient(135deg, #f8fafc 0%, #ffffff 100%)',
-    color: theme === 'dark' ? '#ffffff' : '#1a202c'
+    background: 'linear-gradient(135deg, #f8fafc 0%, #ffffff 100%)',
+    color: '#1a202c'
   };
 
   const headerStyle: React.CSSProperties = {
     padding: '40px',
-    borderBottom: `1px solid ${theme === 'dark' ? '#334155' : '#e2e8f0'}`
+    borderBottom: '1px solid #e2e8f0'
   };
 
   const filtersContainerStyle: React.CSSProperties = {
@@ -133,19 +131,17 @@ export const GovernancePage: React.FC = () => {
     gridTemplateColumns: '25% 25% 25% 25%',
     gap: '16px',
     alignItems: 'start',
-    background: theme === 'dark' 
-      ? 'rgba(30, 41, 59, 0.8)'
-      : 'rgba(255, 255, 255, 0.9)',
+    background: 'rgba(255, 255, 255, 0.9)',
     borderRadius: '10px',
     padding: '12px',
-    border: `1px solid ${theme === 'dark' ? 'rgba(55, 65, 81, 0.3)' : 'rgba(226, 232, 240, 0.5)'}`,
+    border: '1px solid rgba(226, 232, 240, 0.5)',
     backdropFilter: 'blur(10px)',
     marginBottom: '24px'
   };
 
   const breadcrumbStyle: React.CSSProperties = {
     fontSize: '14px',
-    color: theme === 'dark' ? '#94a3b8' : '#64748b',
+    color: '#64748b',
     marginBottom: '16px'
   };
 
@@ -197,14 +193,14 @@ export const GovernancePage: React.FC = () => {
 
   const progressLabelStyle: React.CSSProperties = {
     fontSize: '14px',
-    color: theme === 'dark' ? '#94a3b8' : '#64748b',
+    color: '#64748b',
     marginBottom: '8px'
   };
 
   const progressBarStyle: React.CSSProperties = {
     width: '100%',
     height: '12px',
-    background: theme === 'dark' ? '#475569' : '#e2e8f0',
+    background: '#e2e8f0',
     borderRadius: '6px',
     overflow: 'hidden'
   };
@@ -360,10 +356,10 @@ export const GovernancePage: React.FC = () => {
         
         <div style={metaStyle}>
           <div>
-            <div style={{ fontSize: '14px', color: theme === 'dark' ? '#94a3b8' : '#64748b' }}>
+            <div style={{ fontSize: '14px', color: '#64748b' }}>
               Created: {new Date(governance.createdDate).toLocaleDateString()}
             </div>
-            <div style={{ fontSize: '14px', color: theme === 'dark' ? '#94a3b8' : '#64748b' }}>
+            <div style={{ fontSize: '14px', color: '#64748b' }}>
               Risk: {risk?.name} ({risk?.severity})
             </div>
           </div>
@@ -473,29 +469,23 @@ const GovernanceMatrix: React.FC<GovernanceMatrixProps> = ({
   const navigate = useNavigate();
 
   const containerStyle: React.CSSProperties = {
-    background: theme === 'dark' 
-      ? 'rgba(30, 41, 59, 0.6)'
-      : 'rgba(255, 255, 255, 0.9)',
+    background: 'rgba(255, 255, 255, 0.9)',
     borderRadius: '16px',
     overflow: 'hidden',
-    border: `1px solid ${theme === 'dark' ? 'rgba(55, 65, 81, 0.3)' : 'rgba(226, 232, 240, 0.5)'}`,
+    border: '1px solid rgba(226, 232, 240, 0.5)',
     backdropFilter: 'blur(10px)',
-    boxShadow: theme === 'dark' 
-      ? '0 8px 32px rgba(0, 0, 0, 0.3)'
-      : '0 8px 32px rgba(0, 0, 0, 0.1)',
+    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
     display: 'flex',
     flexDirection: 'column'
   };
 
   const batchControlsStyle: React.CSSProperties = {
     padding: '12px 20px',
-    borderBottom: `1px solid ${theme === 'dark' ? '#334155' : '#e2e8f0'}`,
+    borderBottom: '1px solid #e2e8f0',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    background: theme === 'dark' 
-      ? 'linear-gradient(135deg, #1e293b 0%, #334155 100%)'
-      : 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+    background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
     flexShrink: 0
   };
 
@@ -532,7 +522,7 @@ const GovernanceMatrix: React.FC<GovernanceMatrixProps> = ({
 
   const pageInfoStyle: React.CSSProperties = {
     fontSize: '13px',
-    color: theme === 'dark' ? '#94a3b8' : '#64748b'
+    color: '#64748b'
   };
 
   const tableContainerStyle: React.CSSProperties = {
@@ -547,10 +537,8 @@ const GovernanceMatrix: React.FC<GovernanceMatrixProps> = ({
   };
 
   const headerStyle: React.CSSProperties = {
-    background: theme === 'dark' 
-      ? 'linear-gradient(135deg, #1e293b 0%, #334155 100%)'
-      : 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
-    borderBottom: `2px solid ${theme === 'dark' ? '#475569' : '#cbd5e1'}`,
+    background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+    borderBottom: `2px solid #cbd5e1`,
     position: 'sticky',
     top: 0,
     zIndex: 10
@@ -561,19 +549,17 @@ const GovernanceMatrix: React.FC<GovernanceMatrixProps> = ({
     textAlign: 'left',
     fontWeight: '600',
     fontSize: '14px',
-    color: theme === 'dark' ? '#f1f5f9' : '#334155',
+    color: '#334155',
     whiteSpace: 'nowrap'
   };
 
   const paginationStyle: React.CSSProperties = {
     padding: '12px 20px',
-    borderTop: `1px solid ${theme === 'dark' ? '#334155' : '#e2e8f0'}`,
+    borderTop: `1px solid #e2e8f0`,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    background: theme === 'dark' 
-      ? 'linear-gradient(135deg, #1e293b 0%, #334155 100%)'
-      : 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+    background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
     flexShrink: 0
   };
 
@@ -584,8 +570,8 @@ const GovernanceMatrix: React.FC<GovernanceMatrixProps> = ({
   };
 
   const pageButtonStyle: React.CSSProperties = {
-    background: theme === 'dark' ? '#334155' : '#f1f5f9',
-    border: `1px solid ${theme === 'dark' ? '#475569' : '#cbd5e1'}`,
+    background: '#f1f5f9',
+    border: `1px solid #cbd5e1`,
     borderRadius: '4px',
     padding: '4px 8px',
     fontSize: '12px',
@@ -601,12 +587,12 @@ const GovernanceMatrix: React.FC<GovernanceMatrixProps> = ({
   };
 
   const selectStyle: React.CSSProperties = {
-    background: theme === 'dark' ? '#334155' : '#f1f5f9',
-    border: `1px solid ${theme === 'dark' ? '#475569' : '#cbd5e1'}`,
+    background: '#f1f5f9',
+    border: `1px solid #cbd5e1`,
     borderRadius: '4px',
     padding: '4px 8px',
     fontSize: '12px',
-    color: theme === 'dark' ? '#f1f5f9' : '#334155'
+    color: '#334155'
   };
 
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -673,9 +659,9 @@ const GovernanceMatrix: React.FC<GovernanceMatrixProps> = ({
                   key={entity.id}
                   style={{
                     background: index % 2 === 0 
-                      ? (theme === 'dark' ? 'rgba(30, 41, 59, 0.3)' : 'rgba(248, 250, 252, 0.8)')
+                      ? 'rgba(248, 250, 252, 0.8)'
                       : 'transparent',
-                    borderBottom: `1px solid ${theme === 'dark' ? '#334155' : '#e2e8f0'}`
+                    borderBottom: `1px solid #e2e8f0`
                   }}
                 >
                   <td style={{ padding: '12px' }}>
@@ -686,7 +672,7 @@ const GovernanceMatrix: React.FC<GovernanceMatrixProps> = ({
                       style={{ width: '18px', height: '18px', accentColor: '#6366f1' }}
                     />
                   </td>
-                  <td style={{ padding: '12px', fontWeight: '500', color: theme === 'dark' ? '#94a3b8' : '#64748b' }}>
+                  <td style={{ padding: '12px', fontWeight: '500', color: '#64748b' }}>
                     {entity.psm}
                   </td>
                   <td style={{ padding: '12px' }}>
@@ -730,7 +716,7 @@ const GovernanceMatrix: React.FC<GovernanceMatrixProps> = ({
                         display: 'inline-block',
                         width: '44px',
                         height: '24px',
-                        background: isResolved ? '#10b981' : (theme === 'dark' ? '#475569' : '#cbd5e1'),
+                        background: isResolved ? '#10b981' : '#cbd5e1',
                         borderRadius: '12px',
                         cursor: isResolved ? 'not-allowed' : 'pointer',
                         transition: 'all 0.3s ease',
