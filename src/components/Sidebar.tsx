@@ -113,20 +113,24 @@ export const Sidebar: React.FC<SidebarProps> = () => {
     display: 'flex',
     alignItems: 'center',
     justifyContent: isCollapsed ? 'center' : 'flex-start',
-    padding: isCollapsed ? '10px 0' : '10px 16px',
+    padding: isCollapsed ? '12px' : '10px 16px',
     color: isActive ? '#1f2937' : '#6b7280',
     textDecoration: 'none',
     transition: 'all 0.2s ease',
     cursor: 'pointer',
     backgroundColor: isActive ? '#f3f4f6' : 'transparent',
-    borderRight: isActive ? '3px solid #3b82f6' : '3px solid transparent',
-    margin: isCollapsed ? '0 12px' : '0',
-    borderRadius: isCollapsed ? '6px' : '0'
+    borderRight: isActive && !isCollapsed ? '3px solid #3b82f6' : '3px solid transparent',
+    margin: isCollapsed ? '4px 12px' : '0',
+    borderRadius: isCollapsed ? '8px' : '0',
+    minHeight: '40px'
   });
 
   const iconStyle: React.CSSProperties = {
     marginRight: isCollapsed ? '0' : '10px',
-    flexShrink: 0
+    flexShrink: 0,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
   };
 
   const labelStyle: React.CSSProperties = {
