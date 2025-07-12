@@ -112,28 +112,30 @@ export const Sidebar: React.FC<SidebarProps> = () => {
     display: 'flex',
     alignItems: 'center',
     justifyContent: isCollapsed ? 'center' : 'flex-start',
-    padding: isCollapsed ? '10px' : '10px 16px',
+    padding: isCollapsed ? '0' : '10px 16px',
     color: isActive ? '#1f2937' : '#6b7280',
     textDecoration: 'none',
     transition: 'all 0.2s ease',
     cursor: 'pointer',
     backgroundColor: isActive ? '#f3f4f6' : 'transparent',
     borderRight: isActive && !isCollapsed ? '3px solid #3b82f6' : '3px solid transparent',
-    margin: isCollapsed ? '2px 16px' : '0',
-    borderRadius: isCollapsed ? '6px' : '0',
-    minHeight: '40px',
-    width: isCollapsed ? '40px' : 'auto'
+    margin: isCollapsed ? '4px 12px' : '0',
+    borderRadius: isCollapsed ? '8px' : '0',
+    minHeight: isCollapsed ? '48px' : '40px',
+    width: isCollapsed ? '48px' : 'auto'
   });
 
-  const iconStyle: React.CSSProperties = {
-    marginRight: isCollapsed ? '0' : '10px',
-    flexShrink: 0,
+  const iconContainerStyle = (isActive: boolean): React.CSSProperties => ({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    width: '18px',
-    height: '18px'
-  };
+    width: isCollapsed ? '48px' : '18px',
+    height: isCollapsed ? '48px' : '18px',
+    marginRight: isCollapsed ? '0' : '10px',
+    flexShrink: 0,
+    backgroundColor: isCollapsed && isActive ? '#f3f4f6' : 'transparent',
+    borderRadius: isCollapsed ? '8px' : '0'
+  });
 
   const labelStyle: React.CSSProperties = {
     fontSize: '13px',
@@ -211,8 +213,8 @@ export const Sidebar: React.FC<SidebarProps> = () => {
                     }
                   }}
                 >
-                  <div style={iconStyle}>
-                    <IconComponent size={18} />
+                  <div style={iconContainerStyle(isActive)}>
+                    <IconComponent size={24} />
                   </div>
                   <div style={labelStyle}>
                     {item.label}
