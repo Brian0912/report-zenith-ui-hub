@@ -4,6 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Download, FileText, Database, Eye, ChevronDown } from 'lucide-react';
 import { useTheme } from '../components/ThemeProvider';
 import { mockReports } from '../components/mockData';
+import { sharedStyles } from '../components/shared/styles';
 
 export const TaskReportDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -19,7 +20,7 @@ export const TaskReportDetailPage: React.FC = () => {
       <div style={{ 
         padding: '2rem', 
         textAlign: 'center',
-        color: '#374151'
+        color: '#6b7280'
       }}>
         Task not found
       </div>
@@ -32,15 +33,14 @@ export const TaskReportDetailPage: React.FC = () => {
 
   const containerStyle: React.CSSProperties = {
     minHeight: '100vh',
-    background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
-    color: '#334155'
+    backgroundColor: '#ffffff',
+    color: '#1a202c'
   };
 
   const headerStyle: React.CSSProperties = {
-    background: 'rgba(255, 255, 255, 0.9)',
-    backdropFilter: 'blur(20px)',
-    borderBottom: '1px solid rgba(0, 0, 0, 0.1)',
-    padding: '1.5rem 2rem',
+    backgroundColor: '#ffffff',
+    borderBottom: '1px solid #e2e8f0',
+    padding: '24px 32px',
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center'
@@ -49,142 +49,177 @@ export const TaskReportDetailPage: React.FC = () => {
   const breadcrumbStyle: React.CSSProperties = {
     display: 'flex',
     alignItems: 'center',
-    gap: '0.5rem',
-    fontSize: '0.875rem',
-    color: '#6B7280',
-    marginBottom: '1rem'
+    gap: '8px',
+    fontSize: '12px',
+    color: '#6b7280',
+    marginBottom: '12px',
+    textTransform: 'uppercase',
+    letterSpacing: '0.05em'
   };
 
   const titleStyle: React.CSSProperties = {
-    fontSize: '1.5rem',
-    fontWeight: '600',
-    color: '#374151',
-    marginBottom: '0.5rem'
+    ...sharedStyles.heading,
+    marginBottom: '0'
   };
 
-  const backButtonStyle: React.CSSProperties = {
+  const buttonStyle: React.CSSProperties = {
     display: 'flex',
     alignItems: 'center',
-    gap: '0.5rem',
-    padding: '0.5rem 1rem',
-    background: 'none',
-    border: '1px solid rgba(0, 0, 0, 0.2)',
+    gap: '8px',
+    padding: '8px 16px',
+    backgroundColor: 'transparent',
+    border: '1px solid #d1d5db',
     borderRadius: '6px',
-    color: '#6B7280',
+    color: '#6b7280',
     cursor: 'pointer',
-    fontSize: '0.875rem',
-    transition: 'all 0.2s ease'
-  };
-
-  const exportButtonStyle: React.CSSProperties = {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '0.5rem',
-    padding: '0.75rem 1.5rem',
-    background: 'linear-gradient(135deg, #10B981 0%, #14B8A6 100%)',
-    border: 'none',
-    borderRadius: '8px',
-    color: 'white',
-    cursor: 'pointer',
-    fontSize: '0.875rem',
+    fontSize: '14px',
     fontWeight: '500',
     transition: 'all 0.2s ease'
   };
 
-  const contentStyle: React.CSSProperties = {
-    maxWidth: '1400px',
-    margin: '0 auto',
-    padding: '2rem',
-    display: 'grid',
-    gap: '2rem'
-  };
-
-  const sectionStyle: React.CSSProperties = {
-    background: 'rgba(255, 255, 255, 0.9)',
-    backdropFilter: 'blur(20px)',
-    borderRadius: '16px',
-    border: '1px solid rgba(0, 0, 0, 0.1)',
-    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
-    overflow: 'hidden'
-  };
-
-  const sectionHeaderStyle: React.CSSProperties = {
-    padding: '1.5rem',
-    borderBottom: '1px solid rgba(0, 0, 0, 0.1)',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center'
-  };
-
-  const sectionTitleStyle: React.CSSProperties = {
-    fontSize: '1.125rem',
-    fontWeight: '600',
-    color: '#374151',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '0.5rem'
+  const primaryButtonStyle: React.CSSProperties = {
+    ...buttonStyle,
+    backgroundColor: '#f0f9ff',
+    color: '#0369a1',
+    border: '1px solid #0369a1'
   };
 
   const selectStyle: React.CSSProperties = {
-    padding: '0.5rem 1rem',
-    background: 'rgba(255, 255, 255, 0.8)',
-    border: '1px solid rgba(0, 0, 0, 0.2)',
+    padding: '8px 12px',
+    backgroundColor: '#ffffff',
+    border: '1px solid #d1d5db',
     borderRadius: '6px',
-    color: '#374151',
-    fontSize: '0.875rem'
+    color: '#1a202c',
+    fontSize: '14px',
+    fontWeight: '500'
+  };
+
+  const contentStyle: React.CSSProperties = {
+    maxWidth: '1200px',
+    margin: '0 auto',
+    padding: '32px'
+  };
+
+  const sectionStyle: React.CSSProperties = {
+    marginBottom: '32px',
+    paddingBottom: '24px',
+    borderBottom: '1px solid #e2e8f0'
+  };
+
+  const sectionHeaderStyle: React.CSSProperties = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    marginBottom: '16px'
+  };
+
+  const sectionTitleStyle: React.CSSProperties = {
+    ...sharedStyles.heading,
+    marginBottom: '0'
   };
 
   const infoGridStyle: React.CSSProperties = {
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-    gap: '1rem',
-    padding: '1.5rem'
+    gap: '24px',
+    marginTop: '16px'
   };
 
   const infoItemStyle: React.CSSProperties = {
-    textAlign: 'center' as const
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '4px'
   };
 
-  const infoLabelStyle: React.CSSProperties = {
-    fontSize: '0.75rem',
-    color: '#6B7280',
-    marginBottom: '0.5rem',
-    textTransform: 'uppercase' as const,
-    letterSpacing: '0.05em'
+  const contentSectionStyle: React.CSSProperties = {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '16px',
+    marginTop: '16px'
   };
 
-  const infoValueStyle: React.CSSProperties = {
-    fontSize: '1rem',
-    fontWeight: '500',
-    color: '#374151'
+  const contentItemStyle: React.CSSProperties = {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '8px'
+  };
+
+  const contentTitleStyle: React.CSSProperties = {
+    ...sharedStyles.subheading,
+    marginBottom: '0'
+  };
+
+  const contentTextStyle: React.CSSProperties = {
+    ...sharedStyles.value,
+    color: '#4b5563',
+    lineHeight: '1.6'
+  };
+
+  const metadataContainerStyle: React.CSSProperties = {
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: '8px',
+    marginTop: '8px'
+  };
+
+  const metadataBadgeStyle: React.CSSProperties = {
+    ...sharedStyles.badge,
+    backgroundColor: '#f0f9ff',
+    color: '#0369a1',
+    border: '1px solid #bae6fd'
+  };
+
+  const pdfContainerStyle: React.CSSProperties = {
+    backgroundColor: '#ffffff',
+    border: '1px solid #e2e8f0',
+    borderRadius: '8px',
+    overflow: 'hidden'
+  };
+
+  const pdfHeaderStyle: React.CSSProperties = {
+    padding: '16px 24px',
+    borderBottom: '1px solid #e2e8f0',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center'
   };
 
   const pdfViewerStyle: React.CSSProperties = {
     width: '100%',
     height: '600px',
-    border: 'none',
-    borderRadius: '0 0 16px 16px'
+    border: 'none'
   };
 
   const tableStyle: React.CSSProperties = {
     width: '100%',
-    borderCollapse: 'collapse' as const
+    borderCollapse: 'collapse' as const,
+    backgroundColor: '#ffffff',
+    border: '1px solid #e2e8f0',
+    borderRadius: '8px',
+    overflow: 'hidden'
   };
 
   const thStyle: React.CSSProperties = {
-    padding: '0.75rem',
+    ...sharedStyles.label,
+    padding: '12px 16px',
     textAlign: 'left' as const,
-    fontSize: '0.875rem',
-    fontWeight: '500',
-    color: '#6B7280',
-    borderBottom: '1px solid rgba(0, 0, 0, 0.1)'
+    borderBottom: '1px solid #e2e8f0',
+    backgroundColor: '#f9fafb'
   };
 
   const tdStyle: React.CSSProperties = {
-    padding: '0.75rem',
-    fontSize: '0.875rem',
-    color: '#374151',
-    borderBottom: '1px solid rgba(0, 0, 0, 0.05)'
+    ...sharedStyles.value,
+    padding: '12px 16px',
+    borderBottom: '1px solid #f3f4f6'
+  };
+
+  const emptyStateStyle: React.CSSProperties = {
+    padding: '48px 24px',
+    textAlign: 'center',
+    color: '#6b7280',
+    backgroundColor: '#f9fafb',
+    border: '1px solid #e2e8f0',
+    borderRadius: '8px'
   };
 
   const formatTimestamp = (date: Date) => {
@@ -216,7 +251,7 @@ export const TaskReportDetailPage: React.FC = () => {
           </div>
           <h1 style={titleStyle}>{task.title}</h1>
         </div>
-        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
           <select
             style={selectStyle}
             value={selectedVersion}
@@ -228,11 +263,20 @@ export const TaskReportDetailPage: React.FC = () => {
               </option>
             ))}
           </select>
-          <button style={backButtonStyle} onClick={() => navigate('/')}>
+          <button 
+            style={buttonStyle} 
+            onClick={() => navigate('/')}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f9fafb'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+          >
             <ArrowLeft size={16} />
-            Back to Task List
+            Back to Tasks
           </button>
-          <button style={exportButtonStyle}>
+          <button 
+            style={primaryButtonStyle}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#dbeafe'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#f0f9ff'}
+          >
             <Download size={16} />
             Export Report
           </button>
@@ -240,35 +284,35 @@ export const TaskReportDetailPage: React.FC = () => {
       </div>
 
       <div style={contentStyle}>
-        {/* Task Information Panel */}
+        {/* Task Information Section */}
         <div style={sectionStyle}>
           <div style={sectionHeaderStyle}>
             <h2 style={sectionTitleStyle}>Task Information</h2>
           </div>
           <div style={infoGridStyle}>
             <div style={infoItemStyle}>
-              <div style={infoLabelStyle}>Owner</div>
-              <div style={infoValueStyle}>{task.pointOfContact.name}</div>
+              <div style={sharedStyles.label}>Owner</div>
+              <div style={sharedStyles.value}>{task.pointOfContact.name}</div>
             </div>
             <div style={infoItemStyle}>
-              <div style={infoLabelStyle}>Status</div>
-              <div style={infoValueStyle}>{task.status.charAt(0).toUpperCase() + task.status.slice(1)}</div>
+              <div style={sharedStyles.label}>Status</div>
+              <div style={sharedStyles.value}>{task.status.charAt(0).toUpperCase() + task.status.slice(1)}</div>
             </div>
             <div style={infoItemStyle}>
-              <div style={infoLabelStyle}>Version</div>
-              <div style={infoValueStyle}>{currentVersion?.version}</div>
+              <div style={sharedStyles.label}>Version</div>
+              <div style={sharedStyles.value}>{currentVersion?.version}</div>
             </div>
             <div style={infoItemStyle}>
-              <div style={infoLabelStyle}>Progress</div>
-              <div style={infoValueStyle}>{task.progress}%</div>
+              <div style={sharedStyles.label}>Progress</div>
+              <div style={sharedStyles.value}>{task.progress}%</div>
             </div>
             <div style={infoItemStyle}>
-              <div style={infoLabelStyle}>Created</div>
-              <div style={infoValueStyle}>{formatTimestamp(task.createdAt)}</div>
+              <div style={sharedStyles.label}>Created</div>
+              <div style={sharedStyles.value}>{formatTimestamp(task.createdAt)}</div>
             </div>
             <div style={infoItemStyle}>
-              <div style={infoLabelStyle}>Last Updated</div>
-              <div style={infoValueStyle}>{formatTimestamp(task.schedule.lastRun)}</div>
+              <div style={sharedStyles.label}>Last Updated</div>
+              <div style={sharedStyles.value}>{formatTimestamp(task.schedule.lastRun)}</div>
             </div>
           </div>
         </div>
@@ -277,31 +321,23 @@ export const TaskReportDetailPage: React.FC = () => {
         {currentVersion && (
           <div style={sectionStyle}>
             <div style={sectionHeaderStyle}>
-              <h2 style={sectionTitleStyle}>
-                <FileText size={20} />
-                Submitted Content (Version {currentVersion.version})
-              </h2>
+              <FileText size={20} />
+              <h2 style={sectionTitleStyle}>Submitted Content (Version {currentVersion.version})</h2>
             </div>
-            <div style={{ padding: '1.5rem' }}>
-              <div style={{ marginBottom: '1.5rem' }}>
-                <h3 style={{ fontSize: '1rem', fontWeight: '500', marginBottom: '0.5rem', color: '#374151' }}>Goal</h3>
-                <p style={{ color: '#4B5563', lineHeight: '1.6' }}>{currentVersion.goal}</p>
+            <div style={contentSectionStyle}>
+              <div style={contentItemStyle}>
+                <h3 style={contentTitleStyle}>Goal</h3>
+                <p style={contentTextStyle}>{currentVersion.goal}</p>
               </div>
-              <div style={{ marginBottom: '1.5rem' }}>
-                <h3 style={{ fontSize: '1rem', fontWeight: '500', marginBottom: '0.5rem', color: '#374151' }}>Background</h3>
-                <p style={{ color: '#4B5563', lineHeight: '1.6' }}>{currentVersion.background}</p>
+              <div style={contentItemStyle}>
+                <h3 style={contentTitleStyle}>Background</h3>
+                <p style={contentTextStyle}>{currentVersion.background}</p>
               </div>
-              <div>
-                <h3 style={{ fontSize: '1rem', fontWeight: '500', marginBottom: '0.75rem', color: '#374151' }}>Metadata</h3>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+              <div style={contentItemStyle}>
+                <h3 style={contentTitleStyle}>Metadata</h3>
+                <div style={metadataContainerStyle}>
                   {currentVersion.metadata && Object.entries(currentVersion.metadata).map(([key, values]) => (
-                    <div key={key} style={{ 
-                      background: 'rgba(59, 130, 246, 0.1)',
-                      padding: '0.5rem 0.75rem',
-                      borderRadius: '6px',
-                      fontSize: '0.875rem',
-                      color: '#1D4ED8'
-                    }}>
+                    <div key={key} style={metadataBadgeStyle}>
                       <strong>{key}:</strong> {Array.isArray(values) ? values.join(', ') : String(values)}
                     </div>
                   ))}
@@ -314,16 +350,21 @@ export const TaskReportDetailPage: React.FC = () => {
         {/* PDF Report Section */}
         <div style={sectionStyle}>
           <div style={sectionHeaderStyle}>
-            <h2 style={sectionTitleStyle}>
-              <FileText size={20} />
-              Generated Report (Version {currentVersion?.version})
-            </h2>
-            <button style={{ ...backButtonStyle, border: 'none' }}>
-              <Eye size={16} />
-              Full Screen
-            </button>
+            <FileText size={20} />
+            <h2 style={sectionTitleStyle}>Generated Report (Version {currentVersion?.version})</h2>
           </div>
-          <div style={{ padding: '0' }}>
+          <div style={pdfContainerStyle}>
+            <div style={pdfHeaderStyle}>
+              <div style={sharedStyles.value}>Report Preview</div>
+              <button 
+                style={buttonStyle}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f9fafb'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+              >
+                <Eye size={16} />
+                Full Screen
+              </button>
+            </div>
             {currentVersion?.reportUrl ? (
               <iframe
                 src="/placeholder-report.pdf"
@@ -331,12 +372,8 @@ export const TaskReportDetailPage: React.FC = () => {
                 title="Task Report PDF"
               />
             ) : (
-              <div style={{ 
-                padding: '4rem 2rem',
-                textAlign: 'center',
-                color: '#6B7280'
-              }}>
-                <FileText size={48} style={{ margin: '0 auto 1rem', opacity: 0.5 }} />
+              <div style={emptyStateStyle}>
+                <FileText size={48} style={{ margin: '0 auto 16px', opacity: 0.5 }} />
                 <p>Report is being generated for this version...</p>
               </div>
             )}
@@ -344,58 +381,53 @@ export const TaskReportDetailPage: React.FC = () => {
         </div>
 
         {/* Support Evidences Section */}
-        <div style={sectionStyle}>
+        <div style={{ marginBottom: '32px' }}>
           <div style={sectionHeaderStyle}>
-            <h2 style={sectionTitleStyle}>
-              <Database size={20} />
-              Support Evidences (Version {currentVersion?.version})
-            </h2>
+            <Database size={20} />
+            <h2 style={sectionTitleStyle}>Support Evidences (Version {currentVersion?.version})</h2>
           </div>
-          <div style={{ padding: '0' }}>
-            {task.supportEvidences.length > 0 ? (
-              <table style={tableStyle}>
-                <thead>
-                  <tr>
-                    <th style={thStyle}>File Name</th>
-                    <th style={thStyle}>Size</th>
-                    <th style={thStyle}>Generated</th>
-                    <th style={thStyle}>Actions</th>
+          {task.supportEvidences.length > 0 ? (
+            <table style={tableStyle}>
+              <thead>
+                <tr>
+                  <th style={thStyle}>File Name</th>
+                  <th style={thStyle}>Size</th>
+                  <th style={thStyle}>Generated</th>
+                  <th style={thStyle}>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {task.supportEvidences.map(evidence => (
+                  <tr key={evidence.id}>
+                    <td style={tdStyle}>{evidence.filename}</td>
+                    <td style={tdStyle}>{formatFileSize(evidence.size)}</td>
+                    <td style={tdStyle}>{formatTimestamp(evidence.generatedAt)}</td>
+                    <td style={tdStyle}>
+                      <button style={{
+                        padding: '6px 12px',
+                        backgroundColor: '#f0f9ff',
+                        border: '1px solid #0369a1',
+                        borderRadius: '4px',
+                        color: '#0369a1',
+                        fontSize: '12px',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em'
+                      }}>
+                        Download
+                      </button>
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {task.supportEvidences.map(evidence => (
-                    <tr key={evidence.id}>
-                      <td style={tdStyle}>{evidence.filename}</td>
-                      <td style={tdStyle}>{formatFileSize(evidence.size)}</td>
-                      <td style={tdStyle}>{formatTimestamp(evidence.generatedAt)}</td>
-                      <td style={tdStyle}>
-                        <button style={{
-                          padding: '0.25rem 0.5rem',
-                          background: 'linear-gradient(135deg, #10B981 0%, #14B8A6 100%)',
-                          border: 'none',
-                          borderRadius: '4px',
-                          color: 'white',
-                          fontSize: '0.75rem',
-                          cursor: 'pointer'
-                        }}>
-                          Download
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            ) : (
-              <div style={{ 
-                padding: '4rem 2rem',
-                textAlign: 'center',
-                color: '#6B7280'
-              }}>
-                <Database size={48} style={{ margin: '0 auto 1rem', opacity: 0.5 }} />
-                <p>No support evidences generated for this version yet.</p>
-              </div>
-            )}
-          </div>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <div style={emptyStateStyle}>
+              <Database size={48} style={{ margin: '0 auto 16px', opacity: 0.5 }} />
+              <p>No support evidences generated for this version yet.</p>
+            </div>
+          )}
         </div>
       </div>
     </div>
