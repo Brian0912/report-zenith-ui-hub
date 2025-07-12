@@ -4,7 +4,8 @@ import { FormData } from './types';
 
 export const VALIDATION_RULES = {
   GOAL_MIN_WORDS: 5,
-  BACKGROUND_MIN_WORDS: 10
+  BACKGROUND_MIN_WORDS: 10,
+  DEBOUNCE_DELAY: 300
 };
 
 export function useValidation(formData: FormData) {

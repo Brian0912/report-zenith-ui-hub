@@ -1,4 +1,6 @@
 
+import { Flag, Bug, Users, Zap } from 'lucide-react';
+
 export interface FormData {
   goal: string;
   analysisType: 'situational' | 'impact' | '';
@@ -26,41 +28,45 @@ export type FormAction =
 export const METADATA_CATEGORIES = {
   priority: {
     name: 'Priority',
-    options: {
-      high: 'High Priority',
-      medium: 'Medium Priority',
-      low: 'Low Priority',
-      urgent: 'Urgent'
-    }
+    icon: Flag,
+    options: [
+      { key: 'high', label: 'High Priority', placeholder: 'Describe high priority reason...' },
+      { key: 'medium', label: 'Medium Priority', placeholder: 'Describe medium priority reason...' },
+      { key: 'low', label: 'Low Priority', placeholder: 'Describe low priority reason...' },
+      { key: 'urgent', label: 'Urgent', placeholder: 'Describe urgency...' }
+    ]
   },
   type: {
     name: 'Type',
-    options: {
-      feature: 'Feature Request',
-      bug: 'Bug Fix',
-      enhancement: 'Enhancement',
-      research: 'Research',
-      documentation: 'Documentation'
-    }
+    icon: Bug,
+    options: [
+      { key: 'feature', label: 'Feature Request', placeholder: 'Describe the feature...' },
+      { key: 'bug', label: 'Bug Fix', placeholder: 'Describe the bug...' },
+      { key: 'enhancement', label: 'Enhancement', placeholder: 'Describe the enhancement...' },
+      { key: 'research', label: 'Research', placeholder: 'Describe research scope...' },
+      { key: 'documentation', label: 'Documentation', placeholder: 'Describe documentation needs...' }
+    ]
   },
   team: {
     name: 'Team',
-    options: {
-      frontend: 'Frontend',
-      backend: 'Backend',
-      design: 'Design',
-      qa: 'Quality Assurance',
-      devops: 'DevOps'
-    }
+    icon: Users,
+    options: [
+      { key: 'frontend', label: 'Frontend', placeholder: 'Frontend team details...' },
+      { key: 'backend', label: 'Backend', placeholder: 'Backend team details...' },
+      { key: 'design', label: 'Design', placeholder: 'Design team details...' },
+      { key: 'qa', label: 'Quality Assurance', placeholder: 'QA team details...' },
+      { key: 'devops', label: 'DevOps', placeholder: 'DevOps team details...' }
+    ]
   },
   complexity: {
     name: 'Complexity',
-    options: {
-      simple: 'Simple',
-      moderate: 'Moderate',
-      complex: 'Complex',
-      expert: 'Expert Level'
-    }
+    icon: Zap,
+    options: [
+      { key: 'simple', label: 'Simple', placeholder: 'Describe simplicity...' },
+      { key: 'moderate', label: 'Moderate', placeholder: 'Describe moderate complexity...' },
+      { key: 'complex', label: 'Complex', placeholder: 'Describe complexity...' },
+      { key: 'expert', label: 'Expert Level', placeholder: 'Describe expert requirements...' }
+    ]
   }
 };
 
