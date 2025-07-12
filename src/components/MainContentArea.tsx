@@ -10,6 +10,7 @@ interface MainContentAreaProps {
   filteredReports: Report[];
   onSubscribe: (reportId: string) => void;
   onViewLogs: (reportId: string) => void;
+  heightMode?: 'viewport' | 'fill';
 }
 
 export const MainContentArea: React.FC<MainContentAreaProps> = ({
@@ -17,10 +18,11 @@ export const MainContentArea: React.FC<MainContentAreaProps> = ({
   setDateFilter,
   filteredReports,
   onSubscribe,
-  onViewLogs
+  onViewLogs,
+  heightMode = 'viewport'
 }) => {
   const mainContentStyle: React.CSSProperties = {
-    height: 'calc(100vh - 80px - 48px)',
+    height: heightMode === 'viewport' ? 'calc(100vh - 80px - 48px)' : '100%',
     overflowY: 'auto',
     paddingRight: '8px'
   };
