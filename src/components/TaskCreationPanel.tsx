@@ -1,522 +1,17 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo, useReducer } from 'react';
-import { X, Plus, Save, AlertCircle, CheckCircle, Sparkles, Clock, User, Search, HelpCircle, ChevronDown, ChevronUp, Loader2, Database } from 'lucide-react';
+import React, { useState, useEffect, useRef, useCallback, useReducer } from 'react';
+import { Plus, CheckCircle, Sparkles, Loader2 } from 'lucide-react';
+import { FormData, TEMPLATE_DATA, MetadataItemType, METADATA_CATEGORIES } from './TaskCreationPanel/types';
+import { formReducer } from './TaskCreationPanel/formReducer';
+import { useValidation, useAutoResize, VALIDATION_RULES } from './TaskCreationPanel/validation';
+import { ValidationMessage } from './TaskCreationPanel/ValidationMessage';
+import { WordCounter } from './TaskCreationPanel/WordCounter';
+import { MetadataItem } from './TaskCreationPanel/MetadataItem';
+import { MetadataSelector } from './TaskCreationPanel/MetadataSelector';
 
 interface TaskCreationPanelProps {
   onSuccess?: () => void;
 }
 
-// Constants
-const VALIDATION_RULES = {
-  GOAL_MIN_WORDS: 10,
-  BACKGROUND_MIN_WORDS: 20,
-  MEANINGFUL_CONTENT_RATIO: 0.7,
-  MIN_WORD_LENGTH: 2,
-  AUTO_RESIZE_MAX_HEIGHT: 200,
-  DEBOUNCE_DELAY: 300
-};
-
-const TEMPLATE_DATA = {
-  goal: "Implement a user authentication system",
-  background: "We need a secure and scalable authentication system for our web application. It should support email/password login, social logins, and multi-factor authentication. The system must integrate with our existing user database and comply with GDPR regulations.",
-  metadata: [
-    { id: '1', category: 'employee' as const, key: 'username', value: 'john.doe' },
-    { id: '2', category: 'policy' as const, key: 'policy_name', value: 'Authentication Policy' }
-  ]
-};
-
-const METADATA_CATEGORIES = {
-  employee: {
-    name: 'Employee',
-    icon: User,
-    options: [
-      { key: 'username', label: 'Username', placeholder: 'e.g., john.doe' },
-      { key: 'department', label: 'Department', placeholder: 'e.g., Engineering' },
-      { key: 'base_country', label: 'Base Country', placeholder: 'e.g., United States' },
-      { key: 'physical_country', label: 'Physical Country', placeholder: 'e.g., Canada' },
-      { key: 'manager', label: 'Manager', placeholder: 'e.g., Jane Smith' },
-      { key: 'role', label: 'Role', placeholder: 'e.g., Senior Developer' },
-      { key: 'employee_id', label: 'Employee ID', placeholder: 'e.g., EMP001' }
-    ]
-  },
-  traffic: {
-    name: 'Traffic',
-    icon: Clock,
-    options: [
-      { key: 'source_ip', label: 'Source IP', placeholder: 'e.g., 192.168.1.1' },
-      { key: 'destination', label: 'Destination', placeholder: 'e.g., api.example.com' },
-      { key: 'protocol', label: 'Protocol', placeholder: 'e.g., HTTPS' },
-      { key: 'port', label: 'Port', placeholder: 'e.g., 443' },
-      { key: 'bandwidth', label: 'Bandwidth', placeholder: 'e.g., 100 Mbps' },
-      { key: 'region', label: 'Region', placeholder: 'e.g., us-east-1' }
-    ]
-  },
-  data_assets: {
-    name: 'Data Assets',
-    icon: Database,
-    options: [
-      { key: 'asset_name', label: 'Asset Name', placeholder: 'e.g., Customer Database' },
-      { key: 'data_type', label: 'Data Type', placeholder: 'e.g., PII' },
-      { key: 'classification', label: 'Classification', placeholder: 'e.g., Confidential' },
-      { key: 'owner', label: 'Data Owner', placeholder: 'e.g., Data Team' },
-      { key: 'location', label: 'Location', placeholder: 'e.g., AWS RDS' },
-      { key: 'retention_period', label: 'Retention Period', placeholder: 'e.g., 7 years' }
-    ]
-  },
-  policy: {
-    name: 'Policy',
-    icon: AlertCircle,
-    options: [
-      { key: 'policy_name', label: 'Policy Name', placeholder: 'e.g., Data Retention Policy' },
-      { key: 'compliance_framework', label: 'Compliance Framework', placeholder: 'e.g., GDPR' },
-      { key: 'severity', label: 'Severity', placeholder: 'e.g., High' },
-      { key: 'approval_required', label: 'Approval Required', placeholder: 'e.g., Yes' },
-      { key: 'expiry_date', label: 'Expiry Date', placeholder: 'e.g., 2024-12-31' },
-      { key: 'owner', label: 'Policy Owner', placeholder: 'e.g., Security Team' }
-    ]
-  }
-};
-
-type MetadataItemType = {
-  id: string;
-  category: keyof typeof METADATA_CATEGORIES;
-  key: string;
-  value: string;
-};
-
-type FormData = {
-  goal: string;
-  background: string;
-  metadata: MetadataItemType[];
-};
-
-type FormAction =
-  | { type: 'SET_FIELD'; field: keyof Omit<FormData, 'metadata'>; value: string }
-  | { type: 'ADD_METADATA'; item: MetadataItemType }
-  | { type: 'UPDATE_METADATA'; id: string; value: string }
-  | { type: 'REMOVE_METADATA'; id: string }
-  | { type: 'SET_ALL'; data: FormData };
-
-function formReducer(state: FormData, action: FormAction): FormData {
-  switch (action.type) {
-    case 'SET_FIELD':
-      return { ...state, [action.field]: action.value };
-    case 'ADD_METADATA':
-      if (state.metadata.find(m => m.id === action.item.id)) {
-        return state;
-      }
-      return { ...state, metadata: [...state.metadata, action.item] };
-    case 'UPDATE_METADATA':
-      return {
-        ...state,
-        metadata: state.metadata.map(m =>
-          m.id === action.id ? { ...m, value: action.value } : m
-        )
-      };
-    case 'REMOVE_METADATA':
-      return {
-        ...state,
-        metadata: state.metadata.filter(m => m.id !== action.id)
-      };
-    case 'SET_ALL':
-      return action.data;
-    default:
-      return state;
-  }
-}
-
-function useValidation(formData: FormData) {
-  const countWords = (text: string) => {
-    return text.trim().split(/\s+/).filter(word => word.length >= VALIDATION_RULES.MIN_WORD_LENGTH).length;
-  };
-
-  const meaningfulContentRatio = (text: string) => {
-    const words = text.trim().split(/\s+/);
-    if (words.length === 0) return 0;
-    const meaningfulWords = words.filter(word => word.length >= VALIDATION_RULES.MIN_WORD_LENGTH).length;
-    return meaningfulWords / words.length;
-  };
-
-  const wordCounts = {
-    goal: countWords(formData.goal),
-    background: countWords(formData.background)
-  };
-
-  const goalValid =
-    wordCounts.goal >= VALIDATION_RULES.GOAL_MIN_WORDS &&
-    meaningfulContentRatio(formData.goal) >= VALIDATION_RULES.MEANINGFUL_CONTENT_RATIO;
-
-  const backgroundValid =
-    wordCounts.background >= VALIDATION_RULES.BACKGROUND_MIN_WORDS &&
-    meaningfulContentRatio(formData.background) >= VALIDATION_RULES.MEANINGFUL_CONTENT_RATIO;
-
-  const isFormValid = goalValid && backgroundValid;
-
-  return { wordCounts, goalValid, backgroundValid, isFormValid };
-}
-
-function useAutoResize() {
-  const resize = (el: HTMLTextAreaElement | null) => {
-    if (!el) return;
-    el.style.height = 'auto';
-    const newHeight = Math.min(el.scrollHeight, VALIDATION_RULES.AUTO_RESIZE_MAX_HEIGHT);
-    el.style.height = `${newHeight}px`;
-  };
-
-  return resize;
-}
-
-function useDebounce<T>(value: T, delay: number) {
-  const [debouncedValue, setDebouncedValue] = useState(value);
-
-  useEffect(() => {
-    const handler = setTimeout(() => setDebouncedValue(value), delay);
-    return () => clearTimeout(handler);
-  }, [value, delay]);
-
-  return debouncedValue;
-}
-
-const ValidationMessage: React.FC<{ isValid: boolean; message: string }> = ({ isValid, message }) => {
-  if (isValid) return null;
-  return (
-    <div style={{ color: '#dc2626', fontSize: '12px', marginTop: '4px' }}>
-      <AlertCircle size={14} style={{ verticalAlign: 'middle', marginRight: '4px' }} />
-      {message}
-    </div>
-  );
-};
-
-const WordCounter: React.FC<{ count: number; minWords: number }> = ({ count, minWords }) => {
-  const isValid = count >= minWords;
-  return (
-    <div style={{ fontSize: '12px', color: isValid ? '#16a34a' : '#dc2626' }}>
-      {count} / {minWords} words
-    </div>
-  );
-};
-
-const MetadataItem: React.FC<{
-  item: MetadataItemType;
-  onUpdate: (id: string, value: string) => void;
-  onRemove: (id: string) => void;
-}> = ({ item, onUpdate, onRemove }) => {
-  const category = METADATA_CATEGORIES[item.category];
-  const option = category.options.find(opt => opt.key === item.key);
-  const IconComponent = category.icon;
-
-  return (
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '12px',
-        padding: '12px',
-        backgroundColor: '#ffffff',
-        border: '1px solid #e5e7eb',
-        borderRadius: '8px',
-        transition: 'all 0.2s ease'
-      }}
-    >
-      <div style={{
-        width: '24px',
-        height: '24px',
-        borderRadius: '50%',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: '#dbeafe',
-        flexShrink: 0
-      }}>
-        <IconComponent size={12} style={{ color: '#2563eb' }} />
-      </div>
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-          <span style={{ fontSize: '12px', fontWeight: '500', color: '#6b7280' }}>{category.name}</span>
-          <span style={{ fontSize: '12px', color: '#9ca3af' }}>•</span>
-          <span style={{ fontSize: '12px', fontWeight: '500', color: '#1f2937' }}>{option?.label}</span>
-        </div>
-        <input
-          type="text"
-          value={item.value}
-          onChange={(e) => onUpdate(item.id, e.target.value)}
-          placeholder={option?.placeholder || 'Enter value...'}
-          style={{
-            width: '100%',
-            padding: '8px',
-            fontSize: '14px',
-            border: '1px solid #d1d5db',
-            borderRadius: '6px',
-            outline: 'none'
-          }}
-          onFocus={(e) => {
-            e.target.style.borderColor = '#3b82f6';
-            e.target.style.boxShadow = '0 0 0 1px #3b82f6';
-          }}
-          onBlur={(e) => {
-            e.target.style.borderColor = '#d1d5db';
-            e.target.style.boxShadow = 'none';
-          }}
-        />
-      </div>
-      <button
-        type="button"
-        onClick={() => onRemove(item.id)}
-        aria-label="Remove metadata"
-        style={{
-          background: 'none',
-          border: 'none',
-          cursor: 'pointer',
-          color: '#9ca3af',
-          padding: '4px',
-          borderRadius: '4px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          flexShrink: 0
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.color = '#ef4444';
-          e.currentTarget.style.backgroundColor = '#fef2f2';
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.color = '#9ca3af';
-          e.currentTarget.style.backgroundColor = 'transparent';
-        }}
-      >
-        <X size={14} />
-      </button>
-    </div>
-  );
-};
-
-const MetadataSelector: React.FC<{
-  isOpen: boolean;
-  onClose: () => void;
-  onSelect: (categoryKey: string, optionKey: string) => void;
-  searchTerm: string;
-  onSearchChange: (value: string) => void;
-}> = ({ isOpen, onClose, onSelect, searchTerm, onSearchChange }) => {
-  const debouncedSearch = useDebounce(searchTerm, VALIDATION_RULES.DEBOUNCE_DELAY);
-  
-  const filteredOptions = useMemo(() => 
-    Object.entries(METADATA_CATEGORIES).map(([categoryKey, category]) => ({
-      categoryKey,
-      category,
-      options: category.options.filter(option =>
-        debouncedSearch === '' ||
-        option.label.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-        category.name.toLowerCase().includes(debouncedSearch.toLowerCase())
-      )
-    })).filter(({ options }) => options.length > 0),
-    [debouncedSearch]
-  );
-
-  if (!isOpen) return null;
-
-  return (
-    <div
-      style={{
-        position: 'absolute',
-        top: 'calc(100% + 8px)',
-        left: 0,
-        right: 0,
-        maxHeight: '320px',
-        backgroundColor: '#ffffff',
-        border: '1px solid #d1d5db',
-        borderRadius: '12px',
-        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12)',
-        zIndex: 1000,
-        overflow: 'hidden'
-      }}
-    >
-      {/* Header with search */}
-      <div style={{ padding: '12px', borderBottom: '1px solid #e5e7eb' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-          <h4 style={{ fontWeight: '500', color: '#1f2937', margin: 0, fontSize: '14px' }}>Select Metadata</h4>
-          <button 
-            onClick={onClose}
-            style={{
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              color: '#9ca3af',
-              padding: '4px',
-              borderRadius: '4px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.color = '#6b7280';
-              e.currentTarget.style.backgroundColor = '#f3f4f6';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.color = '#9ca3af';
-              e.currentTarget.style.backgroundColor = 'transparent';
-            }}
-            aria-label="Close metadata selector"
-          >
-            <X size={16} />
-          </button>
-        </div>
-        
-        <div style={{ position: 'relative' }}>
-          <Search size={14} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#9ca3af' }} />
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Search metadata..."
-            style={{
-              width: '100%',
-              paddingLeft: '36px',
-              paddingRight: '12px',
-              paddingTop: '8px',
-              paddingBottom: '8px',
-              fontSize: '14px',
-              border: '1px solid #d1d5db',
-              borderRadius: '6px',
-              outline: 'none'
-            }}
-            onFocus={(e) => {
-              e.target.style.borderColor = '#3b82f6';
-              e.target.style.boxShadow = '0 0 0 1px #3b82f6';
-            }}
-            onBlur={(e) => {
-              e.target.style.borderColor = '#d1d5db';
-              e.target.style.boxShadow = 'none';
-            }}
-          />
-        </div>
-      </div>
-      
-      {/* Options list */}
-      <div style={{ maxHeight: '256px', overflowY: 'auto' }}>
-        {filteredOptions.length === 0 ? (
-          <div style={{ padding: '16px', textAlign: 'center', color: '#6b7280', fontSize: '14px' }}>
-            No metadata found matching "{searchTerm}"
-          </div>
-        ) : (
-          filteredOptions.map(({ categoryKey, category, options }) => {
-            const IconComponent = category.icon;
-            return (
-              <div key={categoryKey} style={{ padding: '12px', borderBottom: '1px solid #f3f4f6' }}>
-                {/* Category header */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                  <div style={{
-                    width: '20px',
-                    height: '20px',
-                    borderRadius: '50%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    backgroundColor: '#dbeafe'
-                  }}>
-                    <IconComponent size={12} style={{ color: '#2563eb' }} />
-                  </div>
-                  <span style={{ fontWeight: '500', color: '#1f2937', fontSize: '14px' }}>{category.name}</span>
-                  <span style={{
-                    fontSize: '12px',
-                    color: '#6b7280',
-                    backgroundColor: '#f3f4f6',
-                    padding: '2px 6px',
-                    borderRadius: '4px'
-                  }}>
-                    {options.length}
-                  </span>
-                </div>
-                
-                {/* Options */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                  {options.map((option) => (
-                    <button
-                      key={option.key}
-                      onClick={() => onSelect(categoryKey, option.key)}
-                      style={{
-                        display: 'block',
-                        width: '100%',
-                        textAlign: 'left',
-                        padding: '8px',
-                        fontSize: '14px',
-                        color: '#374151',
-                        backgroundColor: 'transparent',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        transition: 'background-color 0.2s ease'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = '#f9fafb';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = 'transparent';
-                      }}
-                      title={option.placeholder}
-                    >
-                      <div style={{ fontWeight: '500' }}>{option.label}</div>
-                      <div style={{ fontSize: '12px', color: '#9ca3af' }}>{option.placeholder}</div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            );
-          })
-        )}
-      </div>
-    </div>
-  );
-};
-
-const HelpTooltip: React.FC<{ isVisible: boolean; onToggle: () => void }> = ({ isVisible, onToggle }) => {
-  return (
-    <div style={{ position: 'relative' }}>
-      <button
-        type="button"
-        aria-label="Help"
-        onClick={onToggle}
-        style={{
-          background: 'none',
-          border: 'none',
-          cursor: 'pointer',
-          color: '#64748b',
-          padding: '4px',
-          borderRadius: '6px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}
-        onMouseEnter={(e) => (e.currentTarget.style.color = '#475569')}
-        onMouseLeave={(e) => (e.currentTarget.style.color = '#64748b')}
-      >
-        <HelpCircle size={18} />
-      </button>
-      {isVisible && (
-        <div
-          role="tooltip"
-          style={{
-            position: 'absolute',
-            top: 'calc(100% + 8px)',
-            right: 0,
-            width: '280px',
-            backgroundColor: '#1e293b',
-            color: '#f8fafc',
-            padding: '12px',
-            borderRadius: '12px',
-            fontSize: '13px',
-            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.25)',
-            zIndex: 1000
-          }}
-        >
-          <p style={{ margin: 0 }}>
-            Use the form to clearly define your task's goal and background. Add metadata to help categorize and track your task effectively.
-          </p>
-        </div>
-      )}
-    </div>
-  );
-};
-
-// Main component
 export const TaskCreationPanel: React.FC<TaskCreationPanelProps> = ({ onSuccess }) => {
   const [formData, dispatch] = useReducer(formReducer, { goal: '', background: '', metadata: [] });
   const [uiState, setUiState] = useState({
@@ -590,6 +85,25 @@ export const TaskCreationPanel: React.FC<TaskCreationPanelProps> = ({ onSuccess 
     setTimeout(() => {
       updateUiState({ showSuccess: false });
     }, 3000);
+  };
+
+  const inputStyle: React.CSSProperties = {
+    width: '100%',
+    padding: '16px 20px',
+    borderRadius: '16px',
+    border: '2px solid #d1d5db',
+    resize: 'none' as const,
+    outline: 'none',
+    fontSize: '16px',
+    color: '#374151',
+    backgroundColor: '#ffffff',
+    transition: 'all 0.2s ease',
+    fontFamily: 'inherit'
+  };
+
+  const textareaStyle: React.CSSProperties = {
+    ...inputStyle,
+    minHeight: '80px',
   };
 
   return (
@@ -755,23 +269,12 @@ export const TaskCreationPanel: React.FC<TaskCreationPanelProps> = ({ onSuccess 
                 placeholder="Describe the objective and expected outcomes of this task..."
                 rows={4}
                 style={{
-                  width: '100%',
-                  padding: '16px 20px',
-                  border: `2px solid ${
-                    formData.goal.length > 0
-                      ? validation.goalValid 
-                        ? '#10b981'
-                        : '#f59e0b'
-                      : '#d1d5db'
-                  }`,
-                  borderRadius: '16px',
-                  resize: 'none',
-                  outline: 'none',
-                  fontSize: '16px',
-                  color: '#374151',
-                  backgroundColor: '#ffffff',
-                  transition: 'all 0.2s ease',
-                  fontFamily: 'inherit'
+                  ...textareaStyle,
+                  borderColor: formData.goal.length > 0
+                    ? validation.goalValid 
+                      ? '#10b981'
+                      : '#f59e0b'
+                    : '#d1d5db'
                 }}
                 onFocus={(e) => {
                   if (formData.goal.length > 0) {
@@ -848,23 +351,12 @@ export const TaskCreationPanel: React.FC<TaskCreationPanelProps> = ({ onSuccess 
                 placeholder="Share relevant context, previous attempts, constraints, or additional details..."
                 rows={5}
                 style={{
-                  width: '100%',
-                  padding: '16px 20px',
-                  border: `2px solid ${
-                    formData.background.length > 0
-                      ? validation.backgroundValid 
-                        ? '#10b981'
-                        : '#f59e0b'
-                      : '#d1d5db'
-                  }`,
-                  borderRadius: '16px',
-                  resize: 'none',
-                  outline: 'none',
-                  fontSize: '16px',
-                  color: '#374151',
-                  backgroundColor: '#ffffff',
-                  transition: 'all 0.2s ease',
-                  fontFamily: 'inherit'
+                  ...textareaStyle,
+                  borderColor: formData.background.length > 0
+                    ? validation.backgroundValid 
+                      ? '#10b981'
+                      : '#f59e0b'
+                    : '#d1d5db'
                 }}
                 onFocus={(e) => {
                   if (formData.background.length > 0) {
