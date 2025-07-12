@@ -1,17 +1,18 @@
 
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Download, FileText, Database, Eye, ChevronDown } from 'lucide-react';
+import { ArrowLeft, Download, FileText, Database, Clock, Eye, ChevronDown, Maximize } from 'lucide-react';
 import { useTheme } from '../components/ThemeProvider';
 import { mockReports } from '../components/mockData';
 import { sharedStyles } from '../components/shared/styles';
+import { useDownload } from '../hooks/useDownload';
 
 export const TaskReportDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { theme } = useTheme();
-  const [selectedVersion, setSelectedVersion] = useState('');
-  const [showExportDropdown, setShowExportDropdown] = useState(false);
+  const [showRunHistoryDropdown, setShowRunHistoryDropdown] = useState(false);
+  const { downloadProgress, startDownload } = useDownload();
 
   const task = mockReports.find(report => report.id === id);
 
@@ -27,9 +28,14 @@ export const TaskReportDetailPage: React.FC = () => {
     );
   }
 
-  const currentVersion = selectedVersion 
-    ? task.versions.find(v => v.id === selectedVersion) 
-    : task.versions[task.versions.length - 1];
+  // Generate runs from versions for dropdown
+  const runs = task.versions.map((version, index) => ({
+    id: version.id,
+    timestamp: new Date(Date.now() - (index * 24 * 60 * 60 * 1000)), // Mock timestamps
+    status: index === 0 ? 'completed' : 'completed'
+  })).reverse();
+
+  const currentRun = runs[runs.length - 1]; // Latest run
 
   const containerStyle: React.CSSProperties = {
     minHeight: '100vh',
@@ -62,36 +68,54 @@ export const TaskReportDetailPage: React.FC = () => {
     marginBottom: '0'
   };
 
-  const buttonStyle: React.CSSProperties = {
+  // Secondary button style (matching ReportCard)
+  const secondaryButtonStyle: React.CSSProperties = {
     display: 'flex',
     alignItems: 'center',
     gap: '8px',
-    padding: '8px 16px',
+    padding: '8px 12px',
     backgroundColor: 'transparent',
-    border: '1px solid #d1d5db',
-    borderRadius: '6px',
-    color: '#6b7280',
+    border: '1px solid #E5E7EB',
+    borderRadius: '8px',
+    color: '#6B7280',
+    cursor: 'pointer',
+    fontSize: '12px',
+    fontWeight: '500',
+    transition: 'all 0.2s ease'
+  };
+
+  // Primary button style (matching ReportCard)
+  const primaryButtonStyle: React.CSSProperties = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    padding: '10px 20px',
+    backgroundColor: '#4F46E5',
+    border: 'none',
+    borderRadius: '8px',
+    color: 'white',
     cursor: 'pointer',
     fontSize: '14px',
     fontWeight: '500',
     transition: 'all 0.2s ease'
   };
 
-  const primaryButtonStyle: React.CSSProperties = {
-    ...buttonStyle,
-    backgroundColor: '#f0f9ff',
-    color: '#0369a1',
-    border: '1px solid #0369a1'
+  const dropdownContainerStyle: React.CSSProperties = {
+    position: 'relative',
+    display: 'inline-block'
   };
 
-  const selectStyle: React.CSSProperties = {
-    padding: '8px 12px',
+  const dropdownStyle: React.CSSProperties = {
+    position: 'absolute',
+    top: '100%',
+    left: '0',
+    right: '0',
     backgroundColor: '#ffffff',
-    border: '1px solid #d1d5db',
-    borderRadius: '6px',
-    color: '#1a202c',
-    fontSize: '14px',
-    fontWeight: '500'
+    border: '1px solid #e2e8f0',
+    borderRadius: '8px',
+    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+    zIndex: 10,
+    marginTop: '4px'
   };
 
   const contentStyle: React.CSSProperties = {
@@ -129,30 +153,6 @@ export const TaskReportDetailPage: React.FC = () => {
     display: 'flex',
     flexDirection: 'column',
     gap: '4px'
-  };
-
-  const contentSectionStyle: React.CSSProperties = {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '16px',
-    marginTop: '16px'
-  };
-
-  const contentItemStyle: React.CSSProperties = {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '8px'
-  };
-
-  const contentTitleStyle: React.CSSProperties = {
-    ...sharedStyles.subheading,
-    marginBottom: '0'
-  };
-
-  const contentTextStyle: React.CSSProperties = {
-    ...sharedStyles.value,
-    color: '#4b5563',
-    lineHeight: '1.6'
   };
 
   const metadataContainerStyle: React.CSSProperties = {
@@ -213,15 +213,6 @@ export const TaskReportDetailPage: React.FC = () => {
     borderBottom: '1px solid #f3f4f6'
   };
 
-  const emptyStateStyle: React.CSSProperties = {
-    padding: '48px 24px',
-    textAlign: 'center',
-    color: '#6b7280',
-    backgroundColor: '#f9fafb',
-    border: '1px solid #e2e8f0',
-    borderRadius: '8px'
-  };
-
   const formatTimestamp = (date: Date) => {
     return new Intl.DateTimeFormat('en-US', {
       year: 'numeric',
@@ -239,6 +230,20 @@ export const TaskReportDetailPage: React.FC = () => {
     return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
   };
 
+  const calculateDuration = () => {
+    // Mock duration calculation
+    return '2h 34m';
+  };
+
+  const handleExport = () => {
+    startDownload(task.title, task.id);
+  };
+
+  const handleFullScreen = () => {
+    // Mock full screen functionality
+    console.log('Full screen PDF viewer');
+  };
+
   return (
     <div style={containerStyle}>
       {/* Header */}
@@ -252,19 +257,8 @@ export const TaskReportDetailPage: React.FC = () => {
           <h1 style={titleStyle}>{task.title}</h1>
         </div>
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-          <select
-            style={selectStyle}
-            value={selectedVersion}
-            onChange={(e) => setSelectedVersion(e.target.value)}
-          >
-            {task.versions.map(version => (
-              <option key={version.id} value={version.id}>
-                Version {version.version}
-              </option>
-            ))}
-          </select>
           <button 
-            style={buttonStyle} 
+            style={secondaryButtonStyle} 
             onClick={() => navigate('/')}
             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f9fafb'}
             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
@@ -272,13 +266,48 @@ export const TaskReportDetailPage: React.FC = () => {
             <ArrowLeft size={16} />
             Back to Tasks
           </button>
+          
+          <div style={dropdownContainerStyle}>
+            <button 
+              style={secondaryButtonStyle}
+              onClick={() => setShowRunHistoryDropdown(!showRunHistoryDropdown)}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f9fafb'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+            >
+              Run History
+              <ChevronDown size={16} />
+            </button>
+            {showRunHistoryDropdown && (
+              <div style={dropdownStyle}>
+                {runs.map((run, index) => (
+                  <div
+                    key={run.id}
+                    style={{
+                      padding: '8px 12px',
+                      borderBottom: index < runs.length - 1 ? '1px solid #f3f4f6' : 'none',
+                      cursor: 'pointer',
+                      fontSize: '12px',
+                      color: '#6b7280'
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f9fafb'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                  >
+                    {formatTimestamp(run.timestamp)} - {run.status}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
           <button 
             style={primaryButtonStyle}
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#dbeafe'}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#f0f9ff'}
+            onClick={handleExport}
+            disabled={downloadProgress.isDownloading}
+            onMouseEnter={(e) => !downloadProgress.isDownloading && (e.currentTarget.style.backgroundColor = '#4338CA')}
+            onMouseLeave={(e) => !downloadProgress.isDownloading && (e.currentTarget.style.backgroundColor = '#4F46E5')}
           >
             <Download size={16} />
-            Export Report
+            {downloadProgress.isDownloading ? 'Exporting...' : 'Export Report'}
           </button>
         </div>
       </div>
@@ -287,6 +316,7 @@ export const TaskReportDetailPage: React.FC = () => {
         {/* Task Information Section */}
         <div style={sectionStyle}>
           <div style={sectionHeaderStyle}>
+            <Clock size={20} />
             <h2 style={sectionTitleStyle}>Task Information</h2>
           </div>
           <div style={infoGridStyle}>
@@ -295,16 +325,12 @@ export const TaskReportDetailPage: React.FC = () => {
               <div style={sharedStyles.value}>{task.pointOfContact.name}</div>
             </div>
             <div style={infoItemStyle}>
+              <div style={sharedStyles.label}>Operator</div>
+              <div style={sharedStyles.value}>{task.pointOfContact.role || 'System'}</div>
+            </div>
+            <div style={infoItemStyle}>
               <div style={sharedStyles.label}>Status</div>
               <div style={sharedStyles.value}>{task.status.charAt(0).toUpperCase() + task.status.slice(1)}</div>
-            </div>
-            <div style={infoItemStyle}>
-              <div style={sharedStyles.label}>Version</div>
-              <div style={sharedStyles.value}>{currentVersion?.version}</div>
-            </div>
-            <div style={infoItemStyle}>
-              <div style={sharedStyles.label}>Progress</div>
-              <div style={sharedStyles.value}>{task.progress}%</div>
             </div>
             <div style={infoItemStyle}>
               <div style={sharedStyles.label}>Created</div>
@@ -314,69 +340,86 @@ export const TaskReportDetailPage: React.FC = () => {
               <div style={sharedStyles.label}>Last Updated</div>
               <div style={sharedStyles.value}>{formatTimestamp(task.schedule.lastRun)}</div>
             </div>
+            <div style={infoItemStyle}>
+              <div style={sharedStyles.label}>Duration</div>
+              <div style={sharedStyles.value}>{calculateDuration()}</div>
+            </div>
           </div>
         </div>
 
         {/* Submitted Content Section */}
-        {currentVersion && (
-          <div style={sectionStyle}>
-            <div style={sectionHeaderStyle}>
-              <FileText size={20} />
-              <h2 style={sectionTitleStyle}>Submitted Content (Version {currentVersion.version})</h2>
-            </div>
-            <div style={contentSectionStyle}>
-              <div style={contentItemStyle}>
-                <h3 style={contentTitleStyle}>Goal</h3>
-                <p style={contentTextStyle}>{currentVersion.goal}</p>
-              </div>
-              <div style={contentItemStyle}>
-                <h3 style={contentTitleStyle}>Background</h3>
-                <p style={contentTextStyle}>{currentVersion.background}</p>
-              </div>
-              <div style={contentItemStyle}>
-                <h3 style={contentTitleStyle}>Metadata</h3>
-                <div style={metadataContainerStyle}>
-                  {currentVersion.metadata && Object.entries(currentVersion.metadata).map(([key, values]) => (
-                    <div key={key} style={metadataBadgeStyle}>
-                      <strong>{key}:</strong> {Array.isArray(values) ? values.join(', ') : String(values)}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* PDF Report Section */}
         <div style={sectionStyle}>
           <div style={sectionHeaderStyle}>
             <FileText size={20} />
-            <h2 style={sectionTitleStyle}>Generated Report (Version {currentVersion?.version})</h2>
+            <h2 style={sectionTitleStyle}>Submitted Content</h2>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '16px' }}>
+            <div>
+              <div style={sharedStyles.label}>Goal</div>
+              <div style={{ ...sharedStyles.value, color: '#4b5563', lineHeight: '1.6', marginTop: '4px' }}>
+                {task.taskCreation?.goal || 'Analyze security vulnerabilities and provide comprehensive risk assessment for the network infrastructure.'}
+              </div>
+            </div>
+            <div>
+              <div style={sharedStyles.label}>Analysis Type</div>
+              <div style={{ ...sharedStyles.value, marginTop: '4px' }}>
+                {task.taskCreation?.analysisType || 'Security Assessment'}
+              </div>
+            </div>
+            <div>
+              <div style={sharedStyles.label}>Background</div>
+              <div style={{ ...sharedStyles.value, color: '#4b5563', lineHeight: '1.6', marginTop: '4px' }}>
+                {task.taskCreation?.background || 'Regular security assessment to identify potential vulnerabilities and ensure compliance with security standards. This analysis covers network infrastructure, access controls, and data protection mechanisms.'}
+              </div>
+            </div>
+            <div>
+              <div style={sharedStyles.label}>Time Range</div>
+              <div style={{ ...sharedStyles.value, marginTop: '4px' }}>
+                {task.taskCreation?.timeRange || 'Last 30 days'}
+              </div>
+            </div>
+            <div>
+              <div style={sharedStyles.label}>Metadata</div>
+              <div style={metadataContainerStyle}>
+                {task.taskCreation?.metadata ? 
+                  Object.entries(task.taskCreation.metadata).map(([key, values]) => (
+                    <div key={key} style={metadataBadgeStyle}>
+                      <strong>{key}:</strong> {Array.isArray(values) ? values.join(', ') : String(values)}
+                    </div>
+                  )) : 
+                  ['Critical', 'Network', 'Security'].map((tag) => (
+                    <div key={tag} style={metadataBadgeStyle}>{tag}</div>
+                  ))
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Report Section */}
+        <div style={sectionStyle}>
+          <div style={sectionHeaderStyle}>
+            <FileText size={20} />
+            <h2 style={sectionTitleStyle}>Report</h2>
           </div>
           <div style={pdfContainerStyle}>
             <div style={pdfHeaderStyle}>
               <div style={sharedStyles.value}>Report Preview</div>
               <button 
-                style={buttonStyle}
+                style={secondaryButtonStyle}
+                onClick={handleFullScreen}
                 onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f9fafb'}
                 onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
               >
-                <Eye size={16} />
+                <Maximize size={16} />
                 Full Screen
               </button>
             </div>
-            {currentVersion?.reportUrl ? (
-              <iframe
-                src="/placeholder-report.pdf"
-                style={pdfViewerStyle}
-                title="Task Report PDF"
-              />
-            ) : (
-              <div style={emptyStateStyle}>
-                <FileText size={48} style={{ margin: '0 auto 16px', opacity: 0.5 }} />
-                <p>Report is being generated for this version...</p>
-              </div>
-            )}
+            <iframe
+              src="/placeholder-report.pdf"
+              style={pdfViewerStyle}
+              title="Task Report PDF"
+            />
           </div>
         </div>
 
@@ -384,7 +427,7 @@ export const TaskReportDetailPage: React.FC = () => {
         <div style={{ marginBottom: '32px' }}>
           <div style={sectionHeaderStyle}>
             <Database size={20} />
-            <h2 style={sectionTitleStyle}>Support Evidences (Version {currentVersion?.version})</h2>
+            <h2 style={sectionTitleStyle}>Supporting Evidences</h2>
           </div>
           {task.supportEvidences.length > 0 ? (
             <table style={tableStyle}>
@@ -423,9 +466,16 @@ export const TaskReportDetailPage: React.FC = () => {
               </tbody>
             </table>
           ) : (
-            <div style={emptyStateStyle}>
+            <div style={{
+              padding: '48px 24px',
+              textAlign: 'center',
+              color: '#6b7280',
+              backgroundColor: '#f9fafb',
+              border: '1px solid #e2e8f0',
+              borderRadius: '8px'
+            }}>
               <Database size={48} style={{ margin: '0 auto 16px', opacity: 0.5 }} />
-              <p>No support evidences generated for this version yet.</p>
+              <p>No supporting evidences generated yet.</p>
             </div>
           )}
         </div>
