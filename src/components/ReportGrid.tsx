@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useTheme } from './ThemeProvider';
 import { Report } from './mockData';
@@ -27,17 +28,11 @@ export const ReportGrid: React.FC<ReportGridProps> = ({
   const emptyStateStyle: React.CSSProperties = {
     textAlign: 'center' as const,
     padding: '4rem 2rem',
-    background: theme === 'dark'
-      ? 'rgba(255, 255, 255, 0.05)'
-      : 'rgba(255, 255, 255, 0.8)',
+    background: 'rgba(255, 255, 255, 0.8)',
     backdropFilter: 'blur(20px)',
     borderRadius: '16px',
-    border: theme === 'dark'
-      ? '1px solid rgba(255, 255, 255, 0.1)'
-      : '1px solid rgba(0, 0, 0, 0.1)',
-    boxShadow: theme === 'dark'
-      ? '0 8px 32px rgba(0, 0, 0, 0.3)'
-      : '0 8px 32px rgba(0, 0, 0, 0.1)'
+    border: '1px solid rgba(0, 0, 0, 0.1)',
+    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
   };
 
   const emptyIconStyle: React.CSSProperties = {
@@ -49,12 +44,12 @@ export const ReportGrid: React.FC<ReportGridProps> = ({
   const emptyTitleStyle: React.CSSProperties = {
     fontSize: '1.5rem',
     fontWeight: '600',
-    color: theme === 'dark' ? '#F3F4F6' : '#374151',
+    color: '#374151',
     marginBottom: '0.5rem'
   };
 
   const emptyDescStyle: React.CSSProperties = {
-    color: theme === 'dark' ? '#9CA3AF' : '#6B7280',
+    color: '#6B7280',
     fontSize: '1rem'
   };
 

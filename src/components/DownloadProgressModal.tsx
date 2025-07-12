@@ -19,32 +19,28 @@ export const DownloadProgressModal: React.FC<DownloadProgressModalProps> = ({
   const { theme } = useTheme();
 
   const modalStyle: React.CSSProperties = {
-    background: theme === 'dark' 
-      ? 'rgba(255, 255, 255, 0.05)' 
-      : 'rgba(255, 255, 255, 0.95)',
+    background: 'rgba(255, 255, 255, 0.95)',
     backdropFilter: 'blur(20px)',
-    border: theme === 'dark'
-      ? '1px solid rgba(255, 255, 255, 0.1)'
-      : '1px solid rgba(0, 0, 0, 0.1)',
+    border: '1px solid rgba(0, 0, 0, 0.1)',
     borderRadius: '12px',
     width: '400px'
   };
 
   const headerStyle: React.CSSProperties = {
-    color: theme === 'dark' ? '#F3F4F6' : '#111827',
+    color: '#111827',
     fontSize: '1.125rem',
     fontWeight: '600',
     marginBottom: '1rem'
   };
 
   const statusStyle: React.CSSProperties = {
-    color: theme === 'dark' ? '#D1D5DB' : '#6B7280',
+    color: '#6B7280',
     fontSize: '0.875rem',
     marginBottom: '0.5rem'
   };
 
   const fileNameStyle: React.CSSProperties = {
-    color: theme === 'dark' ? '#F3F4F6' : '#111827',
+    color: '#111827',
     fontSize: '0.875rem',
     fontWeight: '500',
     marginBottom: '1rem'
@@ -61,7 +57,7 @@ export const DownloadProgressModal: React.FC<DownloadProgressModalProps> = ({
     >
       <div style={{ padding: '1rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', marginBottom: '1rem' }}>
-          <IconDownload style={{ marginRight: '0.5rem', color: theme === 'dark' ? '#3B82F6' : '#2563EB' }} />
+          <IconDownload style={{ marginRight: '0.5rem', color: '#2563EB' }} />
           <span style={headerStyle}>Downloading Report</span>
         </div>
         
@@ -83,9 +79,7 @@ export const DownloadProgressModal: React.FC<DownloadProgressModalProps> = ({
             onClick={onCancel}
             icon={<IconClose />}
             style={{
-              background: theme === 'dark' 
-                ? 'linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%)'
-                : 'linear-gradient(135deg, #2563EB 0%, #7C3AED 100%)',
+              background: 'linear-gradient(135deg, #2563EB 0%, #7C3AED 100%)',
               border: 'none'
             }}
           >

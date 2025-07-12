@@ -238,18 +238,18 @@ export const TaskCreationModal: React.FC<TaskCreationModalProps> = ({ isOpen, on
   const modalStyle: React.CSSProperties = {
     width: '450px',
     height: '100vh',
-    background: theme === 'dark' ? '#1a1a2e' : '#ffffff',
+    background: '#ffffff',
     boxShadow: '-4px 0 20px rgba(0, 0, 0, 0.3)',
     display: 'flex',
     flexDirection: 'column',
     transform: isOpen ? 'translateX(0)' : 'translateX(100%)',
     transition: 'transform 0.3s ease-in-out',
-    borderLeft: `1px solid ${theme === 'dark' ? '#2d3748' : '#e2e8f0'}`,
+    borderLeft: '1px solid #e2e8f0',
   };
 
   const headerStyle: React.CSSProperties = {
     padding: '24px',
-    borderBottom: `1px solid ${theme === 'dark' ? '#2d3748' : '#e2e8f0'}`,
+    borderBottom: '1px solid #e2e8f0',
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -265,9 +265,9 @@ export const TaskCreationModal: React.FC<TaskCreationModalProps> = ({ isOpen, on
     width: '100%',
     padding: '12px',
     borderRadius: '8px',
-    border: `1px solid ${theme === 'dark' ? '#4a5568' : '#d1d5db'}`,
-    background: theme === 'dark' ? '#2d3748' : '#ffffff',
-    color: theme === 'dark' ? '#ffffff' : '#1a202c',
+    border: '1px solid #d1d5db',
+    background: '#ffffff',
+    color: '#1a202c',
     fontSize: '14px',
     outline: 'none',
     transition: 'border-color 0.2s ease',
@@ -308,9 +308,9 @@ export const TaskCreationModal: React.FC<TaskCreationModalProps> = ({ isOpen, on
       gap: '8px',
       marginBottom: '12px',
       padding: '12px',
-      background: theme === 'dark' ? 'rgba(45, 55, 72, 0.4)' : 'rgba(248, 250, 252, 0.9)',
+      background: 'rgba(248, 250, 252, 0.9)',
       borderRadius: '8px',
-      border: metadata.isValid ? 'none' : `1px solid ${theme === 'dark' ? '#f56565' : '#e53e3e'}`,
+      border: metadata.isValid ? 'none' : '1px solid #e53e3e',
       position: 'relative',
     };
 
@@ -324,14 +324,14 @@ export const TaskCreationModal: React.FC<TaskCreationModalProps> = ({ isOpen, on
     const labelStyle: React.CSSProperties = {
       fontSize: '13px',
       fontWeight: '500',
-      color: theme === 'dark' ? '#e2e8f0' : '#374151',
+      color: '#374151',
     };
 
     const typeStyle: React.CSSProperties = {
       fontSize: '11px',
-      color: theme === 'dark' ? '#a0aec0' : '#6b7280',
+      color: '#6b7280',
       padding: '2px 6px',
-      background: theme === 'dark' ? 'rgba(59, 130, 246, 0.2)' : 'rgba(59, 130, 246, 0.1)',
+      background: 'rgba(59, 130, 246, 0.1)',
       borderRadius: '4px',
       fontWeight: '500',
     };
@@ -347,12 +347,12 @@ export const TaskCreationModal: React.FC<TaskCreationModalProps> = ({ isOpen, on
       ...inputStyle,
       padding: '10px',
       fontSize: '14px',
-      borderColor: metadata.isValid ? (theme === 'dark' ? '#4a5568' : '#d1d5db') : (theme === 'dark' ? '#f56565' : '#e53e3e'),
+      borderColor: metadata.isValid ? '#d1d5db' : '#e53e3e',
     };
 
     const errorStyle: React.CSSProperties = {
       fontSize: '11px',
-      color: theme === 'dark' ? '#f56565' : '#e53e3e',
+      color: '#e53e3e',
       marginTop: '2px',
     };
 
@@ -410,11 +410,11 @@ export const TaskCreationModal: React.FC<TaskCreationModalProps> = ({ isOpen, on
             onClick={() => onDuplicate(metadata.id)}
             style={{
               ...actionButtonStyle,
-              color: theme === 'dark' ? '#60a5fa' : '#2563eb',
+              color: '#2563eb',
             }}
             title="Duplicate this field"
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = theme === 'dark' ? 'rgba(96, 165, 250, 0.1)' : 'rgba(37, 99, 235, 0.1)';
+              e.currentTarget.style.background = 'rgba(37, 99, 235, 0.1)';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.background = 'none';
@@ -427,11 +427,11 @@ export const TaskCreationModal: React.FC<TaskCreationModalProps> = ({ isOpen, on
             onClick={() => onRemove(metadata.id)}
             style={{
               ...actionButtonStyle,
-              color: theme === 'dark' ? '#f56565' : '#e53e3e',
+              color: '#e53e3e',
             }}
             title="Remove this field"
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = theme === 'dark' ? 'rgba(245, 101, 101, 0.1)' : 'rgba(229, 62, 62, 0.1)';
+              e.currentTarget.style.background = 'rgba(229, 62, 62, 0.1)';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.background = 'none';
@@ -452,10 +452,10 @@ export const TaskCreationModal: React.FC<TaskCreationModalProps> = ({ isOpen, on
             <div style={{ fontSize: '48px', marginBottom: '16px', color: '#10b981' }}>
               <Check size={48} />
             </div>
-            <h2 style={{ fontSize: '24px', fontWeight: '600', color: theme === 'dark' ? '#ffffff' : '#1a202c', marginBottom: '8px' }}>
+            <h2 style={{ fontSize: '24px', fontWeight: '600', color: '#1a202c', marginBottom: '8px' }}>
               Task Created Successfully!
             </h2>
-            <p style={{ color: theme === 'dark' ? '#a0aec0' : '#718096', textAlign: 'center' }}>
+            <p style={{ color: '#718096', textAlign: 'center' }}>
               Your task has been created and is now being executed.
             </p>
           </div>
@@ -468,7 +468,7 @@ export const TaskCreationModal: React.FC<TaskCreationModalProps> = ({ isOpen, on
     <div style={overlayStyle} onClick={handleClose}>
       <div style={modalStyle} onClick={(e) => e.stopPropagation()}>
         <div style={headerStyle}>
-          <h2 style={{ fontSize: '20px', fontWeight: '600', color: theme === 'dark' ? '#ffffff' : '#1a202c' }}>
+          <h2 style={{ fontSize: '20px', fontWeight: '600', color: '#1a202c' }}>
             Create New Task
           </h2>
           <button
@@ -477,7 +477,7 @@ export const TaskCreationModal: React.FC<TaskCreationModalProps> = ({ isOpen, on
               background: 'none',
               border: 'none',
               cursor: 'pointer',
-              color: theme === 'dark' ? '#a0aec0' : '#718096',
+              color: '#718096',
               padding: '4px',
               borderRadius: '4px',
             }}
@@ -488,7 +488,7 @@ export const TaskCreationModal: React.FC<TaskCreationModalProps> = ({ isOpen, on
 
         <form onSubmit={handleSubmit} style={contentStyle}>
           <div style={{ marginBottom: '24px' }}>
-            <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '500', color: theme === 'dark' ? '#ffffff' : '#1a202c' }}>
+            <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '500', color: '#1a202c' }}>
               Goal *
             </label>
             <textarea
@@ -501,7 +501,7 @@ export const TaskCreationModal: React.FC<TaskCreationModalProps> = ({ isOpen, on
           </div>
 
           <div style={{ marginBottom: '24px' }}>
-            <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '500', color: theme === 'dark' ? '#ffffff' : '#1a202c' }}>
+            <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '500', color: '#1a202c' }}>
               Background *
             </label>
             <textarea
@@ -524,7 +524,7 @@ export const TaskCreationModal: React.FC<TaskCreationModalProps> = ({ isOpen, on
                 display: 'flex',
                 alignItems: 'center',
                 gap: '8px',
-                color: theme === 'dark' ? '#ffffff' : '#1a202c',
+                color: '#1a202c',
                 fontSize: '14px',
                 fontWeight: '500',
                 padding: '8px 0',
@@ -534,7 +534,7 @@ export const TaskCreationModal: React.FC<TaskCreationModalProps> = ({ isOpen, on
               Add Metadata (Optional)
               {selectedMetadata.length > 0 && (
                 <span style={{ 
-                  background: theme === 'dark' ? '#3b82f6' : '#2563eb',
+                  background: '#2563eb',
                   color: '#ffffff',
                   padding: '2px 8px',
                   borderRadius: '12px',
@@ -554,12 +554,12 @@ export const TaskCreationModal: React.FC<TaskCreationModalProps> = ({ isOpen, on
                   gap: '8px', 
                   marginBottom: '16px',
                   padding: '12px',
-                  background: theme === 'dark' ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.05)',
+                  background: 'rgba(59, 130, 246, 0.05)',
                   borderRadius: '6px',
-                  border: `1px solid ${theme === 'dark' ? 'rgba(59, 130, 246, 0.3)' : 'rgba(59, 130, 246, 0.2)'}`
+                  border: '1px solid rgba(59, 130, 246, 0.2)'
                 }}>
-                  <Info size={16} style={{ color: theme === 'dark' ? '#60a5fa' : '#2563eb' }} />
-                  <div style={{ fontSize: '13px', color: theme === 'dark' ? '#e2e8f0' : '#374151' }}>
+                  <Info size={16} style={{ color: '#2563eb' }} />
+                  <div style={{ fontSize: '13px', color: '#374151' }}>
                     <strong>Tip:</strong> You can add multiple instances of the same field type. Use the duplicate button to quickly add another instance.
                   </div>
                 </div>
@@ -575,7 +575,7 @@ export const TaskCreationModal: React.FC<TaskCreationModalProps> = ({ isOpen, on
                       <h4 style={{ 
                         fontSize: '13px', 
                         fontWeight: '600', 
-                        color: theme === 'dark' ? '#a0aec0' : '#718096',
+                        color: '#718096',
                         textTransform: 'uppercase',
                         letterSpacing: '0.5px'
                       }}>
@@ -588,7 +588,7 @@ export const TaskCreationModal: React.FC<TaskCreationModalProps> = ({ isOpen, on
                           background: 'none',
                           border: 'none',
                           cursor: 'pointer',
-                          color: theme === 'dark' ? '#f56565' : '#e53e3e',
+                          color: '#e53e3e',
                           fontSize: '12px',
                           fontWeight: '500',
                           padding: '4px 8px',
@@ -598,7 +598,7 @@ export const TaskCreationModal: React.FC<TaskCreationModalProps> = ({ isOpen, on
                           gap: '4px',
                         }}
                         onMouseEnter={(e) => {
-                          e.currentTarget.style.background = theme === 'dark' ? 'rgba(245, 101, 101, 0.1)' : 'rgba(229, 62, 62, 0.1)';
+                          e.currentTarget.style.background = 'rgba(229, 62, 62, 0.1)';
                         }}
                         onMouseLeave={(e) => {
                           e.currentTarget.style.background = 'none';
@@ -614,7 +614,7 @@ export const TaskCreationModal: React.FC<TaskCreationModalProps> = ({ isOpen, on
                         <h5 style={{ 
                           fontSize: '12px', 
                           fontWeight: '500', 
-                          color: theme === 'dark' ? '#9ca3af' : '#6b7280',
+                          color: '#6b7280',
                           marginBottom: '8px',
                           textTransform: 'uppercase',
                           letterSpacing: '0.5px'
@@ -649,7 +649,7 @@ export const TaskCreationModal: React.FC<TaskCreationModalProps> = ({ isOpen, on
                       <h4 style={{ 
                         fontSize: '12px', 
                         fontWeight: '600', 
-                        color: theme === 'dark' ? '#a0aec0' : '#718096',
+                        color: '#718096',
                         marginBottom: '8px', 
                         textTransform: 'uppercase',
                         letterSpacing: '0.5px'
@@ -672,20 +672,20 @@ export const TaskCreationModal: React.FC<TaskCreationModalProps> = ({ isOpen, on
                                 cursor: 'pointer',
                                 borderRadius: '6px',
                                 background: 'transparent',
-                                border: `1px solid ${theme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'}`,
-                                color: theme === 'dark' ? '#ffffff' : '#1a202c',
+                                border: '1px solid rgba(0, 0, 0, 0.1)',
+                                color: '#1a202c',
                                 fontSize: '14px',
                                 width: '100%',
                                 textAlign: 'left',
                                 transition: 'all 0.2s ease',
                               }}
                               onMouseEnter={(e) => {
-                                e.currentTarget.style.background = theme === 'dark' ? 'rgba(74, 85, 104, 0.3)' : 'rgba(237, 242, 247, 0.8)';
-                                e.currentTarget.style.borderColor = theme === 'dark' ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.2)';
+                                e.currentTarget.style.background = 'rgba(237, 242, 247, 0.8)';
+                                e.currentTarget.style.borderColor = 'rgba(0, 0, 0, 0.2)';
                               }}
                               onMouseLeave={(e) => {
                                 e.currentTarget.style.background = 'transparent';
-                                e.currentTarget.style.borderColor = theme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+                                e.currentTarget.style.borderColor = 'rgba(0, 0, 0, 0.1)';
                               }}
                             >
                               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -695,7 +695,7 @@ export const TaskCreationModal: React.FC<TaskCreationModalProps> = ({ isOpen, on
                                   {option.description && (
                                     <div style={{ 
                                       fontSize: '12px', 
-                                      color: theme === 'dark' ? '#a0aec0' : '#6b7280',
+                                      color: '#6b7280',
                                       marginTop: '2px'
                                     }}>
                                       {option.description}
@@ -706,10 +706,10 @@ export const TaskCreationModal: React.FC<TaskCreationModalProps> = ({ isOpen, on
                               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                 <span style={{ 
                                   fontSize: '11px', 
-                                  color: theme === 'dark' ? '#60a5fa' : '#2563eb',
+                                  color: '#2563eb',
                                   fontWeight: '500',
                                   padding: '2px 6px',
-                                  background: theme === 'dark' ? 'rgba(96, 165, 250, 0.1)' : 'rgba(37, 99, 235, 0.1)',
+                                  background: 'rgba(37, 99, 235, 0.1)',
                                   borderRadius: '4px'
                                 }}>
                                   {option.inputType.toUpperCase()}
@@ -720,7 +720,7 @@ export const TaskCreationModal: React.FC<TaskCreationModalProps> = ({ isOpen, on
                                     color: '#ffffff',
                                     fontWeight: '600',
                                     padding: '2px 6px',
-                                    background: theme === 'dark' ? '#10b981' : '#059669',
+                                    background: '#059669',
                                     borderRadius: '10px'
                                   }}>
                                     {count}

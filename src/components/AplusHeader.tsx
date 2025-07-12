@@ -7,7 +7,7 @@ interface AplusHeaderProps {
 }
 
 export const AplusHeader: React.FC<AplusHeaderProps> = ({ onCreateTask }) => {
-  const { theme, toggleTheme } = useTheme();
+  const { theme } = useTheme();
   const [searchTerm, setSearchTerm] = useState('');
 
   const headerStyle: React.CSSProperties = {
@@ -94,20 +94,6 @@ export const AplusHeader: React.FC<AplusHeaderProps> = ({ onCreateTask }) => {
     gap: '16px'
   };
 
-  const themeToggleStyle: React.CSSProperties = {
-    width: '32px',
-    height: '32px',
-    borderRadius: '50%',
-    backgroundColor: 'hsl(var(--muted))',
-    border: '1px solid hsl(var(--border))',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    cursor: 'pointer',
-    fontSize: '14px',
-    transition: 'all 0.2s ease'
-  };
-
   return (
     <header style={headerStyle}>
       <div style={containerStyle}>
@@ -132,18 +118,7 @@ export const AplusHeader: React.FC<AplusHeaderProps> = ({ onCreateTask }) => {
         </div>
 
         <div style={rightSectionStyle}>
-          <button
-            style={themeToggleStyle}
-            onClick={toggleTheme}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = 'hsl(var(--accent))';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = 'hsl(var(--muted))';
-            }}
-          >
-            {theme === 'dark' ? '☀️' : '🌙'}
-          </button>
+          {/* Right section content can be added here if needed */}
         </div>
       </div>
     </header>

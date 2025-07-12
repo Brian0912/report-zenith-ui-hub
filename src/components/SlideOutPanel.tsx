@@ -46,12 +46,10 @@ export const SlideOutPanel: React.FC<SlideOutPanelProps> = ({
     maxWidth: '480px',
     minWidth: '400px',
     height: 'calc(100vh - 80px)',
-    backgroundColor: theme === 'dark' ? '#1a1a2e' : '#ffffff',
+    backgroundColor: '#ffffff',
     borderTopLeftRadius: '16px',
     borderBottomLeftRadius: '16px',
-    boxShadow: theme === 'dark' 
-      ? '-6px 0 32px rgba(0, 0, 0, 0.4)' 
-      : '-6px 0 32px rgba(0, 0, 0, 0.12)',
+    boxShadow: '-6px 0 32px rgba(0, 0, 0, 0.12)',
     transform: isOpen ? 'translateX(0)' : 'translateX(100%)',
     transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
     zIndex: 1000,
@@ -63,11 +61,11 @@ export const SlideOutPanel: React.FC<SlideOutPanelProps> = ({
 
   const headerStyle: React.CSSProperties = {
     padding: '24px 24px 16px 24px',
-    borderBottom: theme === 'dark' ? '1px solid #2d3748' : '1px solid #e2e8f0',
+    borderBottom: '1px solid #e2e8f0',
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    backgroundColor: theme === 'dark' ? '#1a1a2e' : '#ffffff',
+    backgroundColor: '#ffffff',
     position: 'sticky',
     top: 0,
     zIndex: 10,
@@ -77,7 +75,7 @@ export const SlideOutPanel: React.FC<SlideOutPanelProps> = ({
   const titleStyle: React.CSSProperties = {
     fontSize: '24px',
     fontWeight: '700',
-    color: theme === 'dark' ? '#ffffff' : '#1a202c',
+    color: '#1a202c',
     margin: 0,
     lineHeight: '1.3',
     paddingRight: '16px'
@@ -87,7 +85,7 @@ export const SlideOutPanel: React.FC<SlideOutPanelProps> = ({
     background: 'none',
     border: 'none',
     cursor: 'pointer',
-    color: theme === 'dark' ? '#a0aec0' : '#718096',
+    color: '#718096',
     padding: '8px',
     borderRadius: '8px',
     display: 'flex',
@@ -102,7 +100,7 @@ export const SlideOutPanel: React.FC<SlideOutPanelProps> = ({
   const contentStyle: React.CSSProperties = {
     flex: 1,
     overflow: 'auto',
-    backgroundColor: theme === 'dark' ? '#1a1a2e' : '#fafafa',
+    backgroundColor: '#fafafa',
     padding: '0'
   };
 
@@ -140,9 +138,7 @@ export const SlideOutPanel: React.FC<SlideOutPanelProps> = ({
             onClick={onClose}
             style={closeButtonStyle}
             onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = theme === 'dark' 
-                ? 'rgba(255, 255, 255, 0.1)' 
-                : 'rgba(0, 0, 0, 0.05)';
+              e.currentTarget.style.backgroundColor = 'rgba(0, 0, 0, 0.05)';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.backgroundColor = 'transparent';
