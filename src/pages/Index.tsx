@@ -32,11 +32,20 @@ export const Index: React.FC = () => {
     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
   };
 
+  // Debug: Log current viewport and calculated heights
+  React.useEffect(() => {
+    console.log('Viewport height:', window.innerHeight);
+    console.log('Calculated content height:', window.innerHeight - 80 - 48);
+    console.log('Panel is open:', isPanelOpen);
+  }, [isPanelOpen]);
+
   const contentContainerStyle: React.CSSProperties = {
     maxWidth: '1600px',
     margin: '0 auto',
     padding: '24px',
-    height: 'calc(100vh - 80px - 48px)'
+    height: isPanelOpen ? '100vh' : 'calc(100vh - 80px - 48px)', // Use full viewport when panel is open
+    display: 'flex',
+    flexDirection: 'column'
   };
 
   const handleSubscribe = (reportId: string) => {
@@ -49,30 +58,32 @@ export const Index: React.FC = () => {
       
       <div style={contentContainerStyle}>
         {isPanelOpen ? (
-          <ResizablePanelGroup direction="horizontal" style={{ height: '100%' }}>
-            <ResizablePanel defaultSize={65} minSize={40} style={{ paddingRight: '12px' }}>
-              <MainContentArea
-                dateFilter={dateFilter}
-                setDateFilter={setDateFilter}
-                filteredReports={filteredReports}
-                onSubscribe={handleSubscribe}
-                onViewLogs={handleViewLogs}
-                heightMode="fill"
-              />
-            </ResizablePanel>
+          <div style={{ height: 'calc(100vh - 80px - 48px)', display: 'flex' }}>
+            <ResizablePanelGroup direction="horizontal" style={{ height: '100%', width: '100%' }}>
+              <ResizablePanel defaultSize={65} minSize={40} style={{ paddingRight: '12px' }}>
+                <MainContentArea
+                  dateFilter={dateFilter}
+                  setDateFilter={setDateFilter}
+                  filteredReports={filteredReports}
+                  onSubscribe={handleSubscribe}
+                  onViewLogs={handleViewLogs}
+                  heightMode="fill"
+                />
+              </ResizablePanel>
 
-            <ResizableHandle withHandle />
+              <ResizableHandle withHandle />
 
-            <ResizablePanel defaultSize={35} minSize={25} style={{ paddingLeft: '12px' }}>
-              <PanelContainer
-                isTaskPanelOpen={isTaskPanelOpen}
-                selectedTask={selectedTask}
-                onTaskCreated={handleTaskCreated}
-                onCloseTaskPanel={handleCloseTaskPanel}
-                onCloseLogsPanel={handleCloseLogsPanel}
-              />
-            </ResizablePanel>
-          </ResizablePanelGroup>
+              <ResizablePanel defaultSize={35} minSize={25} style={{ paddingLeft: '12px' }}>
+                <PanelContainer
+                  isTaskPanelOpen={isTaskPanelOpen}
+                  selectedTask={selectedTask}
+                  onTaskCreated={handleTaskCreated}
+                  onCloseTaskPanel={handleCloseTaskPanel}
+                  onCloseLogsPanel={handleCloseLogsPanel}
+                />
+              </ResizablePanel>
+            </ResizablePanelGroup>
+          </div>
         ) : (
           <MainContentArea
             dateFilter={dateFilter}
