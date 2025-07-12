@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Download, FileText, Database, Clock, Eye, ChevronDown, Maximize } from 'lucide-react';
@@ -36,6 +35,15 @@ export const TaskReportDetailPage: React.FC = () => {
   })).reverse();
 
   const currentRun = runs[runs.length - 1]; // Latest run
+
+  const formatTimeRange = (timeRange: string | { start: Date; end: Date; } | undefined) => {
+    if (!timeRange) return 'Not specified';
+    if (typeof timeRange === 'string') return timeRange;
+    if (typeof timeRange === 'object' && timeRange.start && timeRange.end) {
+      return `${formatTimestamp(timeRange.start)} - ${formatTimestamp(timeRange.end)}`;
+    }
+    return 'Not specified';
+  };
 
   const containerStyle: React.CSSProperties = {
     minHeight: '100vh',
@@ -375,7 +383,7 @@ export const TaskReportDetailPage: React.FC = () => {
             <div>
               <div style={sharedStyles.label}>Time Range</div>
               <div style={{ ...sharedStyles.value, marginTop: '4px' }}>
-                {task.taskCreation?.timeRange || 'Last 30 days'}
+                {formatTimeRange(task.taskCreation?.timeRange)}
               </div>
             </div>
             <div>
