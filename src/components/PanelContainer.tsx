@@ -20,7 +20,7 @@ export const PanelContainer: React.FC<PanelContainerProps> = ({
   onCloseLogsPanel
 }) => {
   const panelContainerStyle: React.CSSProperties = {
-    height: 'calc(100vh - 80px - 48px)',
+    height: '100%',
     backgroundColor: '#ffffff',
     borderRadius: '16px',
     border: '1px solid #e2e8f0',
