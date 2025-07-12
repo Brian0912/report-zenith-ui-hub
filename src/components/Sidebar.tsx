@@ -9,7 +9,7 @@ interface SidebarProps {}
 interface MenuItem {
   id: string;
   label: string;
-  icon: React.ComponentType<{ size?: number; className?: string }>;
+  icon: React.ComponentType<{ size?: string | number; className?: string }>;
   path: string;
 }
 
