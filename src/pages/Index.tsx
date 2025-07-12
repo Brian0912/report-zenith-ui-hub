@@ -50,7 +50,7 @@ export const Index: React.FC = () => {
       <div style={contentContainerStyle}>
         {isPanelOpen ? (
           <ResizablePanelGroup direction="horizontal" style={{ height: '100%' }}>
-            <ResizablePanel defaultSize={50} minSize={30} style={{ paddingRight: '12px' }}>
+            <ResizablePanel defaultSize={65} minSize={40} style={{ paddingRight: '12px' }}>
               <MainContentArea
                 dateFilter={dateFilter}
                 setDateFilter={setDateFilter}
@@ -62,7 +62,7 @@ export const Index: React.FC = () => {
 
             <ResizableHandle withHandle />
 
-            <ResizablePanel defaultSize={50} minSize={35} style={{ paddingLeft: '12px' }}>
+            <ResizablePanel defaultSize={35} minSize={25} style={{ paddingLeft: '12px' }}>
               <PanelContainer
                 isTaskPanelOpen={isTaskPanelOpen}
                 selectedTask={selectedTask}

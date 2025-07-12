@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { TaskCreationPanel } from './TaskCreationPanel';
 import { TaskLogsSidebar } from './TaskLogsSidebar';
@@ -23,6 +24,7 @@ export const PanelContainer: React.FC<PanelContainerProps> = ({
     backgroundColor: '#ffffff',
     borderRadius: '16px',
     border: '1px solid #e2e8f0',
+    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12)',
     display: 'flex',
     flexDirection: 'column',
     overflow: 'hidden'
