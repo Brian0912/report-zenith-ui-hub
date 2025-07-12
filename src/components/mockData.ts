@@ -1,18 +1,25 @@
+
 import { v4 as uuidv4 } from 'uuid';
 
 export interface Report {
   id: string;
   title: string;
+  description: string;
   status: 'completed' | 'running' | 'error' | 'queued';
   progress: number;
   createdAt: Date;
+  isSubscribed: boolean;
+  subscriberCount: number;
   pointOfContact: {
     name: string;
     avatar: string;
+    isOnline: boolean;
+    role: string;
   };
   schedule: {
     lastRun: Date;
     nextRun: Date;
+    frequency?: string;
   };
   versions: Array<{
     id: string;
@@ -21,6 +28,9 @@ export interface Report {
     createdBy: string;
     goal: string;
     background: string;
+    status?: 'completed' | 'running' | 'error' | 'queued';
+    metadata?: Record<string, unknown>;
+    reportUrl?: string;
   }>;
   supportEvidences: Array<{
     id: string;
@@ -57,16 +67,22 @@ export const mockReports: Report[] = [
   {
     id: '1',
     title: 'User Authentication System Analysis',
+    description: 'Comprehensive security analysis of our user authentication system to identify vulnerabilities and recommend improvements.',
     status: 'completed',
     progress: 100,
+    isSubscribed: true,
+    subscriberCount: 15,
     createdAt: new Date('2024-01-15T09:30:00Z'),
     pointOfContact: {
       name: 'Sarah Chen',
-      avatar: 'SC'
+      avatar: 'SC',
+      isOnline: true,
+      role: 'Security Engineer'
     },
     schedule: {
       lastRun: new Date('2024-01-15T14:45:00Z'),
-      nextRun: new Date('2024-01-22T09:30:00Z')
+      nextRun: new Date('2024-01-22T09:30:00Z'),
+      frequency: 'Weekly'
     },
     versions: [
       {
@@ -75,7 +91,14 @@ export const mockReports: Report[] = [
         createdAt: new Date('2024-01-15T09:30:00Z'),
         createdBy: 'Sarah Chen',
         goal: 'Analyze the security vulnerabilities in our current authentication system',
-        background: 'Recent security audits have highlighted potential weaknesses in our user authentication flow.'
+        background: 'Recent security audits have highlighted potential weaknesses in our user authentication flow.',
+        status: 'completed',
+        reportUrl: '/reports/auth-analysis-v1.pdf',
+        metadata: {
+          priority: ['high'],
+          type: ['research'],
+          team: ['backend']
+        }
       }
     ],
     supportEvidences: [
@@ -149,16 +172,22 @@ export const mockReports: Report[] = [
   {
     id: '2',
     title: 'E-commerce Platform Performance Optimization',
+    description: 'Performance analysis and optimization recommendations for our e-commerce platform to improve loading times and user experience.',
     status: 'running',
     progress: 60,
+    isSubscribed: false,
+    subscriberCount: 8,
     createdAt: new Date('2024-02-01T11:00:00Z'),
     pointOfContact: {
       name: 'Alex Johnson',
-      avatar: 'AJ'
+      avatar: 'AJ',
+      isOnline: true,
+      role: 'Performance Engineer'
     },
     schedule: {
       lastRun: new Date('2024-02-08T16:20:00Z'),
-      nextRun: new Date('2024-02-15T11:00:00Z')
+      nextRun: new Date('2024-02-15T11:00:00Z'),
+      frequency: 'Weekly'
     },
     versions: [
       {
@@ -167,7 +196,8 @@ export const mockReports: Report[] = [
         createdAt: new Date('2024-02-01T11:00:00Z'),
         createdBy: 'Alex Johnson',
         goal: 'Improve the loading speed and overall performance of our e-commerce platform',
-        background: 'Users have reported slow loading times, especially during peak hours, leading to a high bounce rate.'
+        background: 'Users have reported slow loading times, especially during peak hours, leading to a high bounce rate.',
+        status: 'running'
       }
     ],
     supportEvidences: [
@@ -212,16 +242,22 @@ export const mockReports: Report[] = [
   {
     id: '3',
     title: 'Mobile App Redesign Project',
+    description: 'User experience analysis and redesign recommendations for our mobile application interface.',
     status: 'queued',
     progress: 20,
+    isSubscribed: true,
+    subscriberCount: 12,
     createdAt: new Date('2024-02-15T14:15:00Z'),
     pointOfContact: {
       name: 'Emily White',
-      avatar: 'EW'
+      avatar: 'EW',
+      isOnline: false,
+      role: 'UX Designer'
     },
     schedule: {
       lastRun: new Date('2024-02-15T14:15:00Z'),
-      nextRun: new Date('2024-02-22T14:15:00Z')
+      nextRun: new Date('2024-02-22T14:15:00Z'),
+      frequency: 'Weekly'
     },
     versions: [
       {
@@ -230,7 +266,8 @@ export const mockReports: Report[] = [
         createdAt: new Date('2024-02-15T14:15:00Z'),
         createdBy: 'Emily White',
         goal: 'Redesign the user interface of our mobile app to improve user experience',
-        background: 'User feedback indicates that the current app interface is outdated and difficult to navigate.'
+        background: 'User feedback indicates that the current app interface is outdated and difficult to navigate.',
+        status: 'queued'
       }
     ],
     supportEvidences: [
@@ -268,16 +305,22 @@ export const mockReports: Report[] = [
   {
     id: '4',
     title: 'Customer Churn Prediction Model',
+    description: 'Machine learning model development to predict customer churn and identify at-risk customers.',
     status: 'error',
     progress: 0,
+    isSubscribed: false,
+    subscriberCount: 6,
     createdAt: new Date('2024-03-01T08:00:00Z'),
     pointOfContact: {
       name: 'David Brown',
-      avatar: 'DB'
+      avatar: 'DB',
+      isOnline: true,
+      role: 'Data Scientist'
     },
     schedule: {
       lastRun: new Date('2024-03-01T08:00:00Z'),
-      nextRun: new Date('2024-03-08T08:00:00Z')
+      nextRun: new Date('2024-03-08T08:00:00Z'),
+      frequency: 'Weekly'
     },
     versions: [
       {
@@ -286,7 +329,8 @@ export const mockReports: Report[] = [
         createdAt: new Date('2024-03-01T08:00:00Z'),
         createdBy: 'David Brown',
         goal: 'Develop a machine learning model to predict customer churn',
-        background: 'We are experiencing a high rate of customer churn, and we need to identify at-risk customers to take proactive measures.'
+        background: 'We are experiencing a high rate of customer churn, and we need to identify at-risk customers to take proactive measures.',
+        status: 'error'
       }
     ],
     supportEvidences: [
@@ -324,16 +368,22 @@ export const mockReports: Report[] = [
   {
     id: '5',
     title: 'Website Security Enhancement Project',
+    description: 'Comprehensive security audit and enhancement recommendations for our website infrastructure.',
     status: 'completed',
     progress: 100,
+    isSubscribed: true,
+    subscriberCount: 22,
     createdAt: new Date('2024-03-10T10:30:00Z'),
     pointOfContact: {
       name: 'Linda Green',
-      avatar: 'LG'
+      avatar: 'LG',
+      isOnline: false,
+      role: 'Security Analyst'
     },
     schedule: {
       lastRun: new Date('2024-03-15T15:00:00Z'),
-      nextRun: new Date('2024-03-22T10:30:00Z')
+      nextRun: new Date('2024-03-22T10:30:00Z'),
+      frequency: 'Monthly'
     },
     versions: [
       {
@@ -342,7 +392,9 @@ export const mockReports: Report[] = [
         createdAt: new Date('2024-03-10T10:30:00Z'),
         createdBy: 'Linda Green',
         goal: 'Enhance the security of our website to protect against cyber threats',
-        background: 'Recent reports indicate an increase in cyber attacks targeting websites, and we need to strengthen our defenses.'
+        background: 'Recent reports indicate an increase in cyber attacks targeting websites, and we need to strengthen our defenses.',
+        status: 'completed',
+        reportUrl: '/reports/security-audit-v1.pdf'
       }
     ],
     supportEvidences: [
