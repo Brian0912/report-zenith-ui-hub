@@ -5,6 +5,10 @@ export function formReducer(state: FormData, action: FormAction): FormData {
   switch (action.type) {
     case 'SET_FIELD':
       return { ...state, [action.field]: action.value };
+    case 'SET_ANALYSIS_TYPE':
+      return { ...state, analysisType: action.value };
+    case 'SET_TIME_RANGE':
+      return { ...state, timeRange: action.value };
     case 'ADD_METADATA':
       if (state.metadata.find(m => m.id === action.item.id)) {
         return state;

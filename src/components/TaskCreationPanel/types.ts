@@ -1,83 +1,95 @@
 
-import { User, Clock, Database, AlertCircle } from 'lucide-react';
+export interface FormData {
+  goal: string;
+  analysisType: 'situational' | 'impact' | '';
+  background: string;
+  timeRange: { start: Date; end: Date } | null;
+  metadata: MetadataItemType[];
+}
 
-export const METADATA_CATEGORIES = {
-  employee: {
-    name: 'Employee',
-    icon: User,
-    options: [
-      { key: 'username', label: 'Username', placeholder: 'e.g., john.doe' },
-      { key: 'department', label: 'Department', placeholder: 'e.g., Engineering' },
-      { key: 'base_country', label: 'Base Country', placeholder: 'e.g., United States' },
-      { key: 'physical_country', label: 'Physical Country', placeholder: 'e.g., Canada' },
-      { key: 'manager', label: 'Manager', placeholder: 'e.g., Jane Smith' },
-      { key: 'role', label: 'Role', placeholder: 'e.g., Senior Developer' },
-      { key: 'employee_id', label: 'Employee ID', placeholder: 'e.g., EMP001' }
-    ]
-  },
-  traffic: {
-    name: 'Traffic',
-    icon: Clock,
-    options: [
-      { key: 'source_ip', label: 'Source IP', placeholder: 'e.g., 192.168.1.1' },
-      { key: 'destination', label: 'Destination', placeholder: 'e.g., api.example.com' },
-      { key: 'protocol', label: 'Protocol', placeholder: 'e.g., HTTPS' },
-      { key: 'port', label: 'Port', placeholder: 'e.g., 443' },
-      { key: 'bandwidth', label: 'Bandwidth', placeholder: 'e.g., 100 Mbps' },
-      { key: 'region', label: 'Region', placeholder: 'e.g., us-east-1' }
-    ]
-  },
-  data_assets: {
-    name: 'Data Assets',
-    icon: Database,
-    options: [
-      { key: 'asset_name', label: 'Asset Name', placeholder: 'e.g., Customer Database' },
-      { key: 'data_type', label: 'Data Type', placeholder: 'e.g., PII' },
-      { key: 'classification', label: 'Classification', placeholder: 'e.g., Confidential' },
-      { key: 'owner', label: 'Data Owner', placeholder: 'e.g., Data Team' },
-      { key: 'location', label: 'Location', placeholder: 'e.g., AWS RDS' },
-      { key: 'retention_period', label: 'Retention Period', placeholder: 'e.g., 7 years' }
-    ]
-  },
-  policy: {
-    name: 'Policy',
-    icon: AlertCircle,
-    options: [
-      { key: 'policy_name', label: 'Policy Name', placeholder: 'e.g., Data Retention Policy' },
-      { key: 'compliance_framework', label: 'Compliance Framework', placeholder: 'e.g., GDPR' },
-      { key: 'severity', label: 'Severity', placeholder: 'e.g., High' },
-      { key: 'approval_required', label: 'Approval Required', placeholder: 'e.g., Yes' },
-      { key: 'expiry_date', label: 'Expiry Date', placeholder: 'e.g., 2024-12-31' },
-      { key: 'owner', label: 'Policy Owner', placeholder: 'e.g., Security Team' }
-    ]
-  }
-};
-
-export type MetadataItemType = {
+export interface MetadataItemType {
   id: string;
   category: keyof typeof METADATA_CATEGORIES;
   key: string;
   value: string;
-};
-
-export type FormData = {
-  goal: string;
-  background: string;
-  metadata: MetadataItemType[];
-};
+}
 
 export type FormAction =
-  | { type: 'SET_FIELD'; field: keyof Omit<FormData, 'metadata'>; value: string }
+  | { type: 'SET_FIELD'; field: keyof Omit<FormData, 'metadata' | 'timeRange'>; value: string }
+  | { type: 'SET_ANALYSIS_TYPE'; value: 'situational' | 'impact' | '' }
+  | { type: 'SET_TIME_RANGE'; value: { start: Date; end: Date } | null }
   | { type: 'ADD_METADATA'; item: MetadataItemType }
   | { type: 'UPDATE_METADATA'; id: string; value: string }
   | { type: 'REMOVE_METADATA'; id: string }
   | { type: 'SET_ALL'; data: FormData };
 
-export const TEMPLATE_DATA = {
-  goal: "Implement a user authentication system",
-  background: "We need a secure and scalable authentication system for our web application. It should support email/password login, social logins, and multi-factor authentication. The system must integrate with our existing user database and comply with GDPR regulations.",
+export const METADATA_CATEGORIES = {
+  priority: {
+    name: 'Priority',
+    options: {
+      high: 'High Priority',
+      medium: 'Medium Priority',
+      low: 'Low Priority',
+      urgent: 'Urgent'
+    }
+  },
+  type: {
+    name: 'Type',
+    options: {
+      feature: 'Feature Request',
+      bug: 'Bug Fix',
+      enhancement: 'Enhancement',
+      research: 'Research',
+      documentation: 'Documentation'
+    }
+  },
+  team: {
+    name: 'Team',
+    options: {
+      frontend: 'Frontend',
+      backend: 'Backend',
+      design: 'Design',
+      qa: 'Quality Assurance',
+      devops: 'DevOps'
+    }
+  },
+  complexity: {
+    name: 'Complexity',
+    options: {
+      simple: 'Simple',
+      moderate: 'Moderate',
+      complex: 'Complex',
+      expert: 'Expert Level'
+    }
+  }
+};
+
+export const TEMPLATE_DATA: FormData = {
+  goal: 'Create a secure authentication system for the web application that supports user registration, login, password reset, and role-based access control.',
+  analysisType: 'situational',
+  background: 'Our current application lacks proper user authentication, which is blocking the deployment to production. We need to implement a comprehensive authentication system that integrates with our existing React frontend and Node.js backend. The system should support different user roles (admin, user, guest) and include security features like password hashing, JWT tokens, and rate limiting. We have attempted basic implementations before but faced issues with session management and security vulnerabilities.',
+  timeRange: {
+    start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // 30 days ago
+    end: new Date()
+  },
   metadata: [
-    { id: '1', category: 'employee' as const, key: 'username', value: 'john.doe' },
-    { id: '2', category: 'policy' as const, key: 'policy_name', value: 'Authentication Policy' }
+    {
+      id: '1',
+      category: 'priority',
+      key: 'high',
+      value: 'Blocking production deployment'
+    },
+    {
+      id: '2',
+      category: 'type',
+      key: 'feature',
+      value: 'Core system feature'
+    },
+    {
+      id: '3',
+      category: 'complexity',
+      key: 'complex',
+      value: 'Requires security expertise'
+    }
   ]
 };

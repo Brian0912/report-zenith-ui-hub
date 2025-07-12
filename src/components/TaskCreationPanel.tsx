@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef, useCallback, useReducer } from 'react';
 import { Plus, CheckCircle, Sparkles, Loader2 } from 'lucide-react';
 import { FormData, TEMPLATE_DATA, MetadataItemType, METADATA_CATEGORIES } from './TaskCreationPanel/types';
@@ -7,13 +8,21 @@ import { ValidationMessage } from './TaskCreationPanel/ValidationMessage';
 import { WordCounter } from './TaskCreationPanel/WordCounter';
 import { MetadataItem } from './TaskCreationPanel/MetadataItem';
 import { MetadataSelector } from './TaskCreationPanel/MetadataSelector';
+import { AnalysisTypeSelector } from './TaskCreationPanel/AnalysisTypeSelector';
+import { TimeRangeSelector } from './TimeRangeSelector';
 
 interface TaskCreationPanelProps {
   onSuccess?: () => void;
 }
 
 export const TaskCreationPanel: React.FC<TaskCreationPanelProps> = ({ onSuccess }) => {
-  const [formData, dispatch] = useReducer(formReducer, { goal: '', background: '', metadata: [] });
+  const [formData, dispatch] = useReducer(formReducer, { 
+    goal: '', 
+    analysisType: '', 
+    background: '', 
+    timeRange: null,
+    metadata: [] 
+  });
   const [uiState, setUiState] = useState({
     isSubmitting: false,
     showSuccess: false,
@@ -27,7 +36,7 @@ export const TaskCreationPanel: React.FC<TaskCreationPanelProps> = ({ onSuccess 
   const backgroundRef = useRef<HTMLTextAreaElement>(null);
   const autoResize = useAutoResize();
   const validation = useValidation(formData);
-  const hasUnsavedChanges = formData.goal || formData.background || formData.metadata.length > 0;
+  const hasUnsavedChanges = formData.goal || formData.background || formData.metadata.length > 0 || formData.analysisType || formData.timeRange;
 
   useEffect(() => {
     autoResize(goalRef.current);
@@ -41,8 +50,16 @@ export const TaskCreationPanel: React.FC<TaskCreationPanelProps> = ({ onSuccess 
     setUiState(prev => ({ ...prev, ...updates }));
   }, []);
 
-  const handleFieldChange = (field: keyof Omit<FormData, 'metadata'>, value: string) => {
+  const handleFieldChange = (field: keyof Omit<FormData, 'metadata' | 'timeRange'>, value: string) => {
     dispatch({ type: 'SET_FIELD', field, value });
+  };
+
+  const handleAnalysisTypeChange = (type: 'situational' | 'impact') => {
+    dispatch({ type: 'SET_ANALYSIS_TYPE', value: type });
+  };
+
+  const handleTimeRangeChange = (range: { start: Date; end: Date } | undefined) => {
+    dispatch({ type: 'SET_TIME_RANGE', value: range || null });
   };
 
   const handleAddMetadata = (categoryKey: string, optionKey: string) => {
@@ -80,7 +97,7 @@ export const TaskCreationPanel: React.FC<TaskCreationPanelProps> = ({ onSuccess 
     if (onSuccess) onSuccess();
 
     // Reset form after success
-    dispatch({ type: 'SET_ALL', data: { goal: '', background: '', metadata: [] } });
+    dispatch({ type: 'SET_ALL', data: { goal: '', analysisType: '', background: '', timeRange: null, metadata: [] } });
 
     setTimeout(() => {
       updateUiState({ showSuccess: false });
@@ -105,6 +122,21 @@ export const TaskCreationPanel: React.FC<TaskCreationPanelProps> = ({ onSuccess 
     ...inputStyle,
     minHeight: '80px',
   };
+
+  // Report card style step indicators
+  const stepIndicatorStyle = (stepNumber: number, isCompleted: boolean): React.CSSProperties => ({
+    width: '28px',
+    height: '28px',
+    borderRadius: '8px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: '14px',
+    fontWeight: '600',
+    backgroundColor: isCompleted ? '#10b981' : '#e5e7eb',
+    color: isCompleted ? '#ffffff' : '#6b7280',
+    border: isCompleted ? '2px solid #10b981' : '2px solid #e5e7eb'
+  });
 
   return (
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
@@ -218,24 +250,10 @@ export const TaskCreationPanel: React.FC<TaskCreationPanelProps> = ({ onSuccess 
         {/* Goal Section */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div style={{
-              width: '32px',
-              height: '32px',
-              background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-              borderRadius: '12px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}>
-              <span style={{
-                color: '#ffffff',
-                fontWeight: '700',
-                fontSize: '16px'
-              }}>1</span>
-            </div>
+            <div style={stepIndicatorStyle(1, validation.goalValid)}>1</div>
             <h3 style={{
-              fontSize: '20px',
-              fontWeight: '700',
+              fontSize: '18px',
+              fontWeight: '600',
               color: '#1f2937',
               margin: 0
             }}>Goal</h3>
@@ -294,30 +312,35 @@ export const TaskCreationPanel: React.FC<TaskCreationPanelProps> = ({ onSuccess 
                 message={`Please provide more meaningful content (min ${VALIDATION_RULES.GOAL_MIN_WORDS} words)`}
               />
             </div>
+
+            {/* Analysis Type Selection */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <label style={{
+                fontSize: '16px',
+                fontWeight: '600',
+                color: '#374151'
+              }}>
+                Which type of analysis best describes your goal? <span style={{ color: '#ef4444' }}>*</span>
+              </label>
+              <AnalysisTypeSelector
+                selectedType={formData.analysisType}
+                onTypeChange={handleAnalysisTypeChange}
+              />
+              <ValidationMessage 
+                isValid={validation.analysisTypeValid || formData.analysisType === ''}
+                message="Please select an analysis type"
+              />
+            </div>
           </div>
         </div>
 
         {/* Background Section */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div style={{
-              width: '32px',
-              height: '32px',
-              background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
-              borderRadius: '12px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}>
-              <span style={{
-                color: '#ffffff',
-                fontWeight: '700',
-                fontSize: '16px'
-              }}>2</span>
-            </div>
+            <div style={stepIndicatorStyle(2, validation.backgroundValid)}>2</div>
             <h3 style={{
-              fontSize: '20px',
-              fontWeight: '700',
+              fontSize: '18px',
+              fontWeight: '600',
               color: '#1f2937',
               margin: 0
             }}>Background</h3>
@@ -379,27 +402,45 @@ export const TaskCreationPanel: React.FC<TaskCreationPanelProps> = ({ onSuccess 
           </div>
         </div>
 
+        {/* Time Range Section */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={stepIndicatorStyle(3, validation.timeRangeValid)}>3</div>
+            <h3 style={{
+              fontSize: '18px',
+              fontWeight: '600',
+              color: '#1f2937',
+              margin: 0
+            }}>Time Range</h3>
+            {validation.timeRangeValid && <CheckCircle size={20} style={{ color: '#10b981' }} />}
+          </div>
+          
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <label style={{
+              fontSize: '16px',
+              fontWeight: '600',
+              color: '#374151'
+            }}>
+              Select the time range for data used to generate the report <span style={{ color: '#ef4444' }}>*</span>
+            </label>
+            
+            <div>
+              <TimeRangeSelector onTimeRangeChange={handleTimeRangeChange} />
+              <ValidationMessage 
+                isValid={validation.timeRangeValid || formData.timeRange === null}
+                message="Please select a time range"
+              />
+            </div>
+          </div>
+        </div>
+
         {/* Metadata Section */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div style={{
-              width: '32px',
-              height: '32px',
-              background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
-              borderRadius: '12px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}>
-              <span style={{
-                color: '#ffffff',
-                fontWeight: '700',
-                fontSize: '16px'
-              }}>3</span>
-            </div>
+            <div style={stepIndicatorStyle(4, false)}>4</div>
             <h3 style={{
-              fontSize: '20px',
-              fontWeight: '700',
+              fontSize: '18px',
+              fontWeight: '600',
               color: '#1f2937',
               margin: 0
             }}>Metadata</h3>
@@ -516,29 +557,28 @@ export const TaskCreationPanel: React.FC<TaskCreationPanelProps> = ({ onSuccess 
               alignItems: 'center',
               gap: '12px',
               padding: '16px 32px',
-              borderRadius: '16px',
+              borderRadius: '12px',
               fontWeight: '600',
               fontSize: '16px',
               border: 'none',
               cursor: validation.isFormValid && !uiState.isSubmitting ? 'pointer' : 'not-allowed',
               background: validation.isFormValid && !uiState.isSubmitting 
-                ? 'linear-gradient(135deg, #1f2937 0%, #111827 100%)' 
+                ? '#1f2937' 
                 : '#e5e7eb',
               color: validation.isFormValid && !uiState.isSubmitting ? '#ffffff' : '#9ca3af',
-              transition: 'all 0.2s ease',
-              transform: validation.isFormValid && !uiState.isSubmitting ? 'scale(1)' : 'scale(1)'
+              transition: 'all 0.2s ease'
             }}
             onMouseEnter={(e) => {
               if (validation.isFormValid && !uiState.isSubmitting) {
-                e.currentTarget.style.background = 'linear-gradient(135deg, #111827 0%, #000000 100%)';
-                e.currentTarget.style.transform = 'scale(1.02)';
-                e.currentTarget.style.boxShadow = '0 10px 25px rgba(0, 0, 0, 0.15)';
+                e.currentTarget.style.backgroundColor = '#111827';
+                e.currentTarget.style.transform = 'translateY(-1px)';
+                e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
               }
             }}
             onMouseLeave={(e) => {
               if (validation.isFormValid && !uiState.isSubmitting) {
-                e.currentTarget.style.background = 'linear-gradient(135deg, #1f2937 0%, #111827 100%)';
-                e.currentTarget.style.transform = 'scale(1)';
+                e.currentTarget.style.backgroundColor = '#1f2937';
+                e.currentTarget.style.transform = 'translateY(0)';
                 e.currentTarget.style.boxShadow = 'none';
               }
             }}
