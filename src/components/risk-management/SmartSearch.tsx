@@ -70,11 +70,9 @@ export const SmartSearch: React.FC<SmartSearchProps> = ({
   }, [selectedPsms, selectedApis, entities, onFilterChange]);
 
   const sectionStyle: React.CSSProperties = {
-    background: theme === 'dark' 
-      ? 'rgba(30, 41, 59, 0.6)'
-      : 'rgba(255, 255, 255, 0.8)',
+    background: 'rgba(255, 255, 255, 0.8)',
     borderRadius: '10px',
-    border: `1px solid ${theme === 'dark' ? 'rgba(55, 65, 81, 0.3)' : 'rgba(226, 232, 240, 0.5)'}`,
+    border: '1px solid rgba(226, 232, 240, 0.5)',
     backdropFilter: 'blur(8px)',
     height: '220px',
     display: 'flex',
@@ -83,14 +81,14 @@ export const SmartSearch: React.FC<SmartSearchProps> = ({
 
   const sectionHeaderStyle: React.CSSProperties = {
     padding: '12px 16px 10px 16px',
-    borderBottom: `1px solid ${theme === 'dark' ? 'rgba(55, 65, 81, 0.3)' : 'rgba(226, 232, 240, 0.5)'}`,
+    borderBottom: '1px solid rgba(226, 232, 240, 0.5)',
     flexShrink: 0
   };
 
   const sectionTitleStyle: React.CSSProperties = {
     fontSize: '14px',
     fontWeight: '600',
-    color: theme === 'dark' ? '#f1f5f9' : '#334155',
+    color: '#334155',
     margin: 0
   };
 
@@ -111,9 +109,9 @@ export const SmartSearch: React.FC<SmartSearchProps> = ({
     width: '100%',
     padding: '8px 12px',
     borderRadius: '6px',
-    border: `1px solid ${theme === 'dark' ? '#475569' : '#cbd5e1'}`,
-    background: theme === 'dark' ? '#1e293b' : '#ffffff',
-    color: theme === 'dark' ? '#f1f5f9' : '#334155',
+    border: '1px solid #cbd5e1',
+    background: '#ffffff',
+    color: '#334155',
     fontSize: '13px',
     outline: 'none',
     transition: 'all 0.3s ease'
@@ -124,8 +122,8 @@ export const SmartSearch: React.FC<SmartSearchProps> = ({
     top: '100%',
     left: 0,
     right: 0,
-    background: theme === 'dark' ? '#1e293b' : '#ffffff',
-    border: `1px solid ${theme === 'dark' ? '#475569' : '#cbd5e1'}`,
+    background: '#ffffff',
+    border: '1px solid #cbd5e1',
     borderRadius: '8px',
     maxHeight: '150px',
     overflowY: 'auto',
@@ -136,7 +134,7 @@ export const SmartSearch: React.FC<SmartSearchProps> = ({
   const resultItemStyle: React.CSSProperties = {
     padding: '8px 12px',
     cursor: 'pointer',
-    borderBottom: `1px solid ${theme === 'dark' ? '#334155' : '#e2e8f0'}`,
+    borderBottom: '1px solid #e2e8f0',
     transition: 'background 0.2s ease'
   };
 
@@ -184,7 +182,7 @@ export const SmartSearch: React.FC<SmartSearchProps> = ({
     alignItems: 'center',
     gap: '6px',
     fontSize: '12px',
-    color: theme === 'dark' ? '#94a3b8' : '#64748b'
+    color: '#64748b'
   };
 
   const checkboxStyle: React.CSSProperties = {
@@ -248,7 +246,7 @@ export const SmartSearch: React.FC<SmartSearchProps> = ({
                   style={resultItemStyle}
                   onClick={() => addPsm(psm)}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.background = theme === 'dark' ?'#334155' : '#f1f5f9';
+                    e.currentTarget.style.background = '#f1f5f9';
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.background = 'transparent';

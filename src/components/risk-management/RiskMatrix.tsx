@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../ThemeProvider';
@@ -39,16 +40,12 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
   const paginatedEntities = entities.slice(startIndex, endIndex);
 
   const containerStyle: React.CSSProperties = {
-    background: theme === 'dark' 
-      ? 'rgba(30, 41, 59, 0.6)'
-      : 'rgba(255, 255, 255, 0.9)',
+    background: 'rgba(255, 255, 255, 0.9)',
     borderRadius: '16px',
     overflow: 'hidden',
-    border: `1px solid ${theme === 'dark' ? 'rgba(55, 65, 81, 0.3)' : 'rgba(226, 232, 240, 0.5)'}`,
+    border: '1px solid rgba(226, 232, 240, 0.5)',
     backdropFilter: 'blur(10px)',
-    boxShadow: theme === 'dark' 
-      ? '0 8px 32px rgba(0, 0, 0, 0.3)'
-      : '0 8px 32px rgba(0, 0, 0, 0.1)',
+    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
     height: '900px',
     display: 'flex',
     flexDirection: 'column'
@@ -56,13 +53,11 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
 
   const batchControlsStyle: React.CSSProperties = {
     padding: '12px 20px',
-    borderBottom: `1px solid ${theme === 'dark' ? '#334155' : '#e2e8f0'}`,
+    borderBottom: '1px solid #e2e8f0',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    background: theme === 'dark' 
-      ? 'linear-gradient(135deg, #1e293b 0%, #334155 100%)'
-      : 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+    background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
     flexShrink: 0
   };
 
@@ -86,10 +81,8 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
   };
 
   const headerStyle: React.CSSProperties = {
-    background: theme === 'dark' 
-      ? 'linear-gradient(135deg, #1e293b 0%, #334155 100%)'
-      : 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
-    borderBottom: `2px solid ${theme === 'dark' ? '#475569' : '#cbd5e1'}`,
+    background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+    borderBottom: '2px solid #cbd5e1',
     position: 'sticky',
     top: 0,
     zIndex: 10
@@ -100,30 +93,28 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
     textAlign: 'left',
     fontWeight: '600',
     fontSize: '13px',
-    color: theme === 'dark' ? '#f1f5f9' : '#334155',
+    color: '#334155',
     whiteSpace: 'nowrap'
   };
 
   const rowStyle = (index: number): React.CSSProperties => ({
     background: index % 2 === 0 
-      ? (theme === 'dark' ? 'rgba(30, 41, 59, 0.3)' : 'rgba(248, 250, 252, 0.8)')
+      ? 'rgba(248, 250, 252, 0.8)'
       : 'transparent',
-    borderBottom: `1px solid ${theme === 'dark' ? '#334155' : '#e2e8f0'}`,
+    borderBottom: '1px solid #e2e8f0',
     transition: 'all 0.2s ease'
   });
 
   const cellStyle: React.CSSProperties = {
     padding: '10px',
     verticalAlign: 'middle',
-    borderRight: `1px solid ${theme === 'dark' ? '#334155' : '#e2e8f0'}`
+    borderRight: '1px solid #e2e8f0'
   };
 
   const disabledCellStyle: React.CSSProperties = {
     ...cellStyle,
-    background: theme === 'dark' 
-      ? 'rgba(71, 85, 105, 0.3)' 
-      : 'rgba(203, 213, 225, 0.3)',
-    color: theme === 'dark' ? '#64748b' : '#94a3b8',
+    background: 'rgba(203, 213, 225, 0.3)',
+    color: '#94a3b8',
     textAlign: 'center'
   };
 
@@ -135,7 +126,7 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
 
   const psmStyle: React.CSSProperties = {
     fontWeight: '500',
-    color: theme === 'dark' ? '#94a3b8' : '#64748b',
+    color: '#64748b',
     fontSize: '13px'
   };
 
@@ -148,7 +139,7 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
   const apiPathStyle: React.CSSProperties = {
     fontFamily: 'monospace',
     fontSize: '12px',
-    color: theme === 'dark' ? '#f1f5f9' : '#1e293b'
+    color: '#1e293b'
   };
 
   // Muted method badge colors
@@ -217,26 +208,24 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
 
   const disabledButtonStyle: React.CSSProperties = {
     ...actionButtonStyle,
-    background: theme === 'dark' ? '#475569' : '#cbd5e1',
+    background: '#cbd5e1',
     cursor: 'not-allowed',
     opacity: 0.5
   };
 
   const paginationStyle: React.CSSProperties = {
     padding: '12px 20px',
-    borderTop: `1px solid ${theme === 'dark' ? '#334155' : '#e2e8f0'}`,
+    borderTop: '1px solid #e2e8f0',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    background: theme === 'dark' 
-      ? 'linear-gradient(135deg, #1e293b 0%, #334155 100%)'
-      : 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+    background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
     flexShrink: 0
   };
 
   const pageInfoStyle: React.CSSProperties = {
     fontSize: '13px',
-    color: theme === 'dark' ? '#94a3b8' : '#64748b'
+    color: '#64748b'
   };
 
   const paginationControlsStyle: React.CSSProperties = {
@@ -246,8 +235,8 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
   };
 
   const pageButtonStyle: React.CSSProperties = {
-    background: theme === 'dark' ? '#334155' : '#f1f5f9',
-    border: `1px solid ${theme === 'dark' ? '#475569' : '#cbd5e1'}`,
+    background: '#f1f5f9',
+    border: '1px solid #cbd5e1',
     borderRadius: '4px',
     padding: '4px 8px',
     fontSize: '12px',
@@ -263,12 +252,12 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
   };
 
   const selectStyle: React.CSSProperties = {
-    background: theme === 'dark' ? '#334155' : '#f1f5f9',
-    border: `1px solid ${theme === 'dark' ? '#475569' : '#cbd5e1'}`,
+    background: '#f1f5f9',
+    border: '1px solid #cbd5e1',
     borderRadius: '4px',
     padding: '4px 8px',
     fontSize: '12px',
-    color: theme === 'dark' ? '#f1f5f9' : '#334155'
+    color: '#334155'
   };
 
   // Muted severity colors for risk headers
@@ -339,7 +328,7 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
           </div>
 
           <div style={batchControlsRightStyle}>
-            <span style={{ fontSize: '13px', color: theme === 'dark' ? '#94a3b8' : '#64748b' }}>
+            <span style={{ fontSize: '13px', color: '#64748b' }}>
               Showing {startIndex + 1}-{Math.min(endIndex, entities.length)} of {entities.length}
             </span>
           </div>
@@ -382,11 +371,11 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({
                   key={entity.id} 
                   style={rowStyle(index)}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.background = theme === 'dark' ? 'rgba(55, 65, 81, 0.3)' : 'rgba(226, 232, 240, 0.3)';
+                    e.currentTarget.style.background = 'rgba(226, 232, 240, 0.3)';
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.background = index % 2 === 0 
-                      ? (theme === 'dark' ? 'rgba(30, 41, 59, 0.3)' : 'rgba(248, 250, 252, 0.8)')
+                      ? 'rgba(248, 250, 252, 0.8)'
                       : 'transparent';
                   }}
                 >
