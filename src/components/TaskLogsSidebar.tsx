@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
-import { Clock, User, AlertCircle, Info, AlertTriangle, Bug, Copy, Calendar, Target, FileText, ChevronDown, Eye, Download, Play, Users } from 'lucide-react';
+import { Clock, User, AlertCircle, Info, AlertTriangle, Bug, Copy, Calendar, Target, FileText, ChevronDown, Eye, Download, Play, Users, Save } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Report } from './mockData';
 import { ReportStatusBadge } from './ReportStatusBadge';
 import { sharedStyles } from './shared/styles';
 import { useDownload } from '../hooks/useDownload';
+import { useTaskEditor } from '../hooks/useTaskEditor';
+import { DateRangePicker } from './DateRangePicker';
+import { EditableMetadata } from './EditableMetadata';
 
 interface TaskLogsSidebarProps {
   task: Report;
@@ -19,10 +22,22 @@ export const TaskLogsSidebar: React.FC<TaskLogsSidebarProps> = ({ task, isOpen, 
   const [showRunHistory, setShowRunHistory] = useState(false);
   const [showFrequencyDropdown, setShowFrequencyDropdown] = useState(false);
   const [showActionDropdown, setShowActionDropdown] = useState(false);
-  const [currentFrequency, setCurrentFrequency] = useState(task.schedule?.frequency || 'Monthly');
   const [isSubscribed, setIsSubscribed] = useState(task.isSubscribed || false);
   const [subscriberCount, setSubscriberCount] = useState(task.subscriberCount || 0);
 
+  // Edit functionality
+  const {
+    currentValues,
+    hasUnsavedChanges,
+    isSaving,
+    updateFrequency,
+    updateTimeRange,
+    updateMetadata,
+    saveChanges,
+    resetChanges
+  } = useTaskEditor(task);
+
+  const isEditable = task.status === 'completed';
   const frequencyOptions = ['Daily', 'Weekly', 'Bi-weekly', 'Monthly', 'Quarterly'];
 
   const calculateNextRun = (frequency: string, baseDate: Date = new Date()) => {
@@ -120,16 +135,13 @@ export const TaskLogsSidebar: React.FC<TaskLogsSidebarProps> = ({ task, isOpen, 
   };
 
   const handleFrequencyChange = (frequency: string) => {
-    setCurrentFrequency(frequency);
+    updateFrequency(frequency);
     setShowFrequencyDropdown(false);
-    // Here you would typically call an API to update the frequency
-    console.log(`Frequency updated to: ${frequency}`);
   };
 
   const handleSubscribeClick = () => {
     setIsSubscribed(!isSubscribed);
     setSubscriberCount(prev => isSubscribed ? prev - 1 : prev + 1);
-    // Here you would typically call an API to handle subscription
     console.log(`${isSubscribed ? 'Unsubscribed from' : 'Subscribed to'} task: ${task.id}`);
   };
 
@@ -145,7 +157,6 @@ export const TaskLogsSidebar: React.FC<TaskLogsSidebarProps> = ({ task, isOpen, 
 
   const handleRerun = () => {
     setShowActionDropdown(false);
-    // Here you would typically call an API to rerun the task
     console.log(`Rerunning task: ${task.id}`);
   };
 
@@ -521,40 +532,52 @@ export const TaskLogsSidebar: React.FC<TaskLogsSidebarProps> = ({ task, isOpen, 
               {/* Frequency */}
               <div style={{ position: 'relative' }}>
                 <div style={sharedStyles.label}>Frequency</div>
-                <div 
-                  style={{
+                {isEditable ? (
+                  <div 
+                    style={{
+                      ...sharedStyles.value,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      cursor: 'pointer',
+                      padding: '4px 8px',
+                      borderRadius: '6px',
+                      border: '1px solid transparent',
+                      transition: 'all 0.2s ease'
+                    }}
+                    onClick={() => setShowFrequencyDropdown(!showFrequencyDropdown)}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = '#F9FAFB';
+                      e.currentTarget.style.borderColor = '#E5E7EB';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = 'transparent';
+                      e.currentTarget.style.borderColor = 'transparent';
+                    }}
+                  >
+                    <Calendar size={16} style={{ color: '#6b7280' }} />
+                    {currentValues.frequency}
+                    <ChevronDown 
+                      size={14} 
+                      style={{ 
+                        transform: showFrequencyDropdown ? 'rotate(180deg)' : 'rotate(0deg)',
+                        transition: 'transform 0.2s ease'
+                      }} 
+                    />
+                  </div>
+                ) : (
+                  <div style={{
                     ...sharedStyles.value,
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '8px',
-                    cursor: 'pointer',
-                    padding: '4px 8px',
-                    borderRadius: '6px',
-                    border: '1px solid transparent',
-                    transition: 'all 0.2s ease'
-                  }}
-                  onClick={() => setShowFrequencyDropdown(!showFrequencyDropdown)}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = '#F9FAFB';
-                    e.currentTarget.style.borderColor = '#E5E7EB';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = 'transparent';
-                    e.currentTarget.style.borderColor = 'transparent';
-                  }}
-                >
-                  <Calendar size={16} style={{ color: '#6b7280' }} />
-                  {currentFrequency}
-                  <ChevronDown 
-                    size={14} 
-                    style={{ 
-                      transform: showFrequencyDropdown ? 'rotate(180deg)' : 'rotate(0deg)',
-                      transition: 'transform 0.2s ease'
-                    }} 
-                  />
-                </div>
+                    gap: '8px'
+                  }}>
+                    <Calendar size={16} style={{ color: '#6b7280' }} />
+                    {currentValues.frequency}
+                  </div>
+                )}
 
-                {showFrequencyDropdown && (
+                {showFrequencyDropdown && isEditable && (
                   <div style={{
                     position: 'absolute',
                     top: '100%',
@@ -578,13 +601,13 @@ export const TaskLogsSidebar: React.FC<TaskLogsSidebarProps> = ({ task, isOpen, 
                           style={{
                             width: '100%',
                             padding: '12px 16px',
-                            backgroundColor: freq === currentFrequency ? '#F0F9FF' : 'transparent',
+                            backgroundColor: freq === currentValues.frequency ? '#F0F9FF' : 'transparent',
                             border: 'none',
                             textAlign: 'left',
                             fontSize: '13px',
-                            color: freq === currentFrequency ? '#0369A1' : '#374151',
+                            color: freq === currentValues.frequency ? '#0369A1' : '#374151',
                             cursor: 'pointer',
-                            fontWeight: freq === currentFrequency ? '600' : '400',
+                            fontWeight: freq === currentValues.frequency ? '600' : '400',
                             transition: 'background-color 0.2s ease',
                             display: 'flex',
                             flexDirection: 'column',
@@ -592,12 +615,12 @@ export const TaskLogsSidebar: React.FC<TaskLogsSidebarProps> = ({ task, isOpen, 
                           }}
                           onClick={() => handleFrequencyChange(freq)}
                           onMouseEnter={(e) => {
-                            if (freq !== currentFrequency) {
+                            if (freq !== currentValues.frequency) {
                               e.currentTarget.style.backgroundColor = '#F9FAFB';
                             }
                           }}
                           onMouseLeave={(e) => {
-                            if (freq !== currentFrequency) {
+                            if (freq !== currentValues.frequency) {
                               e.currentTarget.style.backgroundColor = 'transparent';
                             }
                           }}
@@ -605,7 +628,7 @@ export const TaskLogsSidebar: React.FC<TaskLogsSidebarProps> = ({ task, isOpen, 
                           <span>{freq}</span>
                           <span style={{
                             fontSize: '11px',
-                            color: freq === currentFrequency ? '#0369A1' : '#9CA3AF',
+                            color: freq === currentValues.frequency ? '#0369A1' : '#9CA3AF',
                             fontWeight: '400'
                           }}>
                             Next: {nextRunDisplay}
@@ -704,48 +727,23 @@ export const TaskLogsSidebar: React.FC<TaskLogsSidebarProps> = ({ task, isOpen, 
               {/* Time Range */}
               <div style={{ marginBottom: '24px' }}>
                 <div style={sharedStyles.label}>Time Range</div>
-                <div style={{
-                  ...sharedStyles.value,
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px'
-                }}>
-                  <Calendar size={16} style={{ color: '#6b7280' }} />
-                  {formatDateRange(task.taskCreation.timeRange.start, task.taskCreation.timeRange.end)}
-                </div>
+                <DateRangePicker
+                  startDate={currentValues.timeRange.start}
+                  endDate={currentValues.timeRange.end}
+                  onChange={updateTimeRange}
+                  disabled={!isEditable}
+                />
               </div>
               
               {/* Metadata */}
-              {task.taskCreation.metadata.length > 0 && (
+              {currentValues.metadata.length > 0 && (
                 <div>
                   <div style={sharedStyles.label}>Metadata</div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    {task.taskCreation.metadata.map((meta) => (
-                      <div key={meta.id} style={{
-                        padding: '12px',
-                        backgroundColor: '#f8fafc',
-                        borderRadius: '8px',
-                        border: '1px solid #e2e8f0'
-                      }}>
-                        <div style={{ 
-                          fontSize: '12px', 
-                          fontWeight: '600',
-                          color: '#3b82f6',
-                          marginBottom: '4px',
-                          textTransform: 'capitalize'
-                        }}>
-                          {getMetadataLabel(meta.category, meta.key)}
-                        </div>
-                        <div style={{ 
-                          fontSize: '13px', 
-                          color: '#4b5563',
-                          lineHeight: '1.4'
-                        }}>
-                          {meta.value}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                  <EditableMetadata
+                    metadata={currentValues.metadata}
+                    onChange={updateMetadata}
+                    disabled={!isEditable}
+                  />
                 </div>
               )}
             </div>
@@ -766,33 +764,81 @@ export const TaskLogsSidebar: React.FC<TaskLogsSidebarProps> = ({ task, isOpen, 
             }}>
               Execution Logs
             </h3>
-            <button
-              onClick={handleCopyLogs}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                padding: '8px 12px',
-                background: 'none',
-                border: '1px solid #d1d5db',
-                borderRadius: '8px',
-                color: '#6b7280',
-                fontSize: '12px',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = '#f8fafc';
-                e.currentTarget.style.borderColor = '#9ca3af';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'transparent';
-                e.currentTarget.style.borderColor = '#d1d5db';
-              }}
-            >
-              <Copy size={12} />
-              Copy Logs
-            </button>
+            
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              {/* Unsaved Changes Indicator */}
+              {hasUnsavedChanges && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{
+                    fontSize: '12px',
+                    color: '#F59E0B',
+                    fontWeight: '500'
+                  }}>
+                    unsaved
+                  </span>
+                  <button
+                    onClick={saveChanges}
+                    disabled={isSaving}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      padding: '6px 12px',
+                      background: '#10B981',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '6px',
+                      fontSize: '12px',
+                      fontWeight: '500',
+                      cursor: isSaving ? 'not-allowed' : 'pointer',
+                      opacity: isSaving ? 0.7 : 1,
+                      transition: 'all 0.2s ease'
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!isSaving) {
+                        e.currentTarget.style.backgroundColor = '#059669';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!isSaving) {
+                        e.currentTarget.style.backgroundColor = '#10B981';
+                      }
+                    }}
+                  >
+                    <Save size={12} />
+                    {isSaving ? 'Saving...' : 'Save'}
+                  </button>
+                </div>
+              )}
+              
+              <button
+                onClick={handleCopyLogs}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '8px 12px',
+                  background: 'none',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '8px',
+                  color: '#6b7280',
+                  fontSize: '12px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#f8fafc';
+                  e.currentTarget.style.borderColor = '#9ca3af';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                  e.currentTarget.style.borderColor = '#d1d5db';
+                }}
+              >
+                <Copy size={12} />
+                Copy Logs
+              </button>
+            </div>
           </div>
           
           <select 
