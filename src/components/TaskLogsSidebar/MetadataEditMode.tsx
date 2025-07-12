@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Edit3, X, Check } from 'lucide-react';
+import { Edit3, X } from 'lucide-react';
 import { EnhancedMetadataEditor } from '../EnhancedMetadataEditor';
 
 interface MetadataEditModeProps {
@@ -17,18 +17,12 @@ interface MetadataEditModeProps {
     value: string;
   }>) => void;
   disabled?: boolean;
-  hasUnsavedChanges?: boolean;
-  onSave?: () => void;
-  onCancel?: () => void;
 }
 
 export const MetadataEditMode: React.FC<MetadataEditModeProps> = ({
   metadata,
   onChange,
-  disabled = false,
-  hasUnsavedChanges = false,
-  onSave,
-  onCancel
+  disabled = false
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editingMetadata, setEditingMetadata] = useState(metadata);
@@ -38,16 +32,17 @@ export const MetadataEditMode: React.FC<MetadataEditModeProps> = ({
     setIsEditing(true);
   };
 
-  const handleSaveEdit = () => {
-    onChange(editingMetadata);
-    setIsEditing(false);
-    onSave?.();
-  };
-
   const handleCancelEdit = () => {
     setEditingMetadata([...metadata]);
     setIsEditing(false);
-    onCancel?.();
+    // Reset to original metadata
+    onChange(metadata);
+  };
+
+  // Update parent when editing metadata changes
+  const handleMetadataChange = (newMetadata: typeof metadata) => {
+    setEditingMetadata(newMetadata);
+    onChange(newMetadata);
   };
 
   const getMetadataLabel = (category: string, key: string) => {
@@ -105,36 +100,11 @@ export const MetadataEditMode: React.FC<MetadataEditModeProps> = ({
               <X size={12} />
               Cancel
             </button>
-            <button
-              onClick={handleSaveEdit}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px',
-                padding: '4px 8px',
-                backgroundColor: '#10B981',
-                border: 'none',
-                borderRadius: '4px',
-                color: 'white',
-                fontSize: '12px',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = '#059669';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = '#10B981';
-              }}
-            >
-              <Check size={12} />
-              Save
-            </button>
           </div>
         </div>
         <EnhancedMetadataEditor
           metadata={editingMetadata}
-          onChange={setEditingMetadata}
+          onChange={handleMetadataChange}
           disabled={false}
         />
       </div>

@@ -26,58 +26,137 @@ export const WorkflowProgress: React.FC<WorkflowProgressProps> = ({ steps, class
   const getStepIcon = (status: WorkflowStep['status']) => {
     switch (status) {
       case 'completed':
-        return <CheckCircle size={20} style={{ color: '#10B981' }} />;
+        return <CheckCircle size={16} style={{ color: '#10B981' }} />;
       case 'current':
-        return <Clock size={20} style={{ color: '#3B82F6' }} />;
+        return <Clock size={16} style={{ color: '#3B82F6' }} />;
       case 'error':
-        return <AlertCircle size={20} style={{ color: '#EF4444' }} />;
+        return <AlertCircle size={16} style={{ color: '#EF4444' }} />;
       default:
-        return <Circle size={20} style={{ color: '#9CA3AF' }} />;
+        return <Circle size={16} style={{ color: '#9CA3AF' }} />;
     }
   };
 
-  const getStepStyles = (status: WorkflowStep['status']) => {
-    const baseStyles = {
-      display: 'flex',
-      alignItems: 'center',
-      gap: '12px',
-      padding: '12px 16px',
-      borderRadius: '8px',
-      fontSize: '14px',
-      fontWeight: '500',
-      transition: 'all 0.2s ease'
-    };
-
+  const getStepColor = (status: WorkflowStep['status']) => {
     switch (status) {
       case 'completed':
-        return { ...baseStyles, backgroundColor: '#F0FDF4', color: '#15803D' };
+        return '#10B981';
       case 'current':
-        return { ...baseStyles, backgroundColor: '#EFF6FF', color: '#1D4ED8' };
+        return '#3B82F6';
       case 'error':
-        return { ...baseStyles, backgroundColor: '#FEF2F2', color: '#DC2626' };
+        return '#EF4444';
       default:
-        return { ...baseStyles, backgroundColor: '#F9FAFB', color: '#6B7280' };
+        return '#9CA3AF';
     }
   };
 
+  const completedSteps = steps.filter(step => step.status === 'completed').length;
+  const progressPercentage = (completedSteps / steps.length) * 100;
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }} className={className}>
-      {steps.map((step, index) => (
-        <div key={step.id} style={getStepStyles(step.status)}>
-          {getStepIcon(step.status)}
-          <span>{step.label}</span>
-          {index < steps.length - 1 && (
-            <div style={{
-              position: 'absolute',
-              left: '26px',
-              top: '44px',
-              width: '2px',
-              height: '20px',
-              backgroundColor: step.status === 'completed' ? '#10B981' : '#E5E7EB'
-            }} />
-          )}
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }} className={className}>
+      {/* Progress Bar */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          fontSize: '12px',
+          fontWeight: '500',
+          color: '#6B7280'
+        }}>
+          <span>Progress</span>
+          <span>{Math.round(progressPercentage)}%</span>
         </div>
-      ))}
+        <div style={{
+          width: '100%',
+          height: '6px',
+          backgroundColor: '#F3F4F6',
+          borderRadius: '3px',
+          overflow: 'hidden'
+        }}>
+          <div style={{
+            height: '100%',
+            backgroundColor: '#10B981',
+            width: `${progressPercentage}%`,
+            borderRadius: '3px',
+            transition: 'width 0.3s ease'
+          }} />
+        </div>
+      </div>
+
+      {/* Horizontal Steps */}
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        position: 'relative',
+        paddingTop: '8px'
+      }}>
+        {/* Connection Line */}
+        <div style={{
+          position: 'absolute',
+          top: '16px',
+          left: '8px',
+          right: '8px',
+          height: '2px',
+          backgroundColor: '#E5E7EB',
+          zIndex: 1
+        }}>
+          <div style={{
+            height: '100%',
+            backgroundColor: '#10B981',
+            width: `${Math.max(0, (completedSteps - 1) / (steps.length - 1) * 100)}%`,
+            transition: 'width 0.3s ease'
+          }} />
+        </div>
+
+        {/* Step Markers */}
+        {steps.map((step, index) => (
+          <div key={step.id} style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '8px',
+            position: 'relative',
+            zIndex: 2,
+            flex: 1,
+            maxWidth: '80px'
+          }}>
+            <div style={{
+              width: '24px',
+              height: '24px',
+              borderRadius: '50%',
+              backgroundColor: 'white',
+              border: `2px solid ${getStepColor(step.status)}`,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              {step.status === 'completed' ? (
+                <CheckCircle size={12} style={{ color: '#10B981' }} />
+              ) : step.status === 'current' ? (
+                <Clock size={12} style={{ color: '#3B82F6' }} />
+              ) : step.status === 'error' ? (
+                <AlertCircle size={12} style={{ color: '#EF4444' }} />
+              ) : (
+                <Circle size={8} style={{ color: '#9CA3AF', fill: '#9CA3AF' }} />
+              )}
+            </div>
+            <div style={{
+              fontSize: '11px',
+              fontWeight: '500',
+              color: getStepColor(step.status),
+              textAlign: 'center',
+              lineHeight: '1.2',
+              maxWidth: '60px'
+            }}>
+              {step.label.split(' ').map((word, i) => (
+                <div key={i}>{word}</div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };

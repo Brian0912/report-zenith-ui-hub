@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Clock, AlertCircle, Info, AlertTriangle, Bug, Copy, Calendar, Target, FileText, ChevronDown, Eye, Download, Play, Users, Save, History, TrendingUp } from 'lucide-react';
+import { Clock, AlertCircle, Info, AlertTriangle, Bug, Copy, Calendar, FileText, ChevronDown, Eye, Download, Play, Users, Save, History, TrendingUp, List } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Report } from './mockData';
 import { ReportStatusBadge } from './ReportStatusBadge';
@@ -69,6 +69,19 @@ export const TaskLogsSidebar: React.FC<TaskLogsSidebarProps> = ({ task, isOpen, 
     });
 
     return stepStatuses;
+  };
+
+  // Map log stages to step names
+  const mapLogStageToStepName = (stage: string): string => {
+    const stageMap: Record<string, string> = {
+      'INITIALIZATION': 'Task Submitted',
+      'DATA_COLLECTION': 'Data Collection',
+      'METRICS_GENERATION': 'Metrics Generation',
+      'ANALYSIS': 'Analysis',
+      'REPORT_GENERATION': 'Report',
+      'COMPLETION': 'Completion'
+    };
+    return stageMap[stage] || stage;
   };
 
   const calculateNextRun = (frequency: string, baseDate: Date = new Date()) => {
@@ -233,7 +246,7 @@ export const TaskLogsSidebar: React.FC<TaskLogsSidebarProps> = ({ task, isOpen, 
                   color: '#F59E0B',
                   fontWeight: '500'
                 }}>
-                  unsaved
+                  unsaved changes
                 </span>
                 <button
                   onClick={saveChanges}
@@ -265,7 +278,7 @@ export const TaskLogsSidebar: React.FC<TaskLogsSidebarProps> = ({ task, isOpen, 
                   }}
                 >
                   <Save size={12} />
-                  {isSaving ? 'Saving...' : 'Save'}
+                  {isSaving ? 'Saving...' : 'Save All'}
                 </button>
               </div>
             )}
@@ -744,23 +757,7 @@ export const TaskLogsSidebar: React.FC<TaskLogsSidebarProps> = ({ task, isOpen, 
           </div>
         </div>
 
-        {/* Progress Flow Section */}
-        <div style={sharedStyles.section}>
-          <h3 style={{
-            ...sharedStyles.heading,
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px'
-          }}>
-            <Target size={20} />
-            Progress Flow
-          </h3>
-          <div style={sharedStyles.card}>
-            <WorkflowProgress steps={getWorkflowSteps()} />
-          </div>
-        </div>
-
-        {/* Details Section */}
+        {/* Details Section - Moved above Steps */}
         <div style={sharedStyles.section}>
           <h3 style={{
             ...sharedStyles.heading,
@@ -810,15 +807,12 @@ export const TaskLogsSidebar: React.FC<TaskLogsSidebarProps> = ({ task, isOpen, 
                   />
                 </div>
                 
-                {currentValues.metadata.length > 0 && (
+                {(currentValues.metadata.length > 0 || isEditable) && (
                   <div>
                     <MetadataEditMode
                       metadata={currentValues.metadata}
                       onChange={updateMetadata}
                       disabled={!isEditable}
-                      hasUnsavedChanges={hasUnsavedChanges}
-                      onSave={saveChanges}
-                      onCancel={resetChanges}
                     />
                   </div>
                 )}
@@ -833,6 +827,22 @@ export const TaskLogsSidebar: React.FC<TaskLogsSidebarProps> = ({ task, isOpen, 
                 No task creation details available
               </div>
             )}
+          </div>
+        </div>
+
+        {/* Steps Section - Renamed from Progress Flow */}
+        <div style={sharedStyles.section}>
+          <h3 style={{
+            ...sharedStyles.heading,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
+          }}>
+            <List size={20} />
+            Steps
+          </h3>
+          <div style={sharedStyles.card}>
+            <WorkflowProgress steps={getWorkflowSteps()} />
           </div>
         </div>
 
@@ -944,7 +954,7 @@ export const TaskLogsSidebar: React.FC<TaskLogsSidebarProps> = ({ task, isOpen, 
                         textTransform: 'uppercase',
                         letterSpacing: '0.05em'
                       }}>
-                        {log.stage}
+                        {mapLogStageToStepName(log.stage)}
                       </span>
                       <span style={{ 
                         fontSize: '12px',
