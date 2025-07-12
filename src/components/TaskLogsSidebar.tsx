@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Clock, User, AlertCircle, Info, AlertTriangle, Bug, Copy, Calendar, Target, FileText } from 'lucide-react';
+import { Clock, User, AlertCircle, Info, AlertTriangle, Bug, Copy, Calendar, Target, FileText, ChevronDown } from 'lucide-react';
 import { Report } from './mockData';
 import { ReportStatusBadge } from './ReportStatusBadge';
 import { sharedStyles } from './shared/styles';
@@ -13,6 +13,7 @@ interface TaskLogsSidebarProps {
 
 export const TaskLogsSidebar: React.FC<TaskLogsSidebarProps> = ({ task, isOpen, onClose }) => {
   const [logFilter, setLogFilter] = useState<string>('all');
+  const [showRunHistory, setShowRunHistory] = useState(false);
 
   const getLogIcon = (level: string) => {
     switch (level) {
@@ -76,6 +77,24 @@ export const TaskLogsSidebar: React.FC<TaskLogsSidebarProps> = ({ task, isOpen, 
   const generateAvatar = (name: string) => {
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
   };
+
+  // Generate run history similar to ReportCard
+  const runHistory = task.versions?.map((version, index) => ({
+    timestamp: index === 0 ? '2h ago' : 
+               index === 1 ? '1d ago' : 
+               index === 2 ? '2w ago' : 
+               index === 3 ? '3w ago' : '1mo ago',
+    status: version.status === 'completed' ? 'completed' : 
+            version.status === 'error' ? 'error' : 'completed',
+    duration: ['45s', '52s', '12s', '48s', '41s'][index] || '45s',
+    error: version.status === 'error' ? 'Data connection timeout' : undefined
+  })) || [
+    { timestamp: '2h ago', status: 'completed', duration: '45s' },
+    { timestamp: '1w ago', status: 'completed', duration: '52s' },
+    { timestamp: '3w ago', status: 'error', duration: '12s', error: 'Data connection timeout' },
+    { timestamp: '1mo ago', status: 'completed', duration: '48s' },
+    { timestamp: '2mo ago', status: 'completed', duration: '41s' }
+  ];
 
   return (
     <div style={{ 
@@ -174,11 +193,113 @@ export const TaskLogsSidebar: React.FC<TaskLogsSidebarProps> = ({ task, isOpen, 
                   {formatTimestamp(task.createdAt)}
                 </div>
               </div>
-              <div>
+              <div style={{ position: 'relative' }}>
                 <div style={sharedStyles.label}>Last Updated</div>
-                <div style={sharedStyles.value}>
+                <div 
+                  style={{
+                    ...sharedStyles.value,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    cursor: 'pointer',
+                    padding: '2px',
+                    borderRadius: '4px',
+                    transition: 'background-color 0.2s ease'
+                  }}
+                  onClick={() => setShowRunHistory(!showRunHistory)}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = 'rgba(0, 0, 0, 0.05)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                  }}
+                >
                   {formatTimestamp(task.schedule.lastRun)}
+                  <ChevronDown 
+                    size={14} 
+                    style={{ 
+                      transform: showRunHistory ? 'rotate(180deg)' : 'rotate(0deg)',
+                      transition: 'transform 0.2s ease'
+                    }} 
+                  />
                 </div>
+                
+                {showRunHistory && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '100%',
+                    left: '0',
+                    right: '0',
+                    marginTop: '4px',
+                    background: '#ffffff',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '12px',
+                    boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
+                    zIndex: 50,
+                    overflow: 'hidden'
+                  }}>
+                    <div style={{
+                      padding: '12px 16px',
+                      borderBottom: '1px solid #f1f5f9',
+                      fontSize: '12px',
+                      fontWeight: '600',
+                      color: '#64748b',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em'
+                    }}>
+                      Run History
+                    </div>
+                    <div style={{ maxHeight: '200px', overflowY: 'auto' }}>
+                      {runHistory.map((run, index) => (
+                        <div 
+                          key={index}
+                          style={{
+                            padding: '12px 16px',
+                            borderBottom: index < runHistory.length - 1 ? '1px solid #f8fafc' : 'none',
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            fontSize: '13px',
+                            cursor: 'pointer',
+                            transition: 'background-color 0.15s ease'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = '#f8fafc';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = 'transparent';
+                          }}
+                          onClick={() => setShowRunHistory(false)}
+                        >
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <div style={{ 
+                              color: run.status === 'completed' ? '#22c55e' : '#ef4444',
+                              fontWeight: '500'
+                            }}>
+                              {run.timestamp}
+                            </div>
+                            {run.error && (
+                              <div style={{ 
+                                fontSize: '11px', 
+                                color: '#ef4444',
+                                fontStyle: 'italic'
+                              }}>
+                                {run.error}
+                              </div>
+                            )}
+                          </div>
+                          <div style={{ 
+                            fontSize: '11px', 
+                            color: '#64748b',
+                            fontWeight: '500'
+                          }}>
+                            {run.duration}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
