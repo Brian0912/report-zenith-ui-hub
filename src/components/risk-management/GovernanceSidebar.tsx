@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../ThemeProvider';
@@ -33,10 +34,8 @@ export const GovernanceSidebar: React.FC<GovernanceSidebarProps> = ({
     right: 0,
     width: isOpen ? '400px' : '0',
     height: '100vh',
-    background: theme === 'dark' 
-      ? 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)'
-      : 'linear-gradient(135deg, #f8fafc 0%, #ffffff 100%)',
-    borderLeft: `1px solid ${theme === 'dark' ? '#334155' : '#e2e8f0'}`,
+    background: 'linear-gradient(135deg, #f8fafc 0%, #ffffff 100%)',
+    borderLeft: '1px solid #e2e8f0',
     transform: isOpen ? 'translateX(0)' : 'translateX(100%)',
     transition: 'all 0.3s ease',
     zIndex: 1000,
@@ -48,7 +47,7 @@ export const GovernanceSidebar: React.FC<GovernanceSidebarProps> = ({
 
   const headerStyle: React.CSSProperties = {
     padding: '20px',
-    borderBottom: `1px solid ${theme === 'dark' ? '#334155' : '#e2e8f0'}`,
+    borderBottom: '1px solid #e2e8f0',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -58,14 +57,14 @@ export const GovernanceSidebar: React.FC<GovernanceSidebarProps> = ({
   const titleStyle: React.CSSProperties = {
     fontSize: '18px',
     fontWeight: 'bold',
-    color: theme === 'dark' ? '#f1f5f9' : '#334155'
+    color: '#334155'
   };
 
   const closeButtonStyle: React.CSSProperties = {
     background: 'none',
     border: 'none',
     fontSize: '24px',
-    color: theme === 'dark' ? '#94a3b8' : '#64748b',
+    color: '#64748b',
     cursor: 'pointer',
     padding: '4px',
     borderRadius: '4px',
@@ -81,9 +80,9 @@ export const GovernanceSidebar: React.FC<GovernanceSidebarProps> = ({
     width: '100%',
     padding: '10px 12px',
     borderRadius: '8px',
-    border: `1px solid ${theme === 'dark' ? '#475569' : '#cbd5e1'}`,
-    background: theme === 'dark' ? '#1e293b' : '#ffffff',
-    color: theme === 'dark' ? '#f1f5f9' : '#334155',
+    border: '1px solid #cbd5e1',
+    background: '#ffffff',
+    color: '#334155',
     fontSize: '14px',
     outline: 'none',
     transition: 'all 0.3s ease'
@@ -96,13 +95,11 @@ export const GovernanceSidebar: React.FC<GovernanceSidebarProps> = ({
   };
 
   const groupCardStyle: React.CSSProperties = {
-    background: theme === 'dark' 
-      ? 'rgba(30, 41, 59, 0.6)'
-      : 'rgba(255, 255, 255, 0.9)',
+    background: 'rgba(255, 255, 255, 0.9)',
     borderRadius: '10px',
     padding: '16px',
     marginBottom: '12px',
-    border: `1px solid ${theme === 'dark' ? 'rgba(55, 65, 81, 0.3)' : 'rgba(226, 232, 240, 0.5)'}`,
+    border: '1px solid rgba(226, 232, 240, 0.5)',
     backdropFilter: 'blur(10px)',
     transition: 'all 0.2s ease'
   };
@@ -110,13 +107,13 @@ export const GovernanceSidebar: React.FC<GovernanceSidebarProps> = ({
   const groupTitleStyle: React.CSSProperties = {
     fontSize: '14px',
     fontWeight: '600',
-    color: theme === 'dark' ? '#f1f5f9' : '#334155',
+    color: '#334155',
     marginBottom: '6px'
   };
 
   const groupDescriptionStyle: React.CSSProperties = {
     fontSize: '12px',
-    color: theme === 'dark' ? '#94a3b8' : '#64748b',
+    color: '#64748b',
     marginBottom: '8px',
     lineHeight: '1.4'
   };
@@ -126,7 +123,7 @@ export const GovernanceSidebar: React.FC<GovernanceSidebarProps> = ({
     justifyContent: 'space-between',
     alignItems: 'center',
     fontSize: '11px',
-    color: theme === 'dark' ? '#64748b' : '#94a3b8'
+    color: '#94a3b8'
   };
 
   const statusBadgeStyle = (status: string): React.CSSProperties => {
@@ -172,7 +169,7 @@ export const GovernanceSidebar: React.FC<GovernanceSidebarProps> = ({
             style={closeButtonStyle}
             onClick={onClose}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = theme === 'dark' ? '#334155' : '#f1f5f9';
+              e.currentTarget.style.background = '#f1f5f9';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.background = 'none';
@@ -196,7 +193,7 @@ export const GovernanceSidebar: React.FC<GovernanceSidebarProps> = ({
           {filteredGroups.length === 0 ? (
             <div style={{
               textAlign: 'center',
-              color: theme === 'dark' ? '#64748b' : '#94a3b8',
+              color: '#94a3b8',
               fontSize: '14px',
               marginTop: '40px'
             }}>
@@ -210,9 +207,7 @@ export const GovernanceSidebar: React.FC<GovernanceSidebarProps> = ({
                 onClick={() => handleGovernanceClick(group.id)}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.transform = 'translateY(-2px)';
-                  e.currentTarget.style.boxShadow = theme === 'dark' 
-                    ? '0 6px 20px rgba(0, 0, 0, 0.4)'
-                    : '0 6px 20px rgba(0, 0, 0, 0.15)';
+                  e.currentTarget.style.boxShadow = '0 6px 20px rgba(0, 0, 0, 0.15)';
                   e.currentTarget.style.cursor = 'pointer';
                 }}
                 onMouseLeave={(e) => {

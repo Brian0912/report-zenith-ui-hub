@@ -38,7 +38,7 @@ export const FindingCard: React.FC<FindingCardProps> = ({ finding, onClick, isLa
 
   const cardStyle: React.CSSProperties = {
     padding: '20px 24px',
-    borderBottom: isLast ? 'none' : `1px solid ${theme === 'dark' ? '#334155' : '#e2e8f0'}`,
+    borderBottom: isLast ? 'none' : '1px solid #e2e8f0',
     cursor: 'pointer',
     transition: 'all 0.3s ease',
     background: 'transparent'
@@ -54,7 +54,7 @@ export const FindingCard: React.FC<FindingCardProps> = ({ finding, onClick, isLa
   const titleStyle: React.CSSProperties = {
     fontSize: '16px',
     fontWeight: '600',
-    color: theme === 'dark' ? '#f1f5f9' : '#1e293b',
+    color: '#1e293b',
     margin: 0,
     lineHeight: '1.4'
   };
@@ -89,14 +89,14 @@ export const FindingCard: React.FC<FindingCardProps> = ({ finding, onClick, isLa
 
   const infoStyle: React.CSSProperties = {
     fontSize: '13px',
-    color: theme === 'dark' ? '#94a3b8' : '#64748b'
+    color: '#64748b'
   };
 
   const domainStyle: React.CSSProperties = {
     fontSize: '14px',
-    color: theme === 'dark' ? '#60a5fa' : '#3b82f6',
+    color: '#3b82f6',
     fontFamily: 'monospace',
-    background: theme === 'dark' ? 'rgba(96, 165, 250, 0.1)' : 'rgba(59, 130, 246, 0.1)',
+    background: 'rgba(59, 130, 246, 0.1)',
     padding: '2px 8px',
     borderRadius: '4px'
   };
@@ -106,9 +106,7 @@ export const FindingCard: React.FC<FindingCardProps> = ({ finding, onClick, isLa
       style={cardStyle}
       onClick={onClick}
       onMouseEnter={(e) => {
-        e.currentTarget.style.background = theme === 'dark' 
-          ? 'rgba(30, 41, 59, 0.4)' 
-          : 'rgba(241, 245, 249, 0.8)';
+        e.currentTarget.style.background = 'rgba(241, 245, 249, 0.8)';
         e.currentTarget.style.transform = 'translateX(4px)';
       }}
       onMouseLeave={(e) => {

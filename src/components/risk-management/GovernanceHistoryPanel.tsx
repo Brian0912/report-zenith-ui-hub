@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../ThemeProvider';
@@ -47,9 +48,7 @@ export const GovernanceHistoryPanel: React.FC<GovernanceHistoryPanelProps> = ({
   const panelStyle: React.CSSProperties = {
     width: '500px',
     height: '100vh',
-    background: theme === 'dark' 
-      ? 'linear-gradient(135deg, #1e293b 0%, #334155 100%)'
-      : 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+    background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
     boxShadow: '-8px 0 32px rgba(0, 0, 0, 0.3)',
     display: 'flex',
     flexDirection: 'column',
@@ -59,20 +58,18 @@ export const GovernanceHistoryPanel: React.FC<GovernanceHistoryPanelProps> = ({
 
   const headerStyle: React.CSSProperties = {
     padding: '24px',
-    borderBottom: `1px solid ${theme === 'dark' ? '#475569' : '#e2e8f0'}`,
+    borderBottom: '1px solid #e2e8f0',
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    background: theme === 'dark' 
-      ? 'rgba(30, 41, 59, 0.8)'
-      : 'rgba(255, 255, 255, 0.9)',
+    background: 'rgba(255, 255, 255, 0.9)',
     backdropFilter: 'blur(10px)'
   };
 
   const titleStyle: React.CSSProperties = {
     fontSize: '20px',
     fontWeight: 'bold',
-    color: theme === 'dark' ? '#f1f5f9' : '#334155'
+    color: '#334155'
   };
 
   const closeButtonStyle: React.CSSProperties = {
@@ -80,7 +77,7 @@ export const GovernanceHistoryPanel: React.FC<GovernanceHistoryPanelProps> = ({
     border: 'none',
     fontSize: '24px',
     cursor: 'pointer',
-    color: theme === 'dark' ? '#94a3b8' : '#64748b',
+    color: '#64748b',
     padding: '4px',
     borderRadius: '4px',
     transition: 'all 0.2s ease'
@@ -93,13 +90,11 @@ export const GovernanceHistoryPanel: React.FC<GovernanceHistoryPanelProps> = ({
   };
 
   const governanceCardStyle: React.CSSProperties = {
-    background: theme === 'dark' 
-      ? 'rgba(55, 65, 81, 0.6)'
-      : 'rgba(255, 255, 255, 0.8)',
+    background: 'rgba(255, 255, 255, 0.8)',
     borderRadius: '12px',
     padding: '20px',
     marginBottom: '16px',
-    border: `1px solid ${theme === 'dark' ? 'rgba(75, 85, 99, 0.3)' : 'rgba(226, 232, 240, 0.5)'}`,
+    border: '1px solid rgba(226, 232, 240, 0.5)',
     cursor: 'pointer',
     transition: 'all 0.3s ease',
     backdropFilter: 'blur(8px)'
@@ -109,7 +104,7 @@ export const GovernanceHistoryPanel: React.FC<GovernanceHistoryPanelProps> = ({
     fontSize: '16px',
     fontWeight: '600',
     marginBottom: '8px',
-    color: theme === 'dark' ? '#f1f5f9' : '#334155'
+    color: '#334155'
   };
 
   const cardMetaStyle: React.CSSProperties = {
@@ -121,7 +116,7 @@ export const GovernanceHistoryPanel: React.FC<GovernanceHistoryPanelProps> = ({
 
   const dateStyle: React.CSSProperties = {
     fontSize: '14px',
-    color: theme === 'dark' ? '#94a3b8' : '#64748b'
+    color: '#64748b'
   };
 
   const riskBadgeStyle = (riskId: string): React.CSSProperties => {
@@ -173,7 +168,7 @@ export const GovernanceHistoryPanel: React.FC<GovernanceHistoryPanelProps> = ({
             style={closeButtonStyle}
             onClick={onClose}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = theme === 'dark' ? '#374151' : '#f1f5f9';
+              e.currentTarget.style.background = '#f1f5f9';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.background = 'none';
@@ -187,7 +182,7 @@ export const GovernanceHistoryPanel: React.FC<GovernanceHistoryPanelProps> = ({
           {filteredGovernances.length === 0 ? (
             <div style={{
               textAlign: 'center',
-              color: theme === 'dark' ? '#94a3b8' : '#64748b',
+              color: '#64748b',
               fontSize: '16px',
               marginTop: '40px'
             }}>
@@ -201,9 +196,7 @@ export const GovernanceHistoryPanel: React.FC<GovernanceHistoryPanelProps> = ({
                 onClick={() => handleGovernanceClick(governance.id)}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.transform = 'translateY(-2px)';
-                  e.currentTarget.style.boxShadow = theme === 'dark' 
-                    ? '0 8px 24px rgba(0, 0, 0, 0.4)'
-                    : '0 8px 24px rgba(0, 0, 0, 0.15)';
+                  e.currentTarget.style.boxShadow = '0 8px 24px rgba(0, 0, 0, 0.15)';
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.transform = 'translateY(0)';
@@ -228,7 +221,7 @@ export const GovernanceHistoryPanel: React.FC<GovernanceHistoryPanelProps> = ({
 
                 <div style={{
                   fontSize: '14px',
-                  color: theme === 'dark' ? '#94a3b8' : '#64748b',
+                  color: '#64748b',
                   marginBottom: '8px'
                 }}>
                   {governance.entityIds.length} entities affected

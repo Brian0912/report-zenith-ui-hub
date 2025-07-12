@@ -48,13 +48,11 @@ export const RiskCategoryList: React.FC<RiskCategoryListProps> = ({
         if (categoryFindings.length === 0) return null;
 
         const categoryHeaderStyle: React.CSSProperties = {
-          background: theme === 'dark' 
-            ? 'rgba(30, 41, 59, 0.6)'
-            : 'rgba(255, 255, 255, 0.8)',
+          background: 'rgba(255, 255, 255, 0.8)',
           backdropFilter: 'blur(10px)',
           borderRadius: '12px 12px 0 0',
           padding: '16px 24px',
-          border: `1px solid ${theme === 'dark' ? '#334155' : '#e2e8f0'}`,
+          border: '1px solid #e2e8f0',
           borderBottom: 'none',
           display: 'flex',
           alignItems: 'center',
@@ -79,12 +77,12 @@ export const RiskCategoryList: React.FC<RiskCategoryListProps> = ({
         const categoryNameStyle: React.CSSProperties = {
           fontSize: '18px',
           fontWeight: '600',
-          color: theme === 'dark' ? '#f1f5f9' : '#1e293b'
+          color: '#1e293b'
         };
 
         const categoryDescStyle: React.CSSProperties = {
           fontSize: '14px',
-          color: theme === 'dark' ? '#94a3b8' : '#64748b',
+          color: '#64748b',
           marginLeft: '24px'
         };
 
@@ -98,11 +96,9 @@ export const RiskCategoryList: React.FC<RiskCategoryListProps> = ({
         };
 
         const findingsContainerStyle: React.CSSProperties = {
-          background: theme === 'dark' 
-            ? 'rgba(15, 23, 42, 0.8)'
-            : 'rgba(248, 250, 252, 0.9)',
+          background: 'rgba(248, 250, 252, 0.9)',
           backdropFilter: 'blur(10px)',
-          border: `1px solid ${theme === 'dark' ? '#334155' : '#e2e8f0'}`,
+          border: '1px solid #e2e8f0',
           borderTop: 'none',
           borderRadius: '0 0 12px 12px',
           padding: '0'

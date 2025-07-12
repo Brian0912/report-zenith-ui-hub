@@ -28,16 +28,14 @@ export const FindingDetailModal: React.FC<FindingDetailModalProps> = ({ finding,
   };
 
   const modalStyle: React.CSSProperties = {
-    background: theme === 'dark' 
-      ? 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)'
-      : 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+    background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
     borderRadius: '20px',
     padding: '0',
     maxWidth: '1000px',
     width: '100%',
     maxHeight: '90vh',
     overflow: 'hidden',
-    border: `1px solid ${theme === 'dark' ? '#334155' : '#e2e8f0'}`,
+    border: '1px solid #e2e8f0',
     boxShadow: '0 25px 50px rgba(0, 0, 0, 0.3)',
     display: 'flex',
     flexDirection: 'column'
@@ -48,16 +46,14 @@ export const FindingDetailModal: React.FC<FindingDetailModalProps> = ({ finding,
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: '24px 32px',
-    borderBottom: `1px solid ${theme === 'dark' ? '#334155' : '#e2e8f0'}`,
-    background: theme === 'dark' 
-      ? 'rgba(30, 41, 59, 0.5)'
-      : 'rgba(248, 250, 252, 0.8)'
+    borderBottom: '1px solid #e2e8f0',
+    background: 'rgba(248, 250, 252, 0.8)'
   };
 
   const titleStyle: React.CSSProperties = {
     fontSize: '20px',
     fontWeight: 'bold',
-    color: theme === 'dark' ? '#f1f5f9' : '#1e293b',
+    color: '#1e293b',
     margin: 0
   };
 
@@ -66,7 +62,7 @@ export const FindingDetailModal: React.FC<FindingDetailModalProps> = ({ finding,
     border: 'none',
     fontSize: '24px',
     cursor: 'pointer',
-    color: theme === 'dark' ? '#94a3b8' : '#64748b',
+    color: '#64748b',
     padding: '4px',
     borderRadius: '6px',
     transition: 'all 0.3s ease'
@@ -74,19 +70,15 @@ export const FindingDetailModal: React.FC<FindingDetailModalProps> = ({ finding,
 
   const tabsStyle: React.CSSProperties = {
     display: 'flex',
-    borderBottom: `1px solid ${theme === 'dark' ? '#334155' : '#e2e8f0'}`,
-    background: theme === 'dark' ? 'rgba(15, 23, 42, 0.5)' : 'rgba(241, 245, 249, 0.8)'
+    borderBottom: '1px solid #e2e8f0',
+    background: 'rgba(241, 245, 249, 0.8)'
   };
 
   const tabStyle = (active: boolean): React.CSSProperties => ({
     padding: '16px 24px',
     border: 'none',
-    background: active 
-      ? (theme === 'dark' ? '#1e293b' : '#ffffff')
-      : 'transparent',
-    color: active
-      ? (theme === 'dark' ? '#f1f5f9' : '#1e293b')
-      : (theme === 'dark' ? '#94a3b8' : '#64748b'),
+    background: active ? '#ffffff' : 'transparent',
+    color: active ? '#1e293b' : '#64748b',
     cursor: 'pointer',
     fontSize: '14px',
     fontWeight: active ? '600' : '500',
@@ -107,9 +99,9 @@ export const FindingDetailModal: React.FC<FindingDetailModalProps> = ({ finding,
   const sectionTitleStyle: React.CSSProperties = {
     fontSize: '16px',
     fontWeight: '600',
-    color: theme === 'dark' ? '#f1f5f9' : '#1e293b',
+    color: '#1e293b',
     marginBottom: '12px',
-    borderBottom: `1px solid ${theme === 'dark' ? '#334155' : '#e2e8f0'}`,
+    borderBottom: '1px solid #e2e8f0',
     paddingBottom: '8px'
   };
 
@@ -129,25 +121,25 @@ export const FindingDetailModal: React.FC<FindingDetailModalProps> = ({ finding,
   const fieldLabelStyle: React.CSSProperties = {
     fontSize: '12px',
     fontWeight: '600',
-    color: theme === 'dark' ? '#94a3b8' : '#64748b',
+    color: '#64748b',
     textTransform: 'uppercase',
     letterSpacing: '0.5px'
   };
 
   const fieldValueStyle: React.CSSProperties = {
     fontSize: '14px',
-    color: theme === 'dark' ? '#f1f5f9' : '#1e293b',
+    color: '#1e293b',
     wordBreak: 'break-word'
   };
 
   const codeStyle: React.CSSProperties = {
-    background: theme === 'dark' ? '#0f172a' : '#f8fafc',
-    border: `1px solid ${theme === 'dark' ? '#334155' : '#e2e8f0'}`,
+    background: '#f8fafc',
+    border: '1px solid #e2e8f0',
     borderRadius: '8px',
     padding: '16px',
     fontFamily: 'monospace',
     fontSize: '13px',
-    color: theme === 'dark' ? '#94a3b8' : '#475569',
+    color: '#475569',
     whiteSpace: 'pre-wrap',
     wordBreak: 'break-all'
   };
@@ -164,9 +156,9 @@ export const FindingDetailModal: React.FC<FindingDetailModalProps> = ({ finding,
     padding: '20px',
     borderRadius: '12px',
     background: completed
-      ? (theme === 'dark' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(16, 185, 129, 0.05)')
-      : (theme === 'dark' ? 'rgba(107, 114, 128, 0.1)' : 'rgba(107, 114, 128, 0.05)'),
-    border: `1px solid ${completed ? '#10b981' : (theme === 'dark' ? '#374151' : '#d1d5db')}`
+      ? 'rgba(16, 185, 129, 0.05)'
+      : 'rgba(107, 114, 128, 0.05)',
+    border: `1px solid ${completed ? '#10b981' : '#d1d5db'}`
   });
 
   const timelineIconStyle = (completed: boolean): React.CSSProperties => ({
@@ -290,21 +282,21 @@ export const FindingDetailModal: React.FC<FindingDetailModalProps> = ({ finding,
             <h4 style={{ 
               fontSize: '16px', 
               fontWeight: '600', 
-              color: theme === 'dark' ? '#f1f5f9' : '#1e293b',
+              color: '#1e293b',
               margin: '0 0 8px 0'
             }}>
               {stage.stage}
             </h4>
             <p style={{ 
               fontSize: '14px', 
-              color: theme === 'dark' ? '#94a3b8' : '#64748b',
+              color: '#64748b',
               margin: '0 0 12px 0'
             }}>
               {new Date(stage.timestamp).toLocaleString()}
             </p>
             {stage.details && (
               <div style={{
-                background: theme === 'dark' ? 'rgba(15, 23, 42, 0.8)' : 'rgba(248, 250, 252, 0.8)',
+                background: 'rgba(248, 250, 252, 0.8)',
                 padding: '12px',
                 borderRadius: '8px',
                 fontSize: '13px'
@@ -313,7 +305,7 @@ export const FindingDetailModal: React.FC<FindingDetailModalProps> = ({ finding,
                   fontFamily: 'inherit',
                   whiteSpace: 'pre-wrap',
                   margin: 0,
-                  color: theme === 'dark' ? '#e2e8f0' : '#374151'
+                  color: '#374151'
                 }}>
                   {JSON.stringify(stage.details, null, 2)}
                 </pre>
@@ -334,7 +326,7 @@ export const FindingDetailModal: React.FC<FindingDetailModalProps> = ({ finding,
             style={closeButtonStyle}
             onClick={onClose}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = theme === 'dark' ? '#374151' : '#f3f4f6';
+              e.currentTarget.style.background = '#f3f4f6';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.background = 'none';
