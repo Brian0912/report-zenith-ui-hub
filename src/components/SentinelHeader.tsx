@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useTheme } from './ThemeProvider';
 import { Button } from './ui/button';
-import { Filter } from 'lucide-react';
+import { Filter, Crystal } from 'lucide-react';
 import { FilterModal, FilterState } from './FilterModal';
 
 interface SentinelHeaderProps {
@@ -56,9 +56,7 @@ export const SentinelHeader: React.FC<SentinelHeaderProps> = ({ onCreateTask }) 
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    color: 'hsl(var(--primary-foreground))',
-    fontSize: '20px',
-    fontWeight: 'bold'
+    color: 'hsl(var(--primary-foreground))'
   };
 
   const logoTextStyle: React.CSSProperties = {
@@ -168,7 +166,9 @@ export const SentinelHeader: React.FC<SentinelHeaderProps> = ({ onCreateTask }) 
         <div style={containerStyle}>
           <div style={leftSectionStyle}>
             <div style={logoStyle}>
-              <div style={logoCircleStyle}>C</div>
+              <div style={logoCircleStyle}>
+                <Crystal size={20} />
+              </div>
               <h1 style={logoTextStyle}>Crystal Report Center</h1>
             </div>
           </div>
