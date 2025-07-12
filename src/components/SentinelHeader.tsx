@@ -1,7 +1,8 @@
+
 import React, { useState } from 'react';
 import { useTheme } from './ThemeProvider';
 import { Button } from './ui/button';
-import { Filter, Crystal } from 'lucide-react';
+import { Filter, Gem } from 'lucide-react';
 import { FilterModal, FilterState } from './FilterModal';
 
 interface SentinelHeaderProps {
@@ -167,7 +168,7 @@ export const SentinelHeader: React.FC<SentinelHeaderProps> = ({ onCreateTask }) 
           <div style={leftSectionStyle}>
             <div style={logoStyle}>
               <div style={logoCircleStyle}>
-                <Crystal size={20} />
+                <Gem size={20} />
               </div>
               <h1 style={logoTextStyle}>Crystal Report Center</h1>
             </div>
