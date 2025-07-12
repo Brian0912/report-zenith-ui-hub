@@ -1,35 +1,40 @@
 
-import { Wrench, Search, Shield } from 'lucide-react';
+import { Shield, Zap, BarChart3, Wrench, Search } from 'lucide-react';
 import { ProductGroup } from './types';
 
 export const productGroups: ProductGroup[] = [
   {
-    id: 'sentinel',  
-    label: 'SENTINEL',
-    items: [
+    id: 'sentinel',
+    label: 'Sentinel',
+    icon: Shield,
+    subItems: [
       {
-        id: 'report',
-        label: 'Report',
-        icon: Shield,
-        path: '/sentinel/report-center'
+        id: 'report-center',
+        label: 'Report Center',
+        icon: BarChart3,
+        path: '/sentinel/report-center',
+        description: 'Monitoring Dashboard'
       }
     ]
   },
   {
     id: 'aplus',
-    label: 'APLUS',
-    items: [
+    label: 'Aplus',
+    icon: Zap,
+    subItems: [
       {
         id: 'enhancement',
-        label: 'Enhancement',
+        label: 'Enhancement Management',
         icon: Wrench,
-        path: '/aplus/enhancement'
+        path: '/aplus/enhancement',
+        description: 'API Risk Dashboard'
       },
       {
         id: 'finding',
-        label: 'Finding',
+        label: 'Finding Management',
         icon: Search,
-        path: '/aplus/finding'
+        path: '/aplus/finding',
+        description: 'Security Findings'
       }
     ]
   }
