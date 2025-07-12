@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTheme } from './ThemeProvider';
-import { BarChart3, Wrench, Search } from 'lucide-react';
+import { BarChart3, Wrench, Search, Shield } from 'lucide-react';
 
 interface SidebarProps {}
 
@@ -27,13 +27,13 @@ export const Sidebar: React.FC<SidebarProps> = () => {
 
   const productGroups: ProductGroup[] = [
     {
-      id: 'sentinel',
+      id: 'sentinel',  
       label: 'SENTINEL',
       items: [
         {
           id: 'report',
           label: 'Report',
-          icon: BarChart3,
+          icon: Shield,
           path: '/sentinel/report-center'
         }
       ]
@@ -63,7 +63,7 @@ export const Sidebar: React.FC<SidebarProps> = () => {
   };
 
   const sidebarStyle: React.CSSProperties = {
-    width: isCollapsed ? '80px' : '280px',
+    width: isCollapsed ? '72px' : '240px',
     height: '100vh',
     backgroundColor: '#ffffff',
     borderRight: '1px solid #e5e7eb',
@@ -74,7 +74,7 @@ export const Sidebar: React.FC<SidebarProps> = () => {
   };
 
   const headerStyle: React.CSSProperties = {
-    padding: '24px 20px',
+    padding: isCollapsed ? '20px 12px' : '20px 16px',
     borderBottom: '1px solid #e5e7eb',
     display: 'flex',
     alignItems: 'center',
@@ -82,7 +82,7 @@ export const Sidebar: React.FC<SidebarProps> = () => {
   };
 
   const logoStyle: React.CSSProperties = {
-    fontSize: isCollapsed ? '20px' : '24px',
+    fontSize: isCollapsed ? '18px' : '20px',
     fontWeight: '700',
     color: '#1f2937',
     transition: 'all 0.3s ease'
@@ -90,43 +90,47 @@ export const Sidebar: React.FC<SidebarProps> = () => {
 
   const contentStyle: React.CSSProperties = {
     flex: 1,
-    padding: '24px 0',
+    padding: isCollapsed ? '20px 0' : '20px 0',
     overflow: 'auto'
   };
 
   const groupStyle: React.CSSProperties = {
-    marginBottom: '40px'
+    marginBottom: '32px'
   };
 
   const groupLabelStyle: React.CSSProperties = {
-    fontSize: '12px',
+    fontSize: isCollapsed ? '10px' : '11px',
     fontWeight: '600',
     color: '#9ca3af',
     letterSpacing: '0.05em',
-    marginBottom: '16px',
-    paddingLeft: '20px',
-    display: isCollapsed ? 'none' : 'block'
+    marginBottom: isCollapsed ? '12px' : '12px',
+    paddingLeft: isCollapsed ? '0' : '16px',
+    textAlign: isCollapsed ? 'center' : 'left',
+    transition: 'all 0.3s ease'
   };
 
   const menuItemStyle = (isActive: boolean): React.CSSProperties => ({
     display: 'flex',
     alignItems: 'center',
-    padding: '12px 20px',
+    justifyContent: isCollapsed ? 'center' : 'flex-start',
+    padding: isCollapsed ? '10px 0' : '10px 16px',
     color: isActive ? '#1f2937' : '#6b7280',
     textDecoration: 'none',
     transition: 'all 0.2s ease',
     cursor: 'pointer',
     backgroundColor: isActive ? '#f3f4f6' : 'transparent',
-    borderRight: isActive ? '3px solid #3b82f6' : '3px solid transparent'
+    borderRight: isActive ? '3px solid #3b82f6' : '3px solid transparent',
+    margin: isCollapsed ? '0 12px' : '0',
+    borderRadius: isCollapsed ? '6px' : '0'
   });
 
   const iconStyle: React.CSSProperties = {
-    marginRight: isCollapsed ? '0' : '12px',
+    marginRight: isCollapsed ? '0' : '10px',
     flexShrink: 0
   };
 
   const labelStyle: React.CSSProperties = {
-    fontSize: '14px',
+    fontSize: '13px',
     fontWeight: '500',
     opacity: isCollapsed ? 0 : 1,
     transition: 'opacity 0.3s ease',
@@ -135,7 +139,7 @@ export const Sidebar: React.FC<SidebarProps> = () => {
 
   const toggleButtonStyle: React.CSSProperties = {
     position: 'absolute',
-    top: '24px',
+    top: '20px',
     right: '-12px',
     width: '24px',
     height: '24px',
@@ -149,7 +153,8 @@ export const Sidebar: React.FC<SidebarProps> = () => {
     fontSize: '12px',
     color: '#6b7280',
     transition: 'all 0.2s ease',
-    zIndex: 1001
+    zIndex: 1001,
+    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
   };
 
   return (
@@ -201,7 +206,7 @@ export const Sidebar: React.FC<SidebarProps> = () => {
                   }}
                 >
                   <div style={iconStyle}>
-                    <IconComponent size={20} />
+                    <IconComponent size={18} />
                   </div>
                   <div style={labelStyle}>
                     {item.label}
