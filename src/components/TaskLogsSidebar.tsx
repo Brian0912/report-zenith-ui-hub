@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Clock, User, AlertCircle, Info, AlertTriangle, Bug, Copy, Calendar, Target, FileText, ChevronDown, Eye, Download, Play, Users } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -432,7 +431,7 @@ export const TaskLogsSidebar: React.FC<TaskLogsSidebarProps> = ({ task, isOpen, 
                             padding: '12px 16px',
                             borderBottom: index < runHistory.length - 1 ? '1px solid #f8fafc' : 'none',
                             display: 'flex',
-                            justifiContent: 'space-between',
+                            justifyContent: 'space-between',
                             alignItems: 'center',
                             fontSize: '13px',
                             cursor: 'pointer',
