@@ -39,23 +39,24 @@ export const WorkflowProgress: React.FC<WorkflowProgressProps> = ({ steps, class
   const completedSteps = steps.filter(step => step.status === 'completed').length;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }} className={className}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }} className={className}>
       {/* Horizontal Steps */}
       <div style={{
         display: 'flex',
-        justifyContent: 'space-between',
         alignItems: 'center',
+        justifyContent: 'space-between',
         position: 'relative',
-        padding: '16px 0'
+        padding: '0 12px'
       }}>
         {/* Connection Line */}
         <div style={{
           position: 'absolute',
-          top: '28px',
-          left: '12px',
-          right: '12px',
+          top: '50%',
+          left: '24px',
+          right: '24px',
           height: '2px',
           backgroundColor: '#E5E7EB',
+          transform: 'translateY(-50%)',
           zIndex: 1
         }}>
           <div style={{
@@ -110,7 +111,11 @@ export const WorkflowProgress: React.FC<WorkflowProgressProps> = ({ steps, class
               color: getStepColor(step.status),
               textAlign: 'center',
               lineHeight: '1.3',
-              maxWidth: '70px'
+              maxWidth: '70px',
+              minHeight: '26px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
             }}>
               {step.label.split(' ').map((word, i) => (
                 <div key={i}>{word}</div>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Clock, AlertCircle, Info, AlertTriangle, Bug, Copy, Calendar, FileText, ChevronDown, Eye, Download, Play, Users, Save, History, TrendingUp, List } from 'lucide-react';
+import { Clock, AlertCircle, Info, AlertTriangle, Bug, Copy, Calendar, FileText, ChevronDown, Eye, Download, Play, Users, Save, History, TrendingUp, List, Filter } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Report } from './mockData';
 import { ReportStatusBadge } from './ReportStatusBadge';
@@ -20,11 +20,13 @@ export const TaskLogsSidebar: React.FC<TaskLogsSidebarProps> = ({ task, isOpen, 
   const navigate = useNavigate();
   const { startDownload } = useDownload();
   const [logFilter, setLogFilter] = useState<string>('all');
+  const [showLogFilterDropdown, setShowLogFilterDropdown] = useState(false);
   const [showRunHistory, setShowRunHistory] = useState(false);
   const [showFrequencyDropdown, setShowFrequencyDropdown] = useState(false);
   const [showActionDropdown, setShowActionDropdown] = useState(false);
   const [isSubscribed, setIsSubscribed] = useState(task.isSubscribed || false);
   const [subscriberCount, setSubscriberCount] = useState(task.subscriberCount || 0);
+  const [copySuccess, setCopySuccess] = useState(false);
 
   // Edit functionality
   const {
@@ -40,6 +42,20 @@ export const TaskLogsSidebar: React.FC<TaskLogsSidebarProps> = ({ task, isOpen, 
 
   const isEditable = task.status === 'completed';
   const frequencyOptions = ['Daily', 'Weekly', 'Bi-weekly', 'Monthly', 'Quarterly'];
+
+  // Log filter options
+  const logFilterOptions = [
+    { value: 'all', label: 'All Logs' },
+    { value: 'error', label: 'Errors' },
+    { value: 'warning', label: 'Warnings' },
+    { value: 'info', label: 'Info' },
+    { value: 'debug', label: 'Debug' }
+  ];
+
+  const getLogFilterLabel = (value: string) => {
+    const option = logFilterOptions.find(opt => opt.value === value);
+    return option ? option.label : 'All Logs';
+  };
 
   // Workflow progress calculation
   const getWorkflowSteps = (): WorkflowStep[] => {
@@ -154,16 +170,39 @@ export const TaskLogsSidebar: React.FC<TaskLogsSidebarProps> = ({ task, isOpen, 
 
   const filteredLogs = task.logs.filter(log => logFilter === 'all' || log.level === logFilter);
 
-  const handleCopyLogs = () => {
-    const logsText = filteredLogs.map(log => 
-      `[${formatTimestamp(log.timestamp)}] ${log.level.toUpperCase()}: ${log.message}`
-    ).join('\n');
-    navigator.clipboard.writeText(logsText);
+  const handleCopyLogs = async () => {
+    try {
+      const logsText = filteredLogs.map(log => 
+        `[${formatTimestamp(log.timestamp)}] ${log.level.toUpperCase()}: ${log.message}`
+      ).join('\n');
+      
+      await navigator.clipboard.writeText(logsText);
+      setCopySuccess(true);
+      setTimeout(() => setCopySuccess(false), 2000);
+    } catch (error) {
+      console.error('Failed to copy logs:', error);
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = filteredLogs.map(log => 
+        `[${formatTimestamp(log.timestamp)}] ${log.level.toUpperCase()}: ${log.message}`
+      ).join('\n');
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      setCopySuccess(true);
+      setTimeout(() => setCopySuccess(false), 2000);
+    }
   };
 
   const handleFrequencyChange = (frequency: string) => {
     updateFrequency(frequency);
     setShowFrequencyDropdown(false);
+  };
+
+  const handleLogFilterChange = (filter: string) => {
+    setLogFilter(filter);
+    setShowLogFilterDropdown(false);
   };
 
   const handleSubscribeClick = () => {
@@ -833,7 +872,7 @@ export const TaskLogsSidebar: React.FC<TaskLogsSidebarProps> = ({ task, isOpen, 
           </div>
         </div>
 
-        {/* Steps Section - Redesigned with percentage in header */}
+        {/* Steps Section - Updated with percentage in header */}
         <div style={sharedStyles.section}>
           <h3 style={{
             ...sharedStyles.heading,
@@ -875,57 +914,126 @@ export const TaskLogsSidebar: React.FC<TaskLogsSidebarProps> = ({ task, isOpen, 
               Execution Logs
             </h3>
             
-            <button
-              onClick={handleCopyLogs}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                padding: '8px 12px',
-                background: 'none',
-                border: '1px solid #d1d5db',
-                borderRadius: '8px',
-                color: '#6b7280',
-                fontSize: '12px',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = '#f8fafc';
-                e.currentTarget.style.borderColor = '#9ca3af';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'transparent';
-                e.currentTarget.style.borderColor = '#d1d5db';
-              }}
-            >
-              <Copy size={12} />
-              Copy Logs
-            </button>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              {/* Filter Button */}
+              <div style={{ position: 'relative' }}>
+                <button
+                  onClick={() => setShowLogFilterDropdown(!showLogFilterDropdown)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '8px 12px',
+                    background: 'none',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '8px',
+                    color: '#6b7280',
+                    fontSize: '12px',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#f8fafc';
+                    e.currentTarget.style.borderColor = '#9ca3af';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                    e.currentTarget.style.borderColor = '#d1d5db';
+                  }}
+                >
+                  <Filter size={12} />
+                  {getLogFilterLabel(logFilter)}
+                  <ChevronDown 
+                    size={12} 
+                    style={{
+                      transform: showLogFilterDropdown ? 'rotate(180deg)' : 'rotate(0deg)',
+                      transition: 'transform 0.2s ease'
+                    }}
+                  />
+                </button>
+
+                {showLogFilterDropdown && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '100%',
+                    right: '0',
+                    marginTop: '4px',
+                    backgroundColor: 'white',
+                    border: '1px solid #E5E7EB',
+                    borderRadius: '8px',
+                    boxShadow: '0 10px 25px rgba(0, 0, 0, 0.15)',
+                    zIndex: 1000,
+                    minWidth: '140px',
+                    overflow: 'hidden'
+                  }}>
+                    {logFilterOptions.map((option) => (
+                      <button
+                        key={option.value}
+                        style={{
+                          width: '100%',
+                          padding: '12px 16px',
+                          backgroundColor: option.value === logFilter ? '#F0F9FF' : 'transparent',
+                          border: 'none',
+                          textAlign: 'left',
+                          fontSize: '13px',
+                          color: option.value === logFilter ? '#0369A1' : '#374151',
+                          cursor: 'pointer',
+                          fontWeight: option.value === logFilter ? '600' : '400',
+                          transition: 'background-color 0.2s ease'
+                        }}
+                        onClick={() => handleLogFilterChange(option.value)}
+                        onMouseEnter={(e) => {
+                          if (option.value !== logFilter) {
+                            e.currentTarget.style.backgroundColor = '#F9FAFB';
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (option.value !== logFilter) {
+                            e.currentTarget.style.backgroundColor = 'transparent';
+                          }
+                        }}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Copy Logs Button */}
+              <button
+                onClick={handleCopyLogs}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '8px 12px',
+                  background: 'none',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '8px',
+                  color: copySuccess ? '#10B981' : '#6b7280',
+                  fontSize: '12px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  if (!copySuccess) {
+                    e.currentTarget.style.backgroundColor = '#f8fafc';
+                    e.currentTarget.style.borderColor = '#9ca3af';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!copySuccess) {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                    e.currentTarget.style.borderColor = '#d1d5db';
+                  }
+                }}
+              >
+                <Copy size={12} />
+                {copySuccess ? 'Copied!' : 'Copy Logs'}
+              </button>
+            </div>
           </div>
-          
-          <select 
-            style={{
-              width: '100%',
-              padding: '12px 16px',
-              background: '#ffffff',
-              border: '1px solid #d1d5db',
-              borderRadius: '12px',
-              color: '#1a202c',
-              fontSize: '14px',
-              outline: 'none',
-              cursor: 'pointer',
-              marginBottom: '16px'
-            }}
-            value={logFilter}
-            onChange={(e) => setLogFilter(e.target.value)}
-          >
-            <option value="all">All Logs</option>
-            <option value="error">Errors Only</option>
-            <option value="warning">Warnings Only</option>
-            <option value="info">Info Only</option>
-            <option value="debug">Debug Only</option>
-          </select>
 
           <div>
             {filteredLogs.length === 0 ? (
