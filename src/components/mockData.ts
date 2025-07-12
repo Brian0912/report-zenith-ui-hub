@@ -1,4 +1,3 @@
-
 import { v4 as uuidv4 } from 'uuid';
 
 export interface Report {
@@ -237,7 +236,42 @@ export const mockReports: Report[] = [
         stage: 'COMPLETION',
         message: 'Optimization analysis in progress. Report will be generated soon.'
       }
-    ]
+    ],
+    taskCreation: {
+      goal: 'Improve the loading speed and overall performance of our e-commerce platform to enhance user experience and reduce bounce rates.',
+      analysisType: 'impact',
+      background: 'Users have reported slow loading times, especially during peak hours, leading to a high bounce rate. Performance metrics show average page load times exceeding 3 seconds, which significantly impacts user satisfaction and conversion rates.',
+      timeRange: {
+        start: new Date('2024-01-01T00:00:00Z'),
+        end: new Date('2024-02-01T00:00:00Z')
+      },
+      metadata: [
+        {
+          id: '1',
+          category: 'priority',
+          key: 'high',
+          value: 'Performance issue affecting user experience'
+        },
+        {
+          id: '2',
+          category: 'type',
+          key: 'optimization',
+          value: 'Performance improvement and optimization'
+        },
+        {
+          id: '3',
+          category: 'team',
+          key: 'frontend',
+          value: 'Frontend performance team'
+        },
+        {
+          id: '4',
+          category: 'complexity',
+          key: 'medium',
+          value: 'Moderate complexity with multiple optimization areas'
+        }
+      ]
+    }
   },
   {
     id: '3',
@@ -300,7 +334,42 @@ export const mockReports: Report[] = [
         stage: 'DESIGN',
         message: 'Creating wireframes and mockups for the new app interface'
       }
-    ]
+    ],
+    taskCreation: {
+      goal: 'Redesign the user interface of our mobile app to improve user experience and increase user engagement.',
+      analysisType: 'situational',
+      background: 'User feedback indicates that the current app interface is outdated and difficult to navigate. Analytics show high drop-off rates on key screens and low user engagement. A comprehensive redesign is needed to modernize the interface and improve usability.',
+      timeRange: {
+        start: new Date('2024-01-15T00:00:00Z'),
+        end: new Date('2024-02-15T00:00:00Z')
+      },
+      metadata: [
+        {
+          id: '1',
+          category: 'priority',
+          key: 'medium',
+          value: 'Important UX improvement project'
+        },
+        {
+          id: '2',
+          category: 'type',
+          key: 'design',
+          value: 'User interface and experience redesign'
+        },
+        {
+          id: '3',
+          category: 'team',
+          key: 'design',
+          value: 'UX/UI design team'
+        },
+        {
+          id: '4',
+          category: 'complexity',
+          key: 'high',
+          value: 'Complex redesign affecting multiple user flows'
+        }
+      ]
+    }
   },
   {
     id: '4',
@@ -363,7 +432,42 @@ export const mockReports: Report[] = [
         stage: 'MODEL_TRAINING',
         message: 'Error: Insufficient data for model training. Please provide more data.'
       }
-    ]
+    ],
+    taskCreation: {
+      goal: 'Develop a machine learning model to predict customer churn and identify at-risk customers for proactive retention efforts.',
+      analysisType: 'impact',
+      background: 'We are experiencing a high rate of customer churn (15% monthly), and we need to identify at-risk customers to take proactive measures. Historical data shows patterns that could be leveraged for prediction, but we need a systematic approach to analyze and act on this information.',
+      timeRange: {
+        start: new Date('2023-09-01T00:00:00Z'),
+        end: new Date('2024-03-01T00:00:00Z')
+      },
+      metadata: [
+        {
+          id: '1',
+          category: 'priority',
+          key: 'high',
+          value: 'Critical business impact on revenue retention'
+        },
+        {
+          id: '2',
+          category: 'type',
+          key: 'analytics',
+          value: 'Machine learning and predictive analytics'
+        },
+        {
+          id: '3',
+          category: 'team',
+          key: 'data',
+          value: 'Data science and analytics team'
+        },
+        {
+          id: '4',
+          category: 'complexity',
+          key: 'high',
+          value: 'Complex ML model requiring significant data preparation'
+        }
+      ]
+    }
   },
   {
     id: '5',

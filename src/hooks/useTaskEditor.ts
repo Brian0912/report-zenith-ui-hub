@@ -1,5 +1,5 @@
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Report } from '../components/mockData';
 
 interface EditableFields {
@@ -17,17 +17,25 @@ interface EditableFields {
 }
 
 export const useTaskEditor = (task: Report) => {
-  const [originalValues] = useState<EditableFields>({
-    frequency: task.schedule?.frequency || 'Monthly',
+  const createInitialValues = (currentTask: Report): EditableFields => ({
+    frequency: currentTask.schedule?.frequency || 'Monthly',
     timeRange: {
-      start: task.taskCreation?.timeRange?.start || new Date(),
-      end: task.taskCreation?.timeRange?.end || new Date()
+      start: currentTask.taskCreation?.timeRange?.start || new Date(),
+      end: currentTask.taskCreation?.timeRange?.end || new Date()
     },
-    metadata: task.taskCreation?.metadata || []
+    metadata: currentTask.taskCreation?.metadata || []
   });
 
+  const [originalValues, setOriginalValues] = useState<EditableFields>(() => createInitialValues(task));
   const [currentValues, setCurrentValues] = useState<EditableFields>(originalValues);
   const [isSaving, setIsSaving] = useState(false);
+
+  // Reset state when task changes
+  useEffect(() => {
+    const newInitialValues = createInitialValues(task);
+    setOriginalValues(newInitialValues);
+    setCurrentValues(newInitialValues);
+  }, [task.id]);
 
   const hasUnsavedChanges = 
     currentValues.frequency !== originalValues.frequency ||
@@ -50,17 +58,16 @@ export const useTaskEditor = (task: Report) => {
   const saveChanges = useCallback(async () => {
     setIsSaving(true);
     try {
-      // Here you would typically call an API
       console.log('Saving changes:', currentValues);
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
-      // Update original values after successful save
-      Object.assign(originalValues, currentValues);
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      const newValues = { ...currentValues };
+      setOriginalValues(newValues);
     } catch (error) {
       console.error('Failed to save changes:', error);
     } finally {
       setIsSaving(false);
     }
-  }, [currentValues, originalValues]);
+  }, [currentValues]);
 
   const resetChanges = useCallback(() => {
     setCurrentValues({ ...originalValues });
