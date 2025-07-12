@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTheme } from './ThemeProvider';
@@ -63,7 +62,7 @@ export const Sidebar: React.FC<SidebarProps> = () => {
   };
 
   const sidebarStyle: React.CSSProperties = {
-    width: isCollapsed ? '72px' : '240px',
+    width: isCollapsed ? '72px' : '200px',
     height: '100vh',
     backgroundColor: '#ffffff',
     borderRight: '1px solid #e5e7eb',
@@ -95,7 +94,7 @@ export const Sidebar: React.FC<SidebarProps> = () => {
   };
 
   const groupStyle: React.CSSProperties = {
-    marginBottom: '32px'
+    marginBottom: '24px'
   };
 
   const groupLabelStyle: React.CSSProperties = {
@@ -103,7 +102,7 @@ export const Sidebar: React.FC<SidebarProps> = () => {
     fontWeight: '600',
     color: '#9ca3af',
     letterSpacing: '0.05em',
-    marginBottom: isCollapsed ? '12px' : '12px',
+    marginBottom: isCollapsed ? '8px' : '12px',
     paddingLeft: isCollapsed ? '0' : '16px',
     textAlign: isCollapsed ? 'center' : 'left',
     transition: 'all 0.3s ease'
@@ -113,16 +112,17 @@ export const Sidebar: React.FC<SidebarProps> = () => {
     display: 'flex',
     alignItems: 'center',
     justifyContent: isCollapsed ? 'center' : 'flex-start',
-    padding: isCollapsed ? '12px' : '10px 16px',
+    padding: isCollapsed ? '10px' : '10px 16px',
     color: isActive ? '#1f2937' : '#6b7280',
     textDecoration: 'none',
     transition: 'all 0.2s ease',
     cursor: 'pointer',
     backgroundColor: isActive ? '#f3f4f6' : 'transparent',
     borderRight: isActive && !isCollapsed ? '3px solid #3b82f6' : '3px solid transparent',
-    margin: isCollapsed ? '4px 12px' : '0',
-    borderRadius: isCollapsed ? '8px' : '0',
-    minHeight: '40px'
+    margin: isCollapsed ? '2px 16px' : '0',
+    borderRadius: isCollapsed ? '6px' : '0',
+    minHeight: '40px',
+    width: isCollapsed ? '40px' : 'auto'
   });
 
   const iconStyle: React.CSSProperties = {
@@ -130,7 +130,9 @@ export const Sidebar: React.FC<SidebarProps> = () => {
     flexShrink: 0,
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    width: '18px',
+    height: '18px'
   };
 
   const labelStyle: React.CSSProperties = {
