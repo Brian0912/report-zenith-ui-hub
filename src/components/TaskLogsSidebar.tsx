@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Clock, User, AlertCircle, Info, AlertTriangle, Bug, Copy, Calendar, Target, FileText, ChevronDown, Eye, Download, Play, Users, Save } from 'lucide-react';
+import { Clock, AlertCircle, Info, AlertTriangle, Bug, Copy, Calendar, Target, FileText, ChevronDown, Eye, Download, Play, Users, Save, History, TrendingUp } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Report } from './mockData';
 import { ReportStatusBadge } from './ReportStatusBadge';
@@ -7,7 +7,8 @@ import { sharedStyles } from './shared/styles';
 import { useDownload } from '../hooks/useDownload';
 import { useTaskEditor } from '../hooks/useTaskEditor';
 import { EnhancedTimeRangePicker } from './EnhancedTimeRangePicker';
-import { EnhancedMetadataEditor } from './EnhancedMetadataEditor';
+import { WorkflowProgress, WorkflowStep, WORKFLOW_STEPS } from './TaskLogsSidebar/WorkflowProgress';
+import { MetadataEditMode } from './TaskLogsSidebar/MetadataEditMode';
 
 interface TaskLogsSidebarProps {
   task: Report;
@@ -39,6 +40,36 @@ export const TaskLogsSidebar: React.FC<TaskLogsSidebarProps> = ({ task, isOpen, 
 
   const isEditable = task.status === 'completed';
   const frequencyOptions = ['Daily', 'Weekly', 'Bi-weekly', 'Monthly', 'Quarterly'];
+
+  // Workflow progress calculation
+  const getWorkflowSteps = (): WorkflowStep[] => {
+    const stepStatuses = WORKFLOW_STEPS.map((stepLabel, index) => {
+      let status: WorkflowStep['status'] = 'pending';
+      
+      if (task.status === 'completed') {
+        status = 'completed';
+      } else if (task.status === 'error') {
+        status = index === 0 ? 'completed' : index === 1 ? 'error' : 'pending';
+      } else if (task.status === 'running') {
+        const progressSteps = Math.floor((task.progress || 0) / (100 / WORKFLOW_STEPS.length));
+        if (index < progressSteps) {
+          status = 'completed';
+        } else if (index === progressSteps) {
+          status = 'current';
+        }
+      } else if (task.status === 'queued') {
+        status = index === 0 ? 'current' : 'pending';
+      }
+
+      return {
+        id: `step-${index}`,
+        label: stepLabel,
+        status
+      };
+    });
+
+    return stepStatuses;
+  };
 
   const calculateNextRun = (frequency: string, baseDate: Date = new Date()) => {
     const nextRun = new Date(baseDate);
@@ -94,35 +125,18 @@ export const TaskLogsSidebar: React.FC<TaskLogsSidebarProps> = ({ task, isOpen, 
     }).format(date);
   };
 
-  const formatDateRange = (start: Date, end: Date) => {
-    const startStr = new Intl.DateTimeFormat('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
-    }).format(start);
-    
-    const endStr = new Intl.DateTimeFormat('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
-    }).format(end);
-    
-    return `${startStr} - ${endStr}`;
-  };
-
   const getAnalysisTypeDisplay = (type: string) => {
-    return type === 'situational' ? 'Situational Analysis' : 'Impact Analysis';
-  };
-
-  const getMetadataLabel = (category: string, key: string) => {
-    const categoryLabels: Record<string, Record<string, string>> = {
-      priority: { high: 'High Priority', medium: 'Medium Priority', low: 'Low Priority', urgent: 'Urgent' },
-      type: { feature: 'Feature Request', bug: 'Bug Fix', enhancement: 'Enhancement', research: 'Research', documentation: 'Documentation' },
-      team: { frontend: 'Frontend', backend: 'Backend', design: 'Design', qa: 'Quality Assurance', devops: 'DevOps' },
-      complexity: { simple: 'Simple', moderate: 'Moderate', complex: 'Complex', expert: 'Expert Level' }
-    };
-    
-    return categoryLabels[category]?.[key] || key;
+    if (type === 'situational') {
+      return {
+        text: 'Situational Analysis',
+        icon: <History size={16} style={{ color: '#10b981' }} />
+      };
+    } else {
+      return {
+        text: 'Impact Analysis', 
+        icon: <TrendingUp size={16} style={{ color: '#10b981' }} />
+      };
+    }
   };
 
   const filteredLogs = task.logs.filter(log => logFilter === 'all' || log.level === logFilter);
@@ -193,7 +207,7 @@ export const TaskLogsSidebar: React.FC<TaskLogsSidebarProps> = ({ task, isOpen, 
         overflow: 'auto', 
         padding: '32px'
       }}>
-        {/* Overview Section - Updated with unsaved indicator */}
+        {/* Overview Section */}
         <div style={sharedStyles.section}>
           <div style={{
             display: 'flex',
@@ -212,7 +226,6 @@ export const TaskLogsSidebar: React.FC<TaskLogsSidebarProps> = ({ task, isOpen, 
               Overview
             </h3>
             
-            {/* Unsaved Changes Indicator - Moved to Overview section */}
             {hasUnsavedChanges && (
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <span style={{
@@ -731,7 +744,23 @@ export const TaskLogsSidebar: React.FC<TaskLogsSidebarProps> = ({ task, isOpen, 
           </div>
         </div>
 
-        {/* Details Section - Now shown for all statuses */}
+        {/* Progress Flow Section */}
+        <div style={sharedStyles.section}>
+          <h3 style={{
+            ...sharedStyles.heading,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
+          }}>
+            <Target size={20} />
+            Progress Flow
+          </h3>
+          <div style={sharedStyles.card}>
+            <WorkflowProgress steps={getWorkflowSteps()} />
+          </div>
+        </div>
+
+        {/* Details Section */}
         <div style={sharedStyles.section}>
           <h3 style={{
             ...sharedStyles.heading,
@@ -760,8 +789,8 @@ export const TaskLogsSidebar: React.FC<TaskLogsSidebarProps> = ({ task, isOpen, 
                     alignItems: 'center',
                     gap: '8px'
                   }}>
-                    <Target size={16} style={{ color: '#10b981' }} />
-                    {getAnalysisTypeDisplay(task.taskCreation.analysisType)}
+                    {getAnalysisTypeDisplay(task.taskCreation.analysisType).icon}
+                    {getAnalysisTypeDisplay(task.taskCreation.analysisType).text}
                   </div>
                 </div>
                 
@@ -783,11 +812,13 @@ export const TaskLogsSidebar: React.FC<TaskLogsSidebarProps> = ({ task, isOpen, 
                 
                 {currentValues.metadata.length > 0 && (
                   <div>
-                    <div style={sharedStyles.label}>Metadata</div>
-                    <EnhancedMetadataEditor
+                    <MetadataEditMode
                       metadata={currentValues.metadata}
                       onChange={updateMetadata}
                       disabled={!isEditable}
+                      hasUnsavedChanges={hasUnsavedChanges}
+                      onSave={saveChanges}
+                      onCancel={resetChanges}
                     />
                   </div>
                 )}
@@ -805,7 +836,7 @@ export const TaskLogsSidebar: React.FC<TaskLogsSidebarProps> = ({ task, isOpen, 
           </div>
         </div>
 
-        {/* Execution Logs Section - Updated without unsaved indicator */}
+        {/* Execution Logs Section */}
         <div style={sharedStyles.section}>
           <div style={{ 
             display: 'flex', 
