@@ -20,7 +20,11 @@ export const MainContentArea: React.FC<MainContentAreaProps> = ({
   onViewLogs
 }) => {
   const mainContentStyle: React.CSSProperties = {
-    height: 'calc(100vh - 80px - 48px)',
+    height: '100%',
+    flex: 1,
+    display: 'flex',
+    flexDirection: 'column',
+    minHeight: 0,
     overflowY: 'auto',
     paddingRight: '8px'
   };

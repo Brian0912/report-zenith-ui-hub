@@ -29,14 +29,19 @@ export const Index: React.FC = () => {
   const containerStyle: React.CSSProperties = {
     minHeight: '100vh',
     backgroundColor: '#fafafa',
-    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+    display: 'flex',
+    flexDirection: 'column'
   };
 
   const contentContainerStyle: React.CSSProperties = {
     maxWidth: '1600px',
     margin: '0 auto',
     padding: '24px',
-    height: 'calc(100vh - 80px - 48px)'
+    flex: 1,
+    display: 'flex',
+    flexDirection: 'column',
+    minHeight: 0
   };
 
   const handleSubscribe = (reportId: string) => {
@@ -49,8 +54,8 @@ export const Index: React.FC = () => {
       
       <div style={contentContainerStyle}>
         {isPanelOpen ? (
-          <ResizablePanelGroup direction="horizontal" style={{ height: '100%' }}>
-            <ResizablePanel defaultSize={65} minSize={40} style={{ paddingRight: '12px' }}>
+          <ResizablePanelGroup direction="horizontal" style={{ flex: 1, minHeight: 0 }}>
+            <ResizablePanel defaultSize={65} minSize={40} style={{ paddingRight: '12px', display: 'flex', flexDirection: 'column' }}>
               <MainContentArea
                 dateFilter={dateFilter}
                 setDateFilter={setDateFilter}
@@ -62,7 +67,7 @@ export const Index: React.FC = () => {
 
             <ResizableHandle withHandle />
 
-            <ResizablePanel defaultSize={35} minSize={25} style={{ paddingLeft: '12px' }}>
+            <ResizablePanel defaultSize={35} minSize={25} style={{ paddingLeft: '12px', display: 'flex', flexDirection: 'column' }}>
               <PanelContainer
                 isTaskPanelOpen={isTaskPanelOpen}
                 selectedTask={selectedTask}
