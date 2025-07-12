@@ -27,6 +27,9 @@ export const Sidebar: React.FC = () => {
     return location.pathname === path;
   };
 
+  // Get all menu items from all groups for collapsed view
+  const allMenuItems = productGroups.flatMap(group => group.subItems);
+
   const sidebarStyle: React.CSSProperties = {
     width: isCollapsed ? '80px' : '280px',
     height: '100vh',
@@ -72,7 +75,7 @@ export const Sidebar: React.FC = () => {
   const subItemStyle = (isActive: boolean): React.CSSProperties => ({
     display: 'flex',
     alignItems: 'center',
-    padding: '0.75rem 1.5rem',
+    padding: isCollapsed ? '0.75rem' : '0.75rem 1.5rem',
     margin: '0.25rem 0',
     cursor: 'pointer',
     transition: 'all 0.2s ease',
@@ -80,7 +83,8 @@ export const Sidebar: React.FC = () => {
     color: '#374151',
     fontSize: '0.875rem',
     fontWeight: '500',
-    borderRadius: '0px'
+    borderRadius: '0px',
+    justifyContent: isCollapsed ? 'center' : 'flex-start'
   });
 
   const subIconContainerStyle: React.CSSProperties = {
@@ -125,6 +129,14 @@ export const Sidebar: React.FC = () => {
     marginBottom: '2rem'
   };
 
+  const collapsedMenuStyle: React.CSSProperties = {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: '0.5rem',
+    paddingTop: '1rem'
+  };
+
   return (
     <div style={sidebarStyle}>
       <button 
@@ -148,62 +160,103 @@ export const Sidebar: React.FC = () => {
       </div>
 
       <nav style={menuStyle} role="navigation" aria-label="Main navigation">
-        {productGroups.map(group => {
-          const isGroupExpanded = expandedGroups.includes(group.id);
-          
-          return (
-            <div key={group.id} style={groupContainerStyle}>
-              {!isCollapsed && (
+        {isCollapsed ? (
+          // Collapsed view - show only icons for all menu items
+          <div style={collapsedMenuStyle}>
+            {allMenuItems.map(item => {
+              const isItemActiveState = isItemActive(item.path);
+              const ItemIconComponent = item.icon;
+              
+              return (
+                <div 
+                  key={item.id}
+                  style={subItemStyle(isItemActiveState)}
+                  onClick={() => navigate(item.path)}
+                  onMouseEnter={e => {
+                    if (!isItemActiveState) {
+                      e.currentTarget.style.backgroundColor = '#f9fafb';
+                    }
+                  }}
+                  onMouseLeave={e => {
+                    if (!isItemActiveState) {
+                      e.currentTarget.style.backgroundColor = 'transparent';
+                    }
+                  }}
+                  role="button"
+                  aria-label={`Navigate to ${item.label}`}
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      navigate(item.path);
+                    }
+                  }}
+                  title={item.label}
+                >
+                  <div style={subIconContainerStyle}>
+                    <ItemIconComponent size={16} />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          // Expanded view - show grouped structure
+          productGroups.map(group => {
+            const isGroupExpanded = expandedGroups.includes(group.id);
+            
+            return (
+              <div key={group.id} style={groupContainerStyle}>
                 <div style={groupLabelStyle}>
                   {group.label}
                 </div>
-              )}
 
-              {!isCollapsed && isGroupExpanded && (
-                <div role="group" aria-label={`${group.label} items`}>
-                  {group.subItems.map(item => {
-                    const isItemActiveState = isItemActive(item.path);
-                    const ItemIconComponent = item.icon;
-                    
-                    return (
-                      <div 
-                        key={item.id}
-                        style={subItemStyle(isItemActiveState)}
-                        onClick={() => navigate(item.path)}
-                        onMouseEnter={e => {
-                          if (!isItemActiveState) {
-                            e.currentTarget.style.backgroundColor = '#f9fafb';
-                          }
-                        }}
-                        onMouseLeave={e => {
-                          if (!isItemActiveState) {
-                            e.currentTarget.style.backgroundColor = 'transparent';
-                          }
-                        }}
-                        role="button"
-                        aria-label={`Navigate to ${item.label}`}
-                        tabIndex={0}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter' || e.key === ' ') {
-                            e.preventDefault();
-                            navigate(item.path);
-                          }
-                        }}
-                      >
-                        <div style={subIconContainerStyle}>
-                          <ItemIconComponent size={16} />
+                {isGroupExpanded && (
+                  <div role="group" aria-label={`${group.label} items`}>
+                    {group.subItems.map(item => {
+                      const isItemActiveState = isItemActive(item.path);
+                      const ItemIconComponent = item.icon;
+                      
+                      return (
+                        <div 
+                          key={item.id}
+                          style={subItemStyle(isItemActiveState)}
+                          onClick={() => navigate(item.path)}
+                          onMouseEnter={e => {
+                            if (!isItemActiveState) {
+                              e.currentTarget.style.backgroundColor = '#f9fafb';
+                            }
+                          }}
+                          onMouseLeave={e => {
+                            if (!isItemActiveState) {
+                              e.currentTarget.style.backgroundColor = 'transparent';
+                            }
+                          }}
+                          role="button"
+                          aria-label={`Navigate to ${item.label}`}
+                          tabIndex={0}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.preventDefault();
+                              navigate(item.path);
+                            }
+                          }}
+                        >
+                          <div style={subIconContainerStyle}>
+                            <ItemIconComponent size={16} />
+                          </div>
+                          <div style={labelContainerStyle}>
+                            {item.label}
+                          </div>
                         </div>
-                        <div style={labelContainerStyle}>
-                          {item.label}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-          );
-        })}
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          })
+        )}
       </nav>
     </div>
   );
