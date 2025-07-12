@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Plus, X } from 'lucide-react';
 import { MetadataSelector } from './TaskCreationPanel/MetadataSelector';
 import { MetadataItem } from './TaskCreationPanel/MetadataItem';
-import { MetadataItemType } from './TaskCreationPanel/types';
+import { MetadataItemType, METADATA_CATEGORIES } from './TaskCreationPanel/types';
 
 interface EnhancedMetadataEditorProps {
   metadata: Array<{
@@ -29,13 +29,15 @@ export const EnhancedMetadataEditor: React.FC<EnhancedMetadataEditorProps> = ({
   const [showSelector, setShowSelector] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Convert metadata to MetadataItemType format
-  const metadataItems: MetadataItemType[] = metadata.map(meta => ({
-    id: meta.id,
-    category: meta.category,
-    key: meta.key,
-    value: meta.value
-  }));
+  // Convert metadata to MetadataItemType format with proper type checking
+  const metadataItems: MetadataItemType[] = metadata
+    .filter(meta => meta.category in METADATA_CATEGORIES) // Only include valid categories
+    .map(meta => ({
+      id: meta.id,
+      category: meta.category as keyof typeof METADATA_CATEGORIES,
+      key: meta.key,
+      value: meta.value
+    }));
 
   const handleAddMetadata = (categoryKey: string, optionKey: string) => {
     const newItem = {
