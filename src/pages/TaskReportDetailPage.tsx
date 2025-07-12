@@ -19,7 +19,7 @@ export const TaskReportDetailPage: React.FC = () => {
       <div style={{ 
         padding: '2rem', 
         textAlign: 'center',
-        color: theme === 'dark' ? '#F3F4F6' : '#374151'
+        color: '#374151'
       }}>
         Task not found
       </div>
@@ -32,20 +32,14 @@ export const TaskReportDetailPage: React.FC = () => {
 
   const containerStyle: React.CSSProperties = {
     minHeight: '100vh',
-    background: theme === 'dark' 
-      ? 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)'
-      : 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
-    color: theme === 'dark' ? '#f1f5f9' : '#334155'
+    background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+    color: '#334155'
   };
 
   const headerStyle: React.CSSProperties = {
-    background: theme === 'dark'
-      ? 'rgba(255, 255, 255, 0.05)'
-      : 'rgba(255, 255, 255, 0.9)',
+    background: 'rgba(255, 255, 255, 0.9)',
     backdropFilter: 'blur(20px)',
-    borderBottom: theme === 'dark'
-      ? '1px solid rgba(255, 255, 255, 0.1)'
-      : '1px solid rgba(0, 0, 0, 0.1)',
+    borderBottom: '1px solid rgba(0, 0, 0, 0.1)',
     padding: '1.5rem 2rem',
     display: 'flex',
     justifyContent: 'space-between',
@@ -57,14 +51,14 @@ export const TaskReportDetailPage: React.FC = () => {
     alignItems: 'center',
     gap: '0.5rem',
     fontSize: '0.875rem',
-    color: theme === 'dark' ? '#9CA3AF' : '#6B7280',
+    color: '#6B7280',
     marginBottom: '1rem'
   };
 
   const titleStyle: React.CSSProperties = {
     fontSize: '1.5rem',
     fontWeight: '600',
-    color: theme === 'dark' ? '#F3F4F6' : '#374151',
+    color: '#374151',
     marginBottom: '0.5rem'
   };
 
@@ -74,9 +68,9 @@ export const TaskReportDetailPage: React.FC = () => {
     gap: '0.5rem',
     padding: '0.5rem 1rem',
     background: 'none',
-    border: theme === 'dark' ? '1px solid rgba(255, 255, 255, 0.2)' : '1px solid rgba(0, 0, 0, 0.2)',
+    border: '1px solid rgba(0, 0, 0, 0.2)',
     borderRadius: '6px',
-    color: theme === 'dark' ? '#9CA3AF' : '#6B7280',
+    color: '#6B7280',
     cursor: 'pointer',
     fontSize: '0.875rem',
     transition: 'all 0.2s ease'
@@ -106,25 +100,17 @@ export const TaskReportDetailPage: React.FC = () => {
   };
 
   const sectionStyle: React.CSSProperties = {
-    background: theme === 'dark'
-      ? 'rgba(255, 255, 255, 0.05)'
-      : 'rgba(255, 255, 255, 0.9)',
+    background: 'rgba(255, 255, 255, 0.9)',
     backdropFilter: 'blur(20px)',
     borderRadius: '16px',
-    border: theme === 'dark'
-      ? '1px solid rgba(255, 255, 255, 0.1)'
-      : '1px solid rgba(0, 0, 0, 0.1)',
-    boxShadow: theme === 'dark'
-      ? '0 8px 32px rgba(0, 0, 0, 0.3)'
-      : '0 8px 32px rgba(0, 0, 0, 0.1)',
+    border: '1px solid rgba(0, 0, 0, 0.1)',
+    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
     overflow: 'hidden'
   };
 
   const sectionHeaderStyle: React.CSSProperties = {
     padding: '1.5rem',
-    borderBottom: theme === 'dark'
-      ? '1px solid rgba(255, 255, 255, 0.1)'
-      : '1px solid rgba(0, 0, 0, 0.1)',
+    borderBottom: '1px solid rgba(0, 0, 0, 0.1)',
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center'
@@ -133,7 +119,7 @@ export const TaskReportDetailPage: React.FC = () => {
   const sectionTitleStyle: React.CSSProperties = {
     fontSize: '1.125rem',
     fontWeight: '600',
-    color: theme === 'dark' ? '#F3F4F6' : '#374151',
+    color: '#374151',
     display: 'flex',
     alignItems: 'center',
     gap: '0.5rem'
@@ -141,14 +127,10 @@ export const TaskReportDetailPage: React.FC = () => {
 
   const selectStyle: React.CSSProperties = {
     padding: '0.5rem 1rem',
-    background: theme === 'dark'
-      ? 'rgba(255, 255, 255, 0.1)'
-      : 'rgba(255, 255, 255, 0.8)',
-    border: theme === 'dark'
-      ? '1px solid rgba(255, 255, 255, 0.2)'
-      : '1px solid rgba(0, 0, 0, 0.2)',
+    background: 'rgba(255, 255, 255, 0.8)',
+    border: '1px solid rgba(0, 0, 0, 0.2)',
     borderRadius: '6px',
-    color: theme === 'dark' ? '#F3F4F6' : '#374151',
+    color: '#374151',
     fontSize: '0.875rem'
   };
 
@@ -165,7 +147,7 @@ export const TaskReportDetailPage: React.FC = () => {
 
   const infoLabelStyle: React.CSSProperties = {
     fontSize: '0.75rem',
-    color: theme === 'dark' ? '#9CA3AF' : '#6B7280',
+    color: '#6B7280',
     marginBottom: '0.5rem',
     textTransform: 'uppercase' as const,
     letterSpacing: '0.05em'
@@ -174,7 +156,7 @@ export const TaskReportDetailPage: React.FC = () => {
   const infoValueStyle: React.CSSProperties = {
     fontSize: '1rem',
     fontWeight: '500',
-    color: theme === 'dark' ? '#F3F4F6' : '#374151'
+    color: '#374151'
   };
 
   const pdfViewerStyle: React.CSSProperties = {
@@ -194,19 +176,15 @@ export const TaskReportDetailPage: React.FC = () => {
     textAlign: 'left' as const,
     fontSize: '0.875rem',
     fontWeight: '500',
-    color: theme === 'dark' ? '#9CA3AF' : '#6B7280',
-    borderBottom: theme === 'dark'
-      ? '1px solid rgba(255, 255, 255, 0.1)'
-      : '1px solid rgba(0, 0, 0, 0.1)'
+    color: '#6B7280',
+    borderBottom: '1px solid rgba(0, 0, 0, 0.1)'
   };
 
   const tdStyle: React.CSSProperties = {
     padding: '0.75rem',
     fontSize: '0.875rem',
-    color: theme === 'dark' ? '#F3F4F6' : '#374151',
-    borderBottom: theme === 'dark'
-      ? '1px solid rgba(255, 255, 255, 0.05)'
-      : '1px solid rgba(0, 0, 0, 0.05)'
+    color: '#374151',
+    borderBottom: '1px solid rgba(0, 0, 0, 0.05)'
   };
 
   const formatTimestamp = (date: Date) => {
@@ -306,23 +284,23 @@ export const TaskReportDetailPage: React.FC = () => {
             </div>
             <div style={{ padding: '1.5rem' }}>
               <div style={{ marginBottom: '1.5rem' }}>
-                <h3 style={{ fontSize: '1rem', fontWeight: '500', marginBottom: '0.5rem', color: theme === 'dark' ? '#F3F4F6' : '#374151' }}>Goal</h3>
-                <p style={{ color: theme === 'dark' ? '#D1D5DB' : '#4B5563', lineHeight: '1.6' }}>{currentVersion.goal}</p>
+                <h3 style={{ fontSize: '1rem', fontWeight: '500', marginBottom: '0.5rem', color: '#374151' }}>Goal</h3>
+                <p style={{ color: '#4B5563', lineHeight: '1.6' }}>{currentVersion.goal}</p>
               </div>
               <div style={{ marginBottom: '1.5rem' }}>
-                <h3 style={{ fontSize: '1rem', fontWeight: '500', marginBottom: '0.5rem', color: theme === 'dark' ? '#F3F4F6' : '#374151' }}>Background</h3>
-                <p style={{ color: theme === 'dark' ? '#D1D5DB' : '#4B5563', lineHeight: '1.6' }}>{currentVersion.background}</p>
+                <h3 style={{ fontSize: '1rem', fontWeight: '500', marginBottom: '0.5rem', color: '#374151' }}>Background</h3>
+                <p style={{ color: '#4B5563', lineHeight: '1.6' }}>{currentVersion.background}</p>
               </div>
               <div>
-                <h3 style={{ fontSize: '1rem', fontWeight: '500', marginBottom: '0.75rem', color: theme === 'dark' ? '#F3F4F6' : '#374151' }}>Metadata</h3>
+                <h3 style={{ fontSize: '1rem', fontWeight: '500', marginBottom: '0.75rem', color: '#374151' }}>Metadata</h3>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
                   {Object.entries(currentVersion.metadata).map(([key, values]) => (
                     <div key={key} style={{ 
-                      background: theme === 'dark' ? 'rgba(59, 130, 246, 0.2)' : 'rgba(59, 130, 246, 0.1)',
+                      background: 'rgba(59, 130, 246, 0.1)',
                       padding: '0.5rem 0.75rem',
                       borderRadius: '6px',
                       fontSize: '0.875rem',
-                      color: theme === 'dark' ? '#93C5FD' : '#1D4ED8'
+                      color: '#1D4ED8'
                     }}>
                       <strong>{key}:</strong> {values.join(', ')}
                     </div>
@@ -356,7 +334,7 @@ export const TaskReportDetailPage: React.FC = () => {
               <div style={{ 
                 padding: '4rem 2rem',
                 textAlign: 'center',
-                color: theme === 'dark' ? '#9CA3AF' : '#6B7280'
+                color: '#6B7280'
               }}>
                 <FileText size={48} style={{ margin: '0 auto 1rem', opacity: 0.5 }} />
                 <p>Report is being generated for this version...</p>
@@ -411,7 +389,7 @@ export const TaskReportDetailPage: React.FC = () => {
               <div style={{ 
                 padding: '4rem 2rem',
                 textAlign: 'center',
-                color: theme === 'dark' ? '#9CA3AF' : '#6B7280'
+                color: '#6B7280'
               }}>
                 <Database size={48} style={{ margin: '0 auto 1rem', opacity: 0.5 }} />
                 <p>No support evidences generated for this version yet.</p>
