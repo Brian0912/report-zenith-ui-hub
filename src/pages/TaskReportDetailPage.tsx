@@ -1,17 +1,16 @@
-
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Download, FileText, Database, Clock, List, Maximize } from 'lucide-react';
+import { ArrowLeft, Download, FileText, Database, Clock, Eye, ChevronDown, Maximize } from 'lucide-react';
 import { useTheme } from '../components/ThemeProvider';
 import { mockReports } from '../components/mockData';
 import { sharedStyles } from '../components/shared/styles';
 import { useDownload } from '../hooks/useDownload';
-import { RunHistoryDropdown } from '../components/shared/RunHistoryDropdown';
 
 export const TaskReportDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { theme } = useTheme();
+  const [showRunHistoryDropdown, setShowRunHistoryDropdown] = useState(false);
   const { downloadProgress, startDownload } = useDownload();
 
   const task = mockReports.find(report => report.id === id);
@@ -35,6 +34,8 @@ export const TaskReportDetailPage: React.FC = () => {
     status: index === 0 ? 'completed' : 'completed'
   })).reverse();
 
+  const currentRun = runs[runs.length - 1]; // Latest run
+
   const formatTimeRange = (timeRange: string | { start: Date; end: Date; } | undefined) => {
     if (!timeRange) return 'Not specified';
     if (typeof timeRange === 'string') return timeRange;
@@ -42,22 +43,6 @@ export const TaskReportDetailPage: React.FC = () => {
       return `${formatTimestamp(timeRange.start)} - ${formatTimestamp(timeRange.end)}`;
     }
     return 'Not specified';
-  };
-
-  // Helper function to get analysis type display with icon
-  const getAnalysisTypeDisplay = (analysisType?: string) => {
-    const type = analysisType || 'Security Assessment';
-    const iconMap: { [key: string]: string } = {
-      'Security Assessment': '🔒',
-      'Performance Analysis': '⚡',
-      'Compliance Review': '✓',
-      'Risk Analysis': '⚠️'
-    };
-    
-    return {
-      icon: iconMap[type] || '📊',
-      label: type
-    };
   };
 
   const containerStyle: React.CSSProperties = {
@@ -121,6 +106,24 @@ export const TaskReportDetailPage: React.FC = () => {
     fontSize: '14px',
     fontWeight: '500',
     transition: 'all 0.2s ease'
+  };
+
+  const dropdownContainerStyle: React.CSSProperties = {
+    position: 'relative',
+    display: 'inline-block'
+  };
+
+  const dropdownStyle: React.CSSProperties = {
+    position: 'absolute',
+    top: '100%',
+    left: '0',
+    right: '0',
+    backgroundColor: '#ffffff',
+    border: '1px solid #e2e8f0',
+    borderRadius: '8px',
+    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+    zIndex: 10,
+    marginTop: '4px'
   };
 
   const contentStyle: React.CSSProperties = {
@@ -249,8 +252,6 @@ export const TaskReportDetailPage: React.FC = () => {
     console.log('Full screen PDF viewer');
   };
 
-  const analysisTypeDisplay = getAnalysisTypeDisplay(task.taskCreation?.analysisType);
-
   return (
     <div style={containerStyle}>
       {/* Header */}
@@ -274,10 +275,37 @@ export const TaskReportDetailPage: React.FC = () => {
             Back to Tasks
           </button>
           
-          <RunHistoryDropdown 
-            runs={runs}
-            buttonStyle={secondaryButtonStyle}
-          />
+          <div style={dropdownContainerStyle}>
+            <button 
+              style={secondaryButtonStyle}
+              onClick={() => setShowRunHistoryDropdown(!showRunHistoryDropdown)}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f9fafb'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+            >
+              Run History
+              <ChevronDown size={16} />
+            </button>
+            {showRunHistoryDropdown && (
+              <div style={dropdownStyle}>
+                {runs.map((run, index) => (
+                  <div
+                    key={run.id}
+                    style={{
+                      padding: '8px 12px',
+                      borderBottom: index < runs.length - 1 ? '1px solid #f3f4f6' : 'none',
+                      cursor: 'pointer',
+                      fontSize: '12px',
+                      color: '#6b7280'
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f9fafb'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                  >
+                    {formatTimestamp(run.timestamp)} - {run.status}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
 
           <button 
             style={primaryButtonStyle}
@@ -306,7 +334,7 @@ export const TaskReportDetailPage: React.FC = () => {
             </div>
             <div style={infoItemStyle}>
               <div style={sharedStyles.label}>Operator</div>
-              <div style={sharedStyles.value}>{task.pointOfContact.role || 'System Administrator'}</div>
+              <div style={sharedStyles.value}>{task.pointOfContact.role || 'System'}</div>
             </div>
             <div style={infoItemStyle}>
               <div style={sharedStyles.label}>Status</div>
@@ -315,6 +343,10 @@ export const TaskReportDetailPage: React.FC = () => {
             <div style={infoItemStyle}>
               <div style={sharedStyles.label}>Created</div>
               <div style={sharedStyles.value}>{formatTimestamp(task.createdAt)}</div>
+            </div>
+            <div style={infoItemStyle}>
+              <div style={sharedStyles.label}>Last Updated</div>
+              <div style={sharedStyles.value}>{formatTimestamp(task.schedule.lastRun)}</div>
             </div>
             <div style={infoItemStyle}>
               <div style={sharedStyles.label}>Duration</div>
@@ -326,7 +358,7 @@ export const TaskReportDetailPage: React.FC = () => {
         {/* Submitted Content Section */}
         <div style={sectionStyle}>
           <div style={sectionHeaderStyle}>
-            <List size={20} />
+            <FileText size={20} />
             <h2 style={sectionTitleStyle}>Submitted Content</h2>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '16px' }}>
@@ -338,9 +370,8 @@ export const TaskReportDetailPage: React.FC = () => {
             </div>
             <div>
               <div style={sharedStyles.label}>Analysis Type</div>
-              <div style={{ ...sharedStyles.value, marginTop: '4px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontSize: '16px' }}>{analysisTypeDisplay.icon}</span>
-                {analysisTypeDisplay.label}
+              <div style={{ ...sharedStyles.value, marginTop: '4px' }}>
+                {task.taskCreation?.analysisType || 'Security Assessment'}
               </div>
             </div>
             <div>

@@ -24,10 +24,8 @@ const ReportCenterContent: React.FC<ReportCenterProps> = ({
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [isLogsSidebarOpen, setIsLogsSidebarOpen] = useState(false);
 
-  // Enhanced filtering logic
   const filteredReports = reports.filter(report => {
-    const matchesSearch = searchTerm === '' || 
-                         report.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    const matchesSearch = report.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          report.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'all' || report.status === statusFilter;
     return matchesSearch && matchesStatus;
@@ -77,19 +75,11 @@ const ReportCenterContent: React.FC<ReportCenterProps> = ({
   return (
     <div style={containerStyle}>
       <div style={{ position: 'relative', zIndex: 1 }}>
-        <Header 
-          onCreateTask={handleCreateTask}
-          searchTerm={searchTerm}
-          onSearchChange={setSearchTerm}
-        />
+        <Header onCreateTask={handleCreateTask} />
         <div style={mainContentStyle}>
           <SearchAndFilters 
             dateFilter={dateFilter}
             setDateFilter={setDateFilter}
-            statusFilter={statusFilter}
-            setStatusFilter={setStatusFilter}
-            reports={reports}
-            filteredReports={filteredReports}
           />
           <ReportGrid 
             reports={filteredReports}

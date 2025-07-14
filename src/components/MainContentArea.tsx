@@ -7,9 +7,6 @@ import { Report } from './mockData';
 interface MainContentAreaProps {
   dateFilter: string;
   setDateFilter: (date: string) => void;
-  statusFilter: string;
-  setStatusFilter: (filter: string) => void;
-  reports: Report[];
   filteredReports: Report[];
   onSubscribe: (reportId: string) => void;
   onViewLogs: (reportId: string) => void;
@@ -19,9 +16,6 @@ interface MainContentAreaProps {
 export const MainContentArea: React.FC<MainContentAreaProps> = ({
   dateFilter,
   setDateFilter,
-  statusFilter,
-  setStatusFilter,
-  reports,
   filteredReports,
   onSubscribe,
   onViewLogs,
@@ -35,14 +29,12 @@ export const MainContentArea: React.FC<MainContentAreaProps> = ({
 
   return (
     <div style={mainContentStyle}>
-      <SearchAndFilters 
-        dateFilter={dateFilter}
-        setDateFilter={setDateFilter}
-        statusFilter={statusFilter}
-        setStatusFilter={setStatusFilter}
-        reports={reports}
-        filteredReports={filteredReports}
-      />
+      {dateFilter && (
+        <SearchAndFilters 
+          dateFilter={dateFilter} 
+          setDateFilter={setDateFilter} 
+        />
+      )}
       
       <ReportGrid 
         reports={filteredReports} 
