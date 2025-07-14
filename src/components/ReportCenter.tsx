@@ -5,6 +5,7 @@ import { SearchAndFilters } from './SearchAndFilters';
 import { ReportGrid } from './ReportGrid';
 import { TaskLogsSidebar } from './TaskLogsSidebar';
 import { ThemeProvider, useTheme } from './ThemeProvider';
+import { FilterModal, FilterState } from './FilterModal';
 import { mockReports, Report } from './mockData';
 
 interface ReportCenterProps {
@@ -23,12 +24,49 @@ const ReportCenterContent: React.FC<ReportCenterProps> = ({
   const [dateFilter, setDateFilter] = useState('');
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [isLogsSidebarOpen, setIsLogsSidebarOpen] = useState(false);
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+  const [filterState, setFilterState] = useState<FilterState>({
+    selectedFilters: [],
+    taskStatus: [],
+    creators: [],
+    tags: [],
+    frequency: [],
+    timeRange: { start: null, end: null }
+  });
 
   const filteredReports = reports.filter(report => {
-    const matchesSearch = report.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         report.description.toLowerCase().includes(searchTerm.toLowerCase());
+    // Search filter
+    const matchesSearch = searchTerm === '' || 
+      report.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      report.description.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    // Status filter
     const matchesStatus = statusFilter === 'all' || report.status === statusFilter;
-    return matchesSearch && matchesStatus;
+    
+    // Advanced filters from FilterModal
+    const matchesAdvancedStatus = filterState.taskStatus.length === 0 || 
+      filterState.taskStatus.includes(report.status);
+    
+    const matchesCreators = filterState.creators.length === 0 || 
+      filterState.creators.includes(report.pointOfContact.name.toLowerCase().replace(' ', '-'));
+    
+    const matchesFrequency = filterState.frequency.length === 0 || 
+      filterState.frequency.includes(report.schedule?.frequency?.toLowerCase() || 'monthly');
+    
+    // Date range filter
+    let matchesDateRange = true;
+    if (filterState.timeRange.start || filterState.timeRange.end) {
+      const reportDate = new Date(report.lastUpdated);
+      if (filterState.timeRange.start) {
+        matchesDateRange = matchesDateRange && reportDate >= new Date(filterState.timeRange.start);
+      }
+      if (filterState.timeRange.end) {
+        matchesDateRange = matchesDateRange && reportDate <= new Date(filterState.timeRange.end);
+      }
+    }
+    
+    return matchesSearch && matchesStatus && matchesAdvancedStatus && 
+           matchesCreators && matchesFrequency && matchesDateRange;
   });
 
   const handleSubscribe = (reportId: string) => {
@@ -53,6 +91,19 @@ const ReportCenterContent: React.FC<ReportCenterProps> = ({
     setSelectedTaskId(null);
   };
 
+  const handleOpenFilterModal = () => {
+    setIsFilterModalOpen(true);
+  };
+
+  const handleCloseFilterModal = () => {
+    setIsFilterModalOpen(false);
+  };
+
+  const handleApplyFilters = (filters: FilterState) => {
+    setFilterState(filters);
+    setIsFilterModalOpen(false);
+  };
+
   const containerStyle: React.CSSProperties = {
     minHeight: '100vh',
     backgroundColor: 'hsl(var(--background))',
@@ -75,7 +126,14 @@ const ReportCenterContent: React.FC<ReportCenterProps> = ({
   return (
     <div style={containerStyle}>
       <div style={{ position: 'relative', zIndex: 1 }}>
-        <Header onCreateTask={handleCreateTask} />
+        <Header 
+          onCreateTask={handleCreateTask}
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          statusFilter={statusFilter}
+          onStatusFilterChange={setStatusFilter}
+          onOpenFilters={handleOpenFilterModal}
+        />
         <div style={mainContentStyle}>
           <SearchAndFilters 
             dateFilter={dateFilter}
@@ -96,6 +154,13 @@ const ReportCenterContent: React.FC<ReportCenterProps> = ({
           onClose={handleCloseLogs}
         />
       )}
+
+      <FilterModal
+        isOpen={isFilterModalOpen}
+        onClose={handleCloseFilterModal}
+        onApplyFilters={handleApplyFilters}
+        initialFilters={filterState}
+      />
     </div>
   );
 };
