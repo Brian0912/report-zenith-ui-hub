@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MoreHorizontal, ArrowUp, ArrowDown, User, FileText } from 'lucide-react';
@@ -28,7 +29,12 @@ export interface Report {
     analysisType?: string;
     background?: string;
     timeRange?: string | { start: Date; end: Date; };
-    metadata?: { [key: string]: string | string[] };
+    metadata?: Array<{
+      id: string;
+      category: string;
+      key: string;
+      value: string;
+    }>;
   };
   supportEvidences: {
     id: string;
