@@ -12,6 +12,8 @@ export const Index: React.FC = () => {
   const {
     dateFilter,
     setDateFilter,
+    statusFilter,
+    setStatusFilter,
     filteredReports
   } = useReportFilters(mockReports);
 
@@ -64,6 +66,9 @@ export const Index: React.FC = () => {
                 <MainContentArea
                   dateFilter={dateFilter}
                   setDateFilter={setDateFilter}
+                  statusFilter={statusFilter}
+                  setStatusFilter={setStatusFilter}
+                  reports={mockReports}
                   filteredReports={filteredReports}
                   onSubscribe={handleSubscribe}
                   onViewLogs={handleViewLogs}
@@ -88,6 +93,9 @@ export const Index: React.FC = () => {
           <MainContentArea
             dateFilter={dateFilter}
             setDateFilter={setDateFilter}
+            statusFilter={statusFilter}
+            setStatusFilter={setStatusFilter}
+            reports={mockReports}
             filteredReports={filteredReports}
             onSubscribe={handleSubscribe}
             onViewLogs={handleViewLogs}

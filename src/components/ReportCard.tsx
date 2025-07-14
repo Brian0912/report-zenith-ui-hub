@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MoreHorizontal, ArrowUp, ArrowDown, User, FileText } from 'lucide-react';
@@ -14,7 +13,7 @@ export interface Report {
   status: 'completed' | 'running' | 'queued' | 'error';
   createdAt: Date;
   schedule: {
-    frequency: string;
+    frequency?: string;
     nextRun: Date;
     lastRun: Date;
   };
