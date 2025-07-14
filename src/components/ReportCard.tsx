@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MoreHorizontal, ArrowUp, ArrowDown, User, FileText } from 'lucide-react';
@@ -10,7 +11,7 @@ export interface Report {
   id: string;
   title: string;
   description: string;
-  status: 'completed' | 'running' | 'queued' | 'failed';
+  status: 'completed' | 'running' | 'queued' | 'error';
   createdAt: Date;
   schedule: {
     frequency: string;
@@ -47,9 +48,17 @@ interface ReportCardProps {
   report: Report;
   onSubscribe: (reportId: string) => void;
   onViewLogs: (reportId: string) => void;
+  viewMode?: 'grid' | 'list';
+  animationDelay?: number;
 }
 
-export const ReportCard: React.FC<ReportCardProps> = ({ report, onSubscribe, onViewLogs }) => {
+export const ReportCard: React.FC<ReportCardProps> = ({ 
+  report, 
+  onSubscribe, 
+  onViewLogs,
+  viewMode = 'grid',
+  animationDelay = 0
+}) => {
   const navigate = useNavigate();
   const { theme } = useTheme();
 
@@ -61,7 +70,8 @@ export const ReportCard: React.FC<ReportCardProps> = ({ report, onSubscribe, onV
     transition: 'all 0.3s ease',
     display: 'flex',
     flexDirection: 'column',
-    height: '100%'
+    height: '100%',
+    animationDelay: `${animationDelay}ms`
   };
 
   const headerStyle: React.CSSProperties = {
