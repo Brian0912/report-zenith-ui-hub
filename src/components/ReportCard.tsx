@@ -44,8 +44,14 @@ export interface Report {
   }[];
   versions: {
     id: string;
-    versionNumber: string;
-    generatedAt: Date;
+    version: string;
+    createdAt: Date;
+    createdBy: string;
+    goal: string;
+    background: string;
+    status?: 'completed' | 'running' | 'queued' | 'error';
+    metadata?: Record<string, unknown>;
+    reportUrl?: string;
   }[];
 }
 
