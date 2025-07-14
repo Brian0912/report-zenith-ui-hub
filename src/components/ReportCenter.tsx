@@ -53,10 +53,10 @@ const ReportCenterContent: React.FC<ReportCenterProps> = ({
     const matchesFrequency = filterState.frequency.length === 0 || 
       filterState.frequency.includes(report.schedule?.frequency?.toLowerCase() || 'monthly');
     
-    // Date range filter
+    // Date range filter - using createdAt instead of lastUpdated
     let matchesDateRange = true;
     if (filterState.timeRange.start || filterState.timeRange.end) {
-      const reportDate = new Date(report.lastUpdated);
+      const reportDate = new Date(report.createdAt);
       if (filterState.timeRange.start) {
         matchesDateRange = matchesDateRange && reportDate >= new Date(filterState.timeRange.start);
       }
