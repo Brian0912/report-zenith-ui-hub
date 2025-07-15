@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useTheme } from './ThemeProvider';
 import { Button } from './ui/button';
@@ -15,7 +16,8 @@ export const SentinelHeader: React.FC<SentinelHeaderProps> = ({ onCreateTask }) 
   const [activeFilters, setActiveFilters] = useState<FilterState>({
     selectedFilters: [],
     taskStatus: [],
-    creators: [],
+    taskType: [],
+    owners: [],
     tags: [],
     frequency: [],
     timeRange: { start: null, end: null }
@@ -153,7 +155,8 @@ export const SentinelHeader: React.FC<SentinelHeaderProps> = ({ onCreateTask }) 
 
   const getTotalActiveFilters = () => {
     return activeFilters.taskStatus.length + 
-           activeFilters.creators.length + 
+           activeFilters.taskType.length +
+           activeFilters.owners.length + 
            activeFilters.frequency.length + 
            (activeFilters.timeRange.start || activeFilters.timeRange.end ? 1 : 0);
   };
