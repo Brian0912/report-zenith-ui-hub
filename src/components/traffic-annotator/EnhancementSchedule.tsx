@@ -90,7 +90,7 @@ export const EnhancementSchedule: React.FC<EnhancementScheduleProps> = ({ parsed
     const date = new Date(dateString);
     const now = new Date();
     const isOverdue = date < now;
-    const daysDiff = Math.ceil((date - now) / (1000 * 60 * 60 * 24));
+    const daysDiff = Math.ceil((date.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
     
     const formatted = date.toLocaleDateString('en-US', {
       year: 'numeric',
