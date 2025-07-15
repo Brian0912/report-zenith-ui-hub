@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Header } from './Header';
 import { SearchAndFilters } from './SearchAndFilters';
@@ -28,7 +27,8 @@ const ReportCenterContent: React.FC<ReportCenterProps> = ({
   const [filterState, setFilterState] = useState<FilterState>({
     selectedFilters: [],
     taskStatus: [],
-    creators: [],
+    taskType: [],
+    owners: [],
     tags: [],
     frequency: [],
     timeRange: { start: null, end: null }
@@ -47,11 +47,28 @@ const ReportCenterContent: React.FC<ReportCenterProps> = ({
     const matchesAdvancedStatus = filterState.taskStatus.length === 0 || 
       filterState.taskStatus.includes(report.status);
     
-    const matchesCreators = filterState.creators.length === 0 || 
-      filterState.creators.includes(report.pointOfContact.name.toLowerCase().replace(' ', '-'));
+    const matchesOwners = filterState.owners.length === 0 || 
+      filterState.owners.includes(report.pointOfContact.name.toLowerCase().replace(' ', '-'));
     
     const matchesFrequency = filterState.frequency.length === 0 || 
       filterState.frequency.includes(report.schedule?.frequency?.toLowerCase() || 'monthly');
+
+    // Task type filter - map report types to filter values
+    const matchesTaskType = filterState.taskType.length === 0 || 
+      filterState.taskType.some(type => {
+        // Map task type values to report properties
+        if (type === 'situational') {
+          return report.title.toLowerCase().includes('situational') || 
+                 report.description.toLowerCase().includes('situational') ||
+                 report.title.toLowerCase().includes('analysis');
+        }
+        if (type === 'impact') {
+          return report.title.toLowerCase().includes('impact') || 
+                 report.description.toLowerCase().includes('impact') ||
+                 report.title.toLowerCase().includes('assessment');
+        }
+        return false;
+      });
     
     // Date range filter - using createdAt instead of lastUpdated
     let matchesDateRange = true;
@@ -66,7 +83,7 @@ const ReportCenterContent: React.FC<ReportCenterProps> = ({
     }
     
     return matchesSearch && matchesStatus && matchesAdvancedStatus && 
-           matchesCreators && matchesFrequency && matchesDateRange;
+           matchesOwners && matchesFrequency && matchesTaskType && matchesDateRange;
   });
 
   const handleSubscribe = (reportId: string) => {
