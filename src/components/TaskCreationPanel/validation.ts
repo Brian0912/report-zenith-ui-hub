@@ -3,6 +3,7 @@ import { useMemo, useCallback } from 'react';
 import { FormData } from './types';
 
 export const VALIDATION_RULES = {
+  REPORT_NAME_MIN_LENGTH: 3,
   GOAL_MIN_WORDS: 5,
   BACKGROUND_MIN_WORDS: 10,
   DEBOUNCE_DELAY: 300
@@ -13,6 +14,11 @@ export function useValidation(formData: FormData) {
     goal: formData.goal.trim().split(/\s+/).filter(word => word.length > 0).length,
     background: formData.background.trim().split(/\s+/).filter(word => word.length > 0).length
   }), [formData.goal, formData.background]);
+
+  const reportNameValid = useMemo(() => 
+    formData.reportName.trim().length >= VALIDATION_RULES.REPORT_NAME_MIN_LENGTH,
+    [formData.reportName]
+  );
 
   const goalValid = useMemo(() => 
     formData.goal.trim().length > 0 && wordCounts.goal >= VALIDATION_RULES.GOAL_MIN_WORDS,
@@ -35,12 +41,13 @@ export function useValidation(formData: FormData) {
   );
 
   const isFormValid = useMemo(() => 
-    goalValid && analysisTypeValid && backgroundValid && timeRangeValid,
-    [goalValid, analysisTypeValid, backgroundValid, timeRangeValid]
+    reportNameValid && goalValid && analysisTypeValid && backgroundValid && timeRangeValid,
+    [reportNameValid, goalValid, analysisTypeValid, backgroundValid, timeRangeValid]
   );
 
   return {
     wordCounts,
+    reportNameValid,
     goalValid,
     analysisTypeValid,
     backgroundValid,

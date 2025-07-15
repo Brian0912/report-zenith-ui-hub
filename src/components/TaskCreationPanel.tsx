@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef, useCallback, useReducer } from 'react';
 import { Plus, CheckCircle, Sparkles, Loader2 } from 'lucide-react';
 import { FormData, TEMPLATE_DATA, MetadataItemType, METADATA_CATEGORIES } from './TaskCreationPanel/types';
@@ -9,7 +8,7 @@ import { WordCounter } from './TaskCreationPanel/WordCounter';
 import { MetadataItem } from './TaskCreationPanel/MetadataItem';
 import { MetadataSelector } from './TaskCreationPanel/MetadataSelector';
 import { AnalysisTypeSelector } from './TaskCreationPanel/AnalysisTypeSelector';
-import { TimeRangeSelector } from './TimeRangeSelector';
+import { EnhancedTimeRangePicker } from './EnhancedTimeRangePicker';
 
 interface TaskCreationPanelProps {
   onSuccess?: () => void;
@@ -17,6 +16,7 @@ interface TaskCreationPanelProps {
 
 export const TaskCreationPanel: React.FC<TaskCreationPanelProps> = ({ onSuccess }) => {
   const [formData, dispatch] = useReducer(formReducer, { 
+    reportName: '',
     goal: '', 
     analysisType: '', 
     background: '', 
@@ -36,7 +36,7 @@ export const TaskCreationPanel: React.FC<TaskCreationPanelProps> = ({ onSuccess 
   const backgroundRef = useRef<HTMLTextAreaElement>(null);
   const autoResize = useAutoResize();
   const validation = useValidation(formData);
-  const hasUnsavedChanges = formData.goal || formData.background || formData.metadata.length > 0 || formData.analysisType || formData.timeRange;
+  const hasUnsavedChanges = formData.reportName || formData.goal || formData.background || formData.metadata.length > 0 || formData.analysisType || formData.timeRange;
 
   useEffect(() => {
     autoResize(goalRef.current);
@@ -58,8 +58,8 @@ export const TaskCreationPanel: React.FC<TaskCreationPanelProps> = ({ onSuccess 
     dispatch({ type: 'SET_ANALYSIS_TYPE', value: type });
   };
 
-  const handleTimeRangeChange = (range: { start: Date; end: Date } | undefined) => {
-    dispatch({ type: 'SET_TIME_RANGE', value: range || null });
+  const handleTimeRangeChange = (range: { start: Date; end: Date }) => {
+    dispatch({ type: 'SET_TIME_RANGE', value: range });
   };
 
   const handleAddMetadata = (categoryKey: string, optionKey: string) => {
@@ -97,7 +97,7 @@ export const TaskCreationPanel: React.FC<TaskCreationPanelProps> = ({ onSuccess 
     if (onSuccess) onSuccess();
 
     // Reset form after success
-    dispatch({ type: 'SET_ALL', data: { goal: '', analysisType: '', background: '', timeRange: null, metadata: [] } });
+    dispatch({ type: 'SET_ALL', data: { reportName: '', goal: '', analysisType: '', background: '', timeRange: null, metadata: [] } });
 
     setTimeout(() => {
       updateUiState({ showSuccess: false });
@@ -106,13 +106,13 @@ export const TaskCreationPanel: React.FC<TaskCreationPanelProps> = ({ onSuccess 
 
   const inputStyle: React.CSSProperties = {
     width: '100%',
-    padding: '16px 20px',
-    borderRadius: '16px',
-    border: '2px solid #d1d5db',
+    padding: '12px 16px',
+    borderRadius: '12px',
+    border: '1px solid #e5e7eb',
     resize: 'none' as const,
     outline: 'none',
-    fontSize: '16px',
-    color: '#374151',
+    fontSize: '14px',
+    color: '#111827',
     backgroundColor: '#ffffff',
     transition: 'all 0.2s ease',
     fontFamily: 'inherit'
@@ -125,46 +125,46 @@ export const TaskCreationPanel: React.FC<TaskCreationPanelProps> = ({ onSuccess 
 
   // Report card style step indicators
   const stepIndicatorStyle = (stepNumber: number, isCompleted: boolean): React.CSSProperties => ({
-    width: '28px',
-    height: '28px',
-    borderRadius: '8px',
+    width: '24px',
+    height: '24px',
+    borderRadius: '6px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    fontSize: '14px',
+    fontSize: '12px',
     fontWeight: '600',
-    backgroundColor: isCompleted ? '#10b981' : '#e5e7eb',
+    backgroundColor: isCompleted ? '#111827' : '#f3f4f6',
     color: isCompleted ? '#ffffff' : '#6b7280',
-    border: isCompleted ? '2px solid #10b981' : '2px solid #e5e7eb'
+    border: isCompleted ? '1px solid #111827' : '1px solid #e5e7eb'
   });
 
   return (
-    <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ height: '100%', display: 'flex', flexDirection: 'column', backgroundColor: '#ffffff' }}>
       {/* Template Section */}
       {!uiState.showTemplate && !hasUnsavedChanges && (
         <div style={{
-          padding: '20px 32px',
-          background: 'linear-gradient(135deg, #e0f2fe 0%, #e1f5fe 100%)',
-          borderBottom: '1px solid #b3e5fc'
+          padding: '16px 24px',
+          background: '#f8fafc',
+          borderBottom: '1px solid #e5e7eb'
         }}>
           <button
             onClick={() => updateUiState({ showTemplate: true })}
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '10px',
-              color: '#0277bd',
-              fontSize: '16px',
+              gap: '8px',
+              color: '#111827',
+              fontSize: '14px',
               fontWeight: '500',
               background: 'none',
               border: 'none',
               cursor: 'pointer',
               transition: 'color 0.2s ease'
             }}
-            onMouseEnter={(e) => e.currentTarget.style.color = '#01579b'}
-            onMouseLeave={(e) => e.currentTarget.style.color = '#0277bd'}
+            onMouseEnter={(e) => e.currentTarget.style.color = '#6b7280'}
+            onMouseLeave={(e) => e.currentTarget.style.color = '#111827'}
           >
-            <Sparkles size={18} />
+            <Sparkles size={16} />
             Need inspiration? Try our template
           </button>
         </div>
@@ -172,62 +172,62 @@ export const TaskCreationPanel: React.FC<TaskCreationPanelProps> = ({ onSuccess 
 
       {uiState.showTemplate && (
         <div style={{
-          padding: '20px 32px',
-          background: 'linear-gradient(135deg, #e0f2fe 0%, #e1f5fe 100%)',
-          borderBottom: '1px solid #b3e5fc'
+          padding: '16px 24px',
+          background: '#f8fafc',
+          borderBottom: '1px solid #e5e7eb'
         }}>
           <div style={{
             display: 'flex',
             alignItems: 'flex-start',
             justifyContent: 'space-between',
-            gap: '20px'
+            gap: '16px'
           }}>
             <div>
               <h4 style={{
                 fontWeight: '600',
-                color: '#01579b',
-                marginBottom: '6px',
-                fontSize: '16px'
+                color: '#111827',
+                marginBottom: '4px',
+                fontSize: '14px'
               }}>Authentication System Template</h4>
               <p style={{
-                fontSize: '14px',
-                color: '#0277bd',
+                fontSize: '12px',
+                color: '#6b7280',
                 margin: 0
               }}>A structured example for development projects</p>
             </div>
-            <div style={{ display: 'flex', gap: '12px' }}>
+            <div style={{ display: 'flex', gap: '8px' }}>
               <button
                 onClick={handleUseTemplate}
                 style={{
-                  padding: '8px 16px',
-                  backgroundColor: '#0277bd',
+                  padding: '8px 12px',
+                  backgroundColor: '#111827',
                   color: '#ffffff',
                   borderRadius: '8px',
-                  fontSize: '14px',
+                  fontSize: '12px',
                   fontWeight: '500',
                   border: 'none',
                   cursor: 'pointer',
                   transition: 'background-color 0.2s ease'
                 }}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#01579b'}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0277bd'}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#374151'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#111827'}
               >
                 Use Template
               </button>
               <button
                 onClick={() => updateUiState({ showTemplate: false })}
                 style={{
-                  padding: '8px 16px',
-                  color: '#0277bd',
+                  padding: '8px 12px',
+                  color: '#6b7280',
                   backgroundColor: 'transparent',
                   borderRadius: '8px',
-                  fontSize: '14px',
+                  fontSize: '12px',
                   fontWeight: '500',
                   border: 'none',
                   cursor: 'pointer',
                   transition: 'background-color 0.2s ease'
                 }}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(2, 119, 189, 0.1)'}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
                 onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
               >
                 Cancel
@@ -239,37 +239,94 @@ export const TaskCreationPanel: React.FC<TaskCreationPanelProps> = ({ onSuccess 
 
       {/* Content */}
       <div style={{
-        padding: '32px',
-        backgroundColor: '#fafbfc',
+        padding: '24px',
+        backgroundColor: '#ffffff',
         flex: 1,
         overflow: 'auto',
         display: 'flex',
         flexDirection: 'column',
-        gap: '40px'
+        gap: '32px'
       }}>
-        {/* Goal Section */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        {/* Report Name Section */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div style={stepIndicatorStyle(1, validation.goalValid)}>1</div>
+            <div style={stepIndicatorStyle(1, validation.reportNameValid)}>1</div>
             <h3 style={{
-              fontSize: '18px',
+              fontSize: '16px',
               fontWeight: '600',
-              color: '#1f2937',
+              color: '#111827',
               margin: 0
-            }}>Goal</h3>
-            {validation.goalValid && <CheckCircle size={20} style={{ color: '#10b981' }} />}
+            }}>Report Name</h3>
+            {validation.reportNameValid && <CheckCircle size={18} style={{ color: '#111827' }} />}
           </div>
           
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <label style={{
+              fontSize: '14px',
+              fontWeight: '500',
+              color: '#111827'
+            }}>
+              Name your report <span style={{ color: '#ef4444' }}>*</span>
+            </label>
+            
+            <div style={{ position: 'relative' }}>
+              <input
+                type="text"
+                value={formData.reportName}
+                onChange={(e) => handleFieldChange('reportName', e.target.value)}
+                placeholder="Enter a descriptive name for your report..."
+                style={{
+                  ...inputStyle,
+                  borderColor: formData.reportName.length > 0
+                    ? validation.reportNameValid 
+                      ? '#111827'
+                      : '#f59e0b'
+                    : '#e5e7eb'
+                }}
+                onFocus={(e) => {
+                  if (formData.reportName.length > 0) {
+                    e.target.style.boxShadow = validation.reportNameValid 
+                      ? '0 0 0 3px rgba(17, 24, 39, 0.1)'
+                      : '0 0 0 3px rgba(245, 158, 11, 0.1)';
+                  } else {
+                    e.target.style.boxShadow = '0 0 0 3px rgba(229, 231, 235, 0.1)';
+                  }
+                }}
+                onBlur={(e) => {
+                  e.target.style.boxShadow = 'none';
+                }}
+              />
+              <ValidationMessage 
+                isValid={validation.reportNameValid || formData.reportName.length === 0}
+                message={`Report name must be at least ${VALIDATION_RULES.REPORT_NAME_MIN_LENGTH} characters long`}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Goal Section */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={stepIndicatorStyle(2, validation.goalValid)}>2</div>
+            <h3 style={{
+              fontSize: '16px',
+              fontWeight: '600',
+              color: '#111827',
+              margin: 0
+            }}>Goal</h3>
+            {validation.goalValid && <CheckCircle size={18} style={{ color: '#111827' }} />}
+          </div>
+          
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <div style={{
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between'
             }}>
               <label style={{
-                fontSize: '16px',
-                fontWeight: '600',
-                color: '#374151'
+                fontSize: '14px',
+                fontWeight: '500',
+                color: '#111827'
               }}>
                 What do you want to achieve? <span style={{ color: '#ef4444' }}>*</span>
               </label>
@@ -290,17 +347,17 @@ export const TaskCreationPanel: React.FC<TaskCreationPanelProps> = ({ onSuccess 
                   ...textareaStyle,
                   borderColor: formData.goal.length > 0
                     ? validation.goalValid 
-                      ? '#10b981'
+                      ? '#111827'
                       : '#f59e0b'
-                    : '#d1d5db'
+                    : '#e5e7eb'
                 }}
                 onFocus={(e) => {
                   if (formData.goal.length > 0) {
                     e.target.style.boxShadow = validation.goalValid 
-                      ? '0 0 0 4px rgba(16, 185, 129, 0.1)'
-                      : '0 0 0 4px rgba(245, 158, 11, 0.1)';
+                      ? '0 0 0 3px rgba(17, 24, 39, 0.1)'
+                      : '0 0 0 3px rgba(245, 158, 11, 0.1)';
                   } else {
-                    e.target.style.boxShadow = '0 0 0 4px rgba(209, 213, 219, 0.1)';
+                    e.target.style.boxShadow = '0 0 0 3px rgba(229, 231, 235, 0.1)';
                   }
                 }}
                 onBlur={(e) => {
@@ -314,11 +371,11 @@ export const TaskCreationPanel: React.FC<TaskCreationPanelProps> = ({ onSuccess 
             </div>
 
             {/* Analysis Type Selection */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <label style={{
-                fontSize: '16px',
-                fontWeight: '600',
-                color: '#374151'
+                fontSize: '14px',
+                fontWeight: '500',
+                color: '#111827'
               }}>
                 Which type of analysis best describes your goal? <span style={{ color: '#ef4444' }}>*</span>
               </label>
@@ -335,28 +392,28 @@ export const TaskCreationPanel: React.FC<TaskCreationPanelProps> = ({ onSuccess 
         </div>
 
         {/* Background Section */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div style={stepIndicatorStyle(2, validation.backgroundValid)}>2</div>
+            <div style={stepIndicatorStyle(3, validation.backgroundValid)}>3</div>
             <h3 style={{
-              fontSize: '18px',
+              fontSize: '16px',
               fontWeight: '600',
-              color: '#1f2937',
+              color: '#111827',
               margin: 0
             }}>Background</h3>
-            {validation.backgroundValid && <CheckCircle size={20} style={{ color: '#10b981' }} />}
+            {validation.backgroundValid && <CheckCircle size={18} style={{ color: '#111827' }} />}
           </div>
           
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <div style={{
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between'
             }}>
               <label style={{
-                fontSize: '16px',
-                fontWeight: '600',
-                color: '#374151'
+                fontSize: '14px',
+                fontWeight: '500',
+                color: '#111827'
               }}>
                 Provide context and background information <span style={{ color: '#ef4444' }}>*</span>
               </label>
@@ -377,17 +434,17 @@ export const TaskCreationPanel: React.FC<TaskCreationPanelProps> = ({ onSuccess 
                   ...textareaStyle,
                   borderColor: formData.background.length > 0
                     ? validation.backgroundValid 
-                      ? '#10b981'
+                      ? '#111827'
                       : '#f59e0b'
-                    : '#d1d5db'
+                    : '#e5e7eb'
                 }}
                 onFocus={(e) => {
                   if (formData.background.length > 0) {
                     e.target.style.boxShadow = validation.backgroundValid 
-                      ? '0 0 0 4px rgba(16, 185, 129, 0.1)'
-                      : '0 0 0 4px rgba(245, 158, 11, 0.1)';
+                      ? '0 0 0 3px rgba(17, 24, 39, 0.1)'
+                      : '0 0 0 3px rgba(245, 158, 11, 0.1)';
                   } else {
-                    e.target.style.boxShadow = '0 0 0 4px rgba(209, 213, 219, 0.1)';
+                    e.target.style.boxShadow = '0 0 0 3px rgba(229, 231, 235, 0.1)';
                   }
                 }}
                 onBlur={(e) => {
@@ -403,29 +460,39 @@ export const TaskCreationPanel: React.FC<TaskCreationPanelProps> = ({ onSuccess 
         </div>
 
         {/* Time Range Section */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div style={stepIndicatorStyle(3, validation.timeRangeValid)}>3</div>
+            <div style={stepIndicatorStyle(4, validation.timeRangeValid)}>4</div>
             <h3 style={{
-              fontSize: '18px',
-              fontWeight: '600',
-              color: '#1f2937',
-              margin: 0
-            }}>Time Range</h3>
-            {validation.timeRangeValid && <CheckCircle size={20} style={{ color: '#10b981' }} />}
-          </div>
-          
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <label style={{
               fontSize: '16px',
               fontWeight: '600',
-              color: '#374151'
+              color: '#111827',
+              margin: 0
+            }}>Time Range</h3>
+            {validation.timeRangeValid && <CheckCircle size={18} style={{ color: '#111827' }} />}
+          </div>
+          
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <label style={{
+              fontSize: '14px',
+              fontWeight: '500',
+              color: '#111827'
             }}>
               Select the time range for data used to generate the report <span style={{ color: '#ef4444' }}>*</span>
             </label>
             
             <div>
-              <TimeRangeSelector onTimeRangeChange={handleTimeRangeChange} />
+              {formData.timeRange ? (
+                <EnhancedTimeRangePicker 
+                  value={formData.timeRange} 
+                  onChange={handleTimeRangeChange} 
+                />
+              ) : (
+                <EnhancedTimeRangePicker 
+                  value={{ start: new Date(Date.now() - 24 * 60 * 60 * 1000), end: new Date() }} 
+                  onChange={handleTimeRangeChange} 
+                />
+              )}
               <ValidationMessage 
                 isValid={validation.timeRangeValid || formData.timeRange === null}
                 message="Please select a time range"
@@ -435,30 +502,30 @@ export const TaskCreationPanel: React.FC<TaskCreationPanelProps> = ({ onSuccess 
         </div>
 
         {/* Metadata Section */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div style={stepIndicatorStyle(4, false)}>4</div>
+            <div style={stepIndicatorStyle(5, false)}>5</div>
             <h3 style={{
-              fontSize: '18px',
+              fontSize: '16px',
               fontWeight: '600',
-              color: '#1f2937',
+              color: '#111827',
               margin: 0
             }}>Metadata</h3>
             <span style={{
-              fontSize: '12px',
+              fontSize: '11px',
               color: '#6b7280',
-              backgroundColor: '#e5e7eb',
-              padding: '4px 12px',
-              borderRadius: '16px',
+              backgroundColor: '#f3f4f6',
+              padding: '4px 8px',
+              borderRadius: '12px',
               fontWeight: '500'
             }}>Optional</span>
             {formData.metadata.length > 0 && (
               <span style={{
-                fontSize: '12px',
-                color: '#10b981',
-                backgroundColor: '#dcfce7',
-                padding: '4px 12px',
-                borderRadius: '16px',
+                fontSize: '11px',
+                color: '#111827',
+                backgroundColor: '#f3f4f6',
+                padding: '4px 8px',
+                borderRadius: '12px',
                 fontWeight: '500'
               }}>
                 {formData.metadata.length} item{formData.metadata.length !== 1 ? 's' : ''}
@@ -466,18 +533,18 @@ export const TaskCreationPanel: React.FC<TaskCreationPanelProps> = ({ onSuccess 
             )}
           </div>
           
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <label style={{
-              fontSize: '16px',
-              fontWeight: '600',
-              color: '#374151'
+              fontSize: '14px',
+              fontWeight: '500',
+              color: '#111827'
             }}>
               Add relevant metadata to categorize and track your task
             </label>
             
             {/* Existing Metadata */}
             {formData.metadata.length > 0 && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {formData.metadata.map((item) => (
                   <MetadataItem
                     key={item.id}
@@ -498,28 +565,28 @@ export const TaskCreationPanel: React.FC<TaskCreationPanelProps> = ({ onSuccess 
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '12px',
-                  padding: '16px 24px',
+                  gap: '8px',
+                  padding: '12px 16px',
                   color: '#6b7280',
                   backgroundColor: '#ffffff',
-                  border: '2px dashed #d1d5db',
-                  borderRadius: '16px',
-                  fontSize: '16px',
+                  border: '1px dashed #e5e7eb',
+                  borderRadius: '12px',
+                  fontSize: '14px',
                   fontWeight: '500',
                   width: '100%',
                   cursor: 'pointer',
                   transition: 'all 0.2s ease'
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = '#9ca3af';
+                  e.currentTarget.style.borderColor = '#111827';
                   e.currentTarget.style.backgroundColor = '#f9fafb';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = '#d1d5db';
+                  e.currentTarget.style.borderColor = '#e5e7eb';
                   e.currentTarget.style.backgroundColor = '#ffffff';
                 }}
               >
-                <Plus size={18} style={{
+                <Plus size={16} style={{
                   transition: 'transform 0.2s ease',
                   transform: uiState.showMetadataSelector ? 'rotate(45deg)' : 'rotate(0deg)'
                 }} />
@@ -540,7 +607,7 @@ export const TaskCreationPanel: React.FC<TaskCreationPanelProps> = ({ onSuccess 
 
       {/* Footer */}
       <div style={{
-        padding: '32px',
+        padding: '24px',
         backgroundColor: '#ffffff',
         borderTop: '1px solid #e5e7eb'
       }}>
@@ -555,29 +622,29 @@ export const TaskCreationPanel: React.FC<TaskCreationPanelProps> = ({ onSuccess 
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '12px',
-              padding: '16px 32px',
-              borderRadius: '12px',
+              gap: '8px',
+              padding: '12px 24px',
+              borderRadius: '8px',
               fontWeight: '600',
-              fontSize: '16px',
+              fontSize: '14px',
               border: 'none',
               cursor: validation.isFormValid && !uiState.isSubmitting ? 'pointer' : 'not-allowed',
               background: validation.isFormValid && !uiState.isSubmitting 
-                ? '#1f2937' 
+                ? '#111827' 
                 : '#e5e7eb',
               color: validation.isFormValid && !uiState.isSubmitting ? '#ffffff' : '#9ca3af',
               transition: 'all 0.2s ease'
             }}
             onMouseEnter={(e) => {
               if (validation.isFormValid && !uiState.isSubmitting) {
-                e.currentTarget.style.backgroundColor = '#111827';
+                e.currentTarget.style.backgroundColor = '#374151';
                 e.currentTarget.style.transform = 'translateY(-1px)';
                 e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
               }
             }}
             onMouseLeave={(e) => {
               if (validation.isFormValid && !uiState.isSubmitting) {
-                e.currentTarget.style.backgroundColor = '#1f2937';
+                e.currentTarget.style.backgroundColor = '#111827';
                 e.currentTarget.style.transform = 'translateY(0)';
                 e.currentTarget.style.boxShadow = 'none';
               }
@@ -585,17 +652,17 @@ export const TaskCreationPanel: React.FC<TaskCreationPanelProps> = ({ onSuccess 
           >
             {uiState.isSubmitting ? (
               <>
-                <Loader2 size={18} style={{ animation: 'spin 1s linear infinite' }} />
+                <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} />
                 Creating Task...
               </>
             ) : uiState.showSuccess ? (
               <>
-                <CheckCircle size={18} />
+                <CheckCircle size={16} />
                 Task Created!
               </>
             ) : (
               <>
-                <Plus size={18} />
+                <Plus size={16} />
                 Create Task
               </>
             )}

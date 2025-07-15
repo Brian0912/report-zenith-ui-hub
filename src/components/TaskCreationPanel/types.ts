@@ -2,6 +2,7 @@
 import { Flag, Bug, Users, Zap } from 'lucide-react';
 
 export interface FormData {
+  reportName: string;
   goal: string;
   analysisType: 'situational' | 'impact' | '';
   background: string;
@@ -71,6 +72,7 @@ export const METADATA_CATEGORIES = {
 };
 
 export const TEMPLATE_DATA: FormData = {
+  reportName: 'Authentication System Security Report',
   goal: 'Create a secure authentication system for the web application that supports user registration, login, password reset, and role-based access control.',
   analysisType: 'situational',
   background: 'Our current application lacks proper user authentication, which is blocking the deployment to production. We need to implement a comprehensive authentication system that integrates with our existing React frontend and Node.js backend. The system should support different user roles (admin, user, guest) and include security features like password hashing, JWT tokens, and rate limiting. We have attempted basic implementations before but faced issues with session management and security vulnerabilities.',
