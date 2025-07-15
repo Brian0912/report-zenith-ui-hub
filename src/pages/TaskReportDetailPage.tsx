@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Download, FileText, Database, Clock, Eye, ChevronDown, Maximize } from 'lucide-react';
+import { ArrowLeft, Download, Upload, Database, Clock, Eye, Maximize, Settings } from 'lucide-react';
 import { useTheme } from '../components/ThemeProvider';
 import { mockReports } from '../components/mockData';
 import { sharedStyles } from '../components/shared/styles';
 import { useDownload } from '../hooks/useDownload';
+import { RunHistoryDropdown } from '../components/RunHistoryDropdown';
 
 export const TaskReportDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { theme } = useTheme();
-  const [showRunHistoryDropdown, setShowRunHistoryDropdown] = useState(false);
   const { downloadProgress, startDownload } = useDownload();
 
   const task = mockReports.find(report => report.id === id);
@@ -29,12 +29,39 @@ export const TaskReportDetailPage: React.FC = () => {
 
   // Generate runs from versions for dropdown
   const runs = task.versions.map((version, index) => ({
-    id: version.id,
-    timestamp: new Date(Date.now() - (index * 24 * 60 * 60 * 1000)), // Mock timestamps
-    status: index === 0 ? 'completed' : 'completed'
-  })).reverse();
+    timestamp: index === 0 ? '2h ago' : 
+               index === 1 ? '1w ago' : 
+               index === 2 ? '2w ago' : 
+               index === 3 ? '3w ago' : '1mo ago',
+    status: version.status === 'completed' ? 'completed' : 
+            version.status === 'error' ? 'error' : 'completed',
+    duration: ['45s', '52s', '12s', '48s', '41s'][index] || '45s',
+    error: version.status === 'error' ? 'Data connection timeout' : undefined
+  })) || [
+    { timestamp: '2h ago', status: 'completed', duration: '45s' },
+    { timestamp: '1w ago', status: 'completed', duration: '52s' },
+    { timestamp: '2w ago', status: 'error', duration: '12s', error: 'Data connection timeout' },
+    { timestamp: '3w ago', status: 'completed', duration: '48s' },
+    { timestamp: '1mo ago', status: 'completed', duration: '41s' }
+  ];
 
-  const currentRun = runs[runs.length - 1]; // Latest run
+  const getAnalysisTypeDisplay = (analysisType: string) => {
+    const typeConfig = {
+      'Security Assessment': { icon: Settings, color: '#4F46E5' },
+      'Performance Analysis': { icon: Database, color: '#059669' },
+      'Compliance Review': { icon: Eye, color: '#D97706' }
+    };
+    
+    const config = typeConfig[analysisType] || typeConfig['Security Assessment'];
+    const Icon = config.icon;
+    
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <Icon size={16} style={{ color: config.color }} />
+        <span>{analysisType}</span>
+      </div>
+    );
+  };
 
   const formatTimeRange = (timeRange: string | { start: Date; end: Date; } | undefined) => {
     if (!timeRange) return 'Not specified';
@@ -106,24 +133,6 @@ export const TaskReportDetailPage: React.FC = () => {
     fontSize: '14px',
     fontWeight: '500',
     transition: 'all 0.2s ease'
-  };
-
-  const dropdownContainerStyle: React.CSSProperties = {
-    position: 'relative',
-    display: 'inline-block'
-  };
-
-  const dropdownStyle: React.CSSProperties = {
-    position: 'absolute',
-    top: '100%',
-    left: '0',
-    right: '0',
-    backgroundColor: '#ffffff',
-    border: '1px solid #e2e8f0',
-    borderRadius: '8px',
-    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-    zIndex: 10,
-    marginTop: '4px'
   };
 
   const contentStyle: React.CSSProperties = {
@@ -260,7 +269,7 @@ export const TaskReportDetailPage: React.FC = () => {
           <div style={breadcrumbStyle}>
             <span onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>Home</span>
             <span>•</span>
-            <span>Task Report Details</span>
+            <span>Report Details</span>
           </div>
           <h1 style={titleStyle}>{task.title}</h1>
         </div>
@@ -275,37 +284,7 @@ export const TaskReportDetailPage: React.FC = () => {
             Back to Tasks
           </button>
           
-          <div style={dropdownContainerStyle}>
-            <button 
-              style={secondaryButtonStyle}
-              onClick={() => setShowRunHistoryDropdown(!showRunHistoryDropdown)}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f9fafb'}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-            >
-              Run History
-              <ChevronDown size={16} />
-            </button>
-            {showRunHistoryDropdown && (
-              <div style={dropdownStyle}>
-                {runs.map((run, index) => (
-                  <div
-                    key={run.id}
-                    style={{
-                      padding: '8px 12px',
-                      borderBottom: index < runs.length - 1 ? '1px solid #f3f4f6' : 'none',
-                      cursor: 'pointer',
-                      fontSize: '12px',
-                      color: '#6b7280'
-                    }}
-                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f9fafb'}
-                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-                  >
-                    {formatTimestamp(run.timestamp)} - {run.status}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+          <RunHistoryDropdown runs={runs} latestRun="2h ago" />
 
           <button 
             style={primaryButtonStyle}
@@ -358,10 +337,10 @@ export const TaskReportDetailPage: React.FC = () => {
         {/* Submitted Content Section */}
         <div style={sectionStyle}>
           <div style={sectionHeaderStyle}>
-            <FileText size={20} />
+            <Upload size={20} />
             <h2 style={sectionTitleStyle}>Submitted Content</h2>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '16px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', marginTop: '16px' }}>
             <div>
               <div style={sharedStyles.label}>Goal</div>
               <div style={{ ...sharedStyles.value, color: '#4b5563', lineHeight: '1.6', marginTop: '4px' }}>
@@ -371,7 +350,7 @@ export const TaskReportDetailPage: React.FC = () => {
             <div>
               <div style={sharedStyles.label}>Analysis Type</div>
               <div style={{ ...sharedStyles.value, marginTop: '4px' }}>
-                {task.taskCreation?.analysisType || 'Security Assessment'}
+                {getAnalysisTypeDisplay(task.taskCreation?.analysisType || 'Security Assessment')}
               </div>
             </div>
             <div>
@@ -407,7 +386,7 @@ export const TaskReportDetailPage: React.FC = () => {
         {/* Report Section */}
         <div style={sectionStyle}>
           <div style={sectionHeaderStyle}>
-            <FileText size={20} />
+            <Upload size={20} />
             <h2 style={sectionTitleStyle}>Report</h2>
           </div>
           <div style={pdfContainerStyle}>
