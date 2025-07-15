@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Download, Upload, Database, Clock, Eye, Maximize, Settings } from 'lucide-react';
+import { ArrowLeft, Download, Upload, FileText, Database, Clock, Eye, Maximize, Settings } from 'lucide-react';
 import { useTheme } from '../components/ThemeProvider';
 import { mockReports } from '../components/mockData';
 import { sharedStyles } from '../components/shared/styles';
@@ -416,7 +416,7 @@ export const TaskReportDetailPage: React.FC = () => {
         {/* Report Section */}
         <div style={sectionStyle}>
           <div style={sectionHeaderStyle}>
-            <Upload size={20} />
+            <FileText size={20} />
             <h2 style={sectionTitleStyle}>Report</h2>
           </div>
           <div style={pdfContainerStyle}>
