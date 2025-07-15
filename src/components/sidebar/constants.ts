@@ -1,5 +1,5 @@
 
-import { BarChart3, Wrench, Search } from 'lucide-react';
+import { BarChart3, Wrench, Search, Activity } from 'lucide-react';
 import { ProductGroup } from './types';
 
 export const productGroups: ProductGroup[] = [
@@ -32,6 +32,12 @@ export const productGroups: ProductGroup[] = [
         label: 'Finding',
         icon: Search,
         path: '/aplus/finding'
+      },
+      {
+        id: 'traffic-highlighter',
+        label: 'Traffic Highlighter',
+        icon: Activity,
+        path: '/aplus/traffic-highlighter'
       }
     ]
   }

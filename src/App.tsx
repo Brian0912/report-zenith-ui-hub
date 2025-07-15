@@ -12,6 +12,7 @@ import { NotFound } from './pages/NotFound';
 import { EntityRiskDetailPage } from './pages/EntityRiskDetailPage';
 import { RiskFindingDashboard } from './pages/RiskFindingDashboard';
 import { TaskReportDetailPage } from './pages/TaskReportDetailPage';
+import { TrafficHighlighterPage } from './pages/TrafficHighlighterPage';
 
 const queryClient = new QueryClient();
 
@@ -29,6 +30,7 @@ const App: React.FC = () => {
                 <Route path="/aplus" element={<Navigate to="/aplus/enhancement" replace />} />
                 <Route path="/aplus/enhancement" element={<AplusRiskManagement />} />
                 <Route path="/aplus/finding" element={<RiskFindingDashboard />} />
+                <Route path="/aplus/traffic-highlighter" element={<TrafficHighlighterPage />} />
                 <Route path="/risk-finding" element={<Navigate to="/aplus/finding" replace />} />
                 <Route path="/governance/:id" element={<GovernancePage />} />
                 <Route path="/entity/:id" element={<EntityDetailPage />} />
