@@ -3,8 +3,8 @@ import React, { useState } from 'react';
 import { TrafficAnnotatorHeader } from '../components/traffic-annotator/TrafficAnnotatorHeader';
 import { CurlInputPanel } from '../components/traffic-annotator/CurlInputPanel';
 import { ResponseDisplayPanel } from '../components/traffic-annotator/ResponseDisplayPanel';
-import { FieldAnalysisSection } from '../components/traffic-annotator/FieldAnalysisSection';
 import { EnhancementSchedule } from '../components/traffic-annotator/EnhancementSchedule';
+import { FieldAnalysisSection } from '../components/traffic-annotator/FieldAnalysisSection';
 import { RequestHistory } from '../components/traffic-annotator/RequestHistory';
 
 interface ParsedRequest {
@@ -69,11 +69,11 @@ export const TrafficAnnotatorPage: React.FC = () => {
           {response && (
             <>
               <ResponseDisplayPanel response={response} />
+              <EnhancementSchedule parsedRequest={parsedRequest} />
               <FieldAnalysisSection 
                 parsedRequest={parsedRequest}
                 response={response}
               />
-              <EnhancementSchedule parsedRequest={parsedRequest} />
             </>
           )}
         </div>

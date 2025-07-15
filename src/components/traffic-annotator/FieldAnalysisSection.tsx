@@ -1,6 +1,7 @@
-
 import React, { useState, useEffect } from 'react';
 import { ChevronDown, ChevronRight } from 'lucide-react';
+import { FindingDropdown } from './FindingDropdown';
+import { CommentEditor } from './CommentEditor';
 
 interface ParsedRequest {
   url: string;
@@ -14,6 +15,11 @@ interface MockResponse {
   statusText: string;
   headers: Record<string, string>;
   body: string;
+}
+
+interface CommentData {
+  text: string;
+  images: string[];
 }
 
 interface FieldData {
@@ -30,6 +36,9 @@ interface FieldData {
   policyAction: string;
   linkToFinding: string;
   comment: string;
+  // New editable fields for selected items
+  selectedFinding?: string;
+  selectedComment?: CommentData;
 }
 
 interface FieldAnalysisData {
@@ -88,7 +97,8 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
     dataSovereignty: ['US', 'EU', 'Global', 'Restricted'][Math.floor(Math.random() * 4)],
     policyAction: ['Review Required', 'Approved', 'Pending', 'Flagged'][Math.floor(Math.random() * 4)],
     linkToFinding: `https://compliance-portal.com/finding/${Math.floor(Math.random() * 1000)}`,
-    comment: ['Needs review', 'Compliant', 'Under investigation', 'Action required'][Math.floor(Math.random() * 4)]
+    comment: ['Needs review', 'Compliant', 'Under investigation', 'Action required'][Math.floor(Math.random() * 4)],
+    selectedComment: { text: '', images: [] }
   });
 
   const extractFieldPaths = (obj: any, prefix = ''): string[] => {
@@ -213,9 +223,30 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
       if (isSelected) {
         return prev.filter(f => f.id !== field.id);
       } else {
-        return [...prev, field];
+        // Add to the beginning of the array (top of selected fields)
+        return [{ ...field, selectedComment: { text: '', images: [] } }, ...prev];
       }
     });
+  };
+
+  const updateSelectedFieldFinding = (fieldId: string, findingId: string) => {
+    setSelectedFields(prev => 
+      prev.map(field => 
+        field.id === fieldId 
+          ? { ...field, selectedFinding: findingId }
+          : field
+      )
+    );
+  };
+
+  const updateSelectedFieldComment = (fieldId: string, comment: CommentData) => {
+    setSelectedFields(prev => 
+      prev.map(field => 
+        field.id === fieldId 
+          ? { ...field, selectedComment: comment }
+          : field
+      )
+    );
   };
 
   const cardStyle: React.CSSProperties = {
@@ -258,6 +289,97 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
           )}
         </div>
 
+        {/* Selected Fields Section */}
+        {selectedFields.length > 0 && (
+          <div style={{ marginBottom: '24px' }}>
+            <h4 style={{ fontSize: '16px', fontWeight: '500', color: '#111827', marginBottom: '12px' }}>
+              Selected Fields
+            </h4>
+            <div style={{ border: '1px solid #e5e7eb', borderRadius: '8px', overflow: 'hidden' }}>
+              <div style={{ overflow: 'auto' }}>
+                <table style={{ width: '100%', fontSize: '14px' }}>
+                  <thead style={{ backgroundColor: '#f9fafb', borderBottom: '1px solid #e5e7eb' }}>
+                    <tr>
+                      {['Field', 'Has Schema', 'Prod Tag', 'GCP Tag', 'DECC Tag', 'Attributed To', 'Data Sovereignty', 'Policy Action', 'Finding', 'Comment'].map((header) => (
+                        <th key={header} style={{ 
+                          padding: '12px',
+                          textAlign: 'left',
+                          fontWeight: '500',
+                          color: '#374151',
+                          whiteSpace: 'nowrap'
+                        }}>
+                          {header}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {selectedFields.map((field) => (
+                      <tr
+                        key={field.id}
+                        style={{
+                          borderBottom: '1px solid #e5e7eb',
+                          backgroundColor: '#eff6ff'
+                        }}
+                      >
+                        <td style={{ 
+                          padding: '12px',
+                          fontFamily: 'monospace',
+                          fontSize: '13px',
+                          color: '#1e40af',
+                          fontWeight: '500'
+                        }}>
+                          {field.fieldPath}
+                        </td>
+                        <td style={{ padding: '12px' }}>{field.hasSchema}</td>
+                        <td style={{ padding: '12px' }}>
+                          <span style={{
+                            backgroundColor: field.prodTag === 'PII' ? '#fef2f2' : field.prodTag === 'Internal' ? '#fefce8' : '#f0fdf4',
+                            color: field.prodTag === 'PII' ? '#991b1b' : field.prodTag === 'Internal' ? '#a16207' : '#166534',
+                            padding: '4px 8px',
+                            borderRadius: '4px',
+                            fontSize: '12px'
+                          }}>
+                            {field.prodTag}
+                          </span>
+                        </td>
+                        <td style={{ padding: '12px' }}>{field.gcpTag}</td>
+                        <td style={{ padding: '12px' }}>{field.deccTag}</td>
+                        <td style={{ padding: '12px' }}>{field.attributedTo}</td>
+                        <td style={{ padding: '12px' }}>{field.dataSovereignty}</td>
+                        <td style={{ padding: '12px' }}>
+                          <span style={{
+                            backgroundColor: field.policyAction === 'Flagged' ? '#fef2f2' : field.policyAction === 'Review Required' ? '#fefce8' : '#f0fdf4',
+                            color: field.policyAction === 'Flagged' ? '#991b1b' : field.policyAction === 'Review Required' ? '#a16207' : '#166534',
+                            padding: '4px 8px',
+                            borderRadius: '4px',
+                            fontSize: '12px'
+                          }}>
+                            {field.policyAction}
+                          </span>
+                        </td>
+                        <td style={{ padding: '12px', minWidth: '200px' }}>
+                          <FindingDropdown
+                            value={field.selectedFinding}
+                            onValueChange={(value) => updateSelectedFieldFinding(field.id, value)}
+                          />
+                        </td>
+                        <td style={{ padding: '12px', minWidth: '250px' }}>
+                          <CommentEditor
+                            value={field.selectedComment || { text: '', images: [] }}
+                            onChange={(comment) => updateSelectedFieldComment(field.id, comment)}
+                            placeholder="Add comment..."
+                          />
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div style={{ display: 'grid', gap: '16px' }}>
           {Object.entries(fieldAnalysisData).map(([sectionKey, sectionData]) => {
             const sectionInfo = getSectionInfo(sectionKey);
@@ -296,7 +418,7 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
                     <table style={{ width: '100%', fontSize: '14px' }}>
                       <thead style={{ backgroundColor: '#f9fafb', borderBottom: '1px solid #e5e7eb' }}>
                         <tr>
-                          {['Field', 'Has Schema', 'Prod Tag', 'GCP Tag', 'DECC Tag', 'Attributed To', 'Data Sovereignty', 'Policy Action', 'Link', 'Comment'].map((header) => (
+                          {['Field', 'Has Schema', 'Prod Tag', 'GCP Tag', 'DECC Tag', 'Attributed To', 'Data Sovereignty', 'Policy Action'].map((header) => (
                             <th key={header} style={{ 
                               padding: '12px',
                               textAlign: 'left',
@@ -358,17 +480,6 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
                                   {field.policyAction}
                                 </span>
                               </td>
-                              <td style={{ padding: '12px' }}>
-                                <a 
-                                  href={field.linkToFinding}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  style={{ color: '#2563eb', textDecoration: 'underline' }}
-                                >
-                                  View
-                                </a>
-                              </td>
-                              <td style={{ padding: '12px' }}>{field.comment}</td>
                             </tr>
                           );
                         })}
