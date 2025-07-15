@@ -27,22 +27,22 @@ export const TaskReportDetailPage: React.FC = () => {
     );
   }
 
-  // Generate runs from versions for dropdown
+  // Generate runs from versions for dropdown - fix type compatibility
   const runs = task.versions.map((version, index) => ({
     timestamp: index === 0 ? '2h ago' : 
                index === 1 ? '1w ago' : 
                index === 2 ? '2w ago' : 
                index === 3 ? '3w ago' : '1mo ago',
-    status: version.status === 'completed' ? 'completed' : 
-            version.status === 'error' ? 'error' : 'completed',
+    status: (version.status === 'completed' ? 'completed' : 
+            version.status === 'error' ? 'error' : 'completed') as 'completed' | 'running' | 'error' | 'queued',
     duration: ['45s', '52s', '12s', '48s', '41s'][index] || '45s',
     error: version.status === 'error' ? 'Data connection timeout' : undefined
   })) || [
-    { timestamp: '2h ago', status: 'completed', duration: '45s' },
-    { timestamp: '1w ago', status: 'completed', duration: '52s' },
-    { timestamp: '2w ago', status: 'error', duration: '12s', error: 'Data connection timeout' },
-    { timestamp: '3w ago', status: 'completed', duration: '48s' },
-    { timestamp: '1mo ago', status: 'completed', duration: '41s' }
+    { timestamp: '2h ago', status: 'completed' as const, duration: '45s' },
+    { timestamp: '1w ago', status: 'completed' as const, duration: '52s' },
+    { timestamp: '2w ago', status: 'error' as const, duration: '12s', error: 'Data connection timeout' },
+    { timestamp: '3w ago', status: 'completed' as const, duration: '48s' },
+    { timestamp: '1mo ago', status: 'completed' as const, duration: '41s' }
   ];
 
   const getAnalysisTypeDisplay = (analysisType: string) => {
