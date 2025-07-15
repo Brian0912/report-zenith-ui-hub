@@ -6,6 +6,7 @@ import { mockReports } from '../components/mockData';
 import { sharedStyles } from '../components/shared/styles';
 import { useDownload } from '../hooks/useDownload';
 import { RunHistoryDropdown } from '../components/RunHistoryDropdown';
+import { MetadataEditMode } from '../components/TaskLogsSidebar/MetadataEditMode';
 
 export const TaskReportDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -71,6 +72,13 @@ export const TaskReportDetailPage: React.FC = () => {
     }
     return 'Not specified';
   };
+
+  // Transform metadata to match MetadataEditMode format
+  const transformedMetadata = task.taskCreation?.metadata || [
+    { id: '1', category: 'priority', key: 'high', value: 'Critical security assessment required' },
+    { id: '2', category: 'type', key: 'security', value: 'Network infrastructure analysis' },
+    { id: '3', category: 'team', key: 'security', value: 'Security Operations Team' }
+  ];
 
   const containerStyle: React.CSSProperties = {
     minHeight: '100vh',
@@ -159,11 +167,13 @@ export const TaskReportDetailPage: React.FC = () => {
     marginBottom: '0'
   };
 
-  const infoGridStyle: React.CSSProperties = {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-    gap: '24px',
-    marginTop: '16px'
+  // Updated info style for single line display
+  const infoLineStyle: React.CSSProperties = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '32px',
+    marginTop: '16px',
+    flexWrap: 'wrap'
   };
 
   const infoItemStyle: React.CSSProperties = {
@@ -300,20 +310,20 @@ export const TaskReportDetailPage: React.FC = () => {
       </div>
 
       <div style={contentStyle}>
-        {/* Task Information Section */}
+        {/* Task Information Section - Updated to single line */}
         <div style={sectionStyle}>
           <div style={sectionHeaderStyle}>
             <Clock size={20} />
             <h2 style={sectionTitleStyle}>Task Information</h2>
           </div>
-          <div style={infoGridStyle}>
+          <div style={infoLineStyle}>
             <div style={infoItemStyle}>
               <div style={sharedStyles.label}>Owner</div>
               <div style={sharedStyles.value}>{task.pointOfContact.name}</div>
             </div>
             <div style={infoItemStyle}>
               <div style={sharedStyles.label}>Operator</div>
-              <div style={sharedStyles.value}>{task.pointOfContact.role || 'System'}</div>
+              <div style={sharedStyles.value}>{task.pointOfContact.name}</div>
             </div>
             <div style={infoItemStyle}>
               <div style={sharedStyles.label}>Status</div>
@@ -322,10 +332,6 @@ export const TaskReportDetailPage: React.FC = () => {
             <div style={infoItemStyle}>
               <div style={sharedStyles.label}>Created</div>
               <div style={sharedStyles.value}>{formatTimestamp(task.createdAt)}</div>
-            </div>
-            <div style={infoItemStyle}>
-              <div style={sharedStyles.label}>Last Updated</div>
-              <div style={sharedStyles.value}>{formatTimestamp(task.schedule.lastRun)}</div>
             </div>
             <div style={infoItemStyle}>
               <div style={sharedStyles.label}>Duration</div>
@@ -367,17 +373,12 @@ export const TaskReportDetailPage: React.FC = () => {
             </div>
             <div>
               <div style={sharedStyles.label}>Metadata</div>
-              <div style={metadataContainerStyle}>
-                {task.taskCreation?.metadata ? 
-                  Object.entries(task.taskCreation.metadata).map(([key, values]) => (
-                    <div key={key} style={metadataBadgeStyle}>
-                      <strong>{key}:</strong> {Array.isArray(values) ? values.join(', ') : String(values)}
-                    </div>
-                  )) : 
-                  ['Critical', 'Network', 'Security'].map((tag) => (
-                    <div key={tag} style={metadataBadgeStyle}>{tag}</div>
-                  ))
-                }
+              <div style={{ marginTop: '8px' }}>
+                <MetadataEditMode
+                  metadata={transformedMetadata}
+                  onChange={() => {}} // Read-only mode
+                  disabled={true}
+                />
               </div>
             </div>
           </div>
