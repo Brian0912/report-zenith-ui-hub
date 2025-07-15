@@ -43,6 +43,8 @@ export const CurlInputPanel: React.FC<CurlInputPanelProps> = ({
   showHistory,
   setShowHistory
 }) => {
+  const PLACEHOLDER_TEXT = `curl -X POST 'https://api.example.com/data?userId=123&format=json' -H 'Content-Type: application/json' -H 'Authorization: Bearer token123' -d '{"name": "John", "email": "john@example.com"}'`;
+
   const parseCurl = (curlCommand: string): ParsedRequest | null => {
     try {
       const trimmed = curlCommand.trim();
@@ -244,7 +246,7 @@ export const CurlInputPanel: React.FC<CurlInputPanelProps> = ({
           <textarea
             value={curlInput}
             onChange={(e) => handleInputChange(e.target.value)}
-            placeholder="curl -X POST 'https://api.example.com/data?userId=123&format=json' -H 'Content-Type: application/json' -H 'Authorization: Bearer token123' -d '{\"name\": \"John\", \"email\": \"john@example.com\"}'"
+            placeholder={PLACEHOLDER_TEXT}
             style={textareaStyle}
           />
           {curlInput && (
