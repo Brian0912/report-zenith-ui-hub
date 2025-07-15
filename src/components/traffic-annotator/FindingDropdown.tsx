@@ -14,6 +14,7 @@ interface FindingDropdownProps {
   value?: string;
   onValueChange: (value: string) => void;
   className?: string;
+  showLinkButton?: boolean;
 }
 
 const mockFindings: Finding[] = [
@@ -27,7 +28,8 @@ const mockFindings: Finding[] = [
 export const FindingDropdown: React.FC<FindingDropdownProps> = ({
   value,
   onValueChange,
-  className
+  className,
+  showLinkButton = true
 }) => {
   const [open, setOpen] = useState(false);
   const [searchValue, setSearchValue] = useState('');
@@ -53,7 +55,7 @@ export const FindingDropdown: React.FC<FindingDropdownProps> = ({
       <Select value={value} onValueChange={onValueChange}>
         <SelectTrigger style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '8px' }}>
           <SelectValue placeholder="Select finding..." />
-          {selectedFinding && (
+          {selectedFinding && showLinkButton && (
             <button
               onClick={(e) => handleLinkClick(e, selectedFinding.url)}
               style={{
@@ -109,6 +111,80 @@ export const FindingDropdown: React.FC<FindingDropdownProps> = ({
           </Command>
         </SelectContent>
       </Select>
+    </div>
+  );
+};
+
+// Component to display selected finding in view mode
+export const FindingDisplay: React.FC<{ findingId?: string; onEdit?: () => void }> = ({ 
+  findingId, 
+  onEdit 
+}) => {
+  const finding = mockFindings.find(f => f.id === findingId);
+
+  if (!finding) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <span style={{ color: '#9ca3af', fontSize: '14px' }}>No finding selected</span>
+        {onEdit && (
+          <button
+            onClick={onEdit}
+            style={{
+              padding: '4px 8px',
+              fontSize: '12px',
+              backgroundColor: '#2563eb',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer'
+            }}
+          >
+            Add Finding
+          </button>
+        )}
+      </div>
+    );
+  }
+
+  const handleLinkClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    window.open(finding.url, '_blank', 'noopener,noreferrer');
+  };
+
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <span style={{ fontSize: '14px', color: '#111827' }}>{finding.name}</span>
+      <button
+        onClick={handleLinkClick}
+        style={{
+          padding: '2px',
+          color: '#2563eb',
+          backgroundColor: 'transparent',
+          border: 'none',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center'
+        }}
+        title="Open finding link"
+      >
+        <ExternalLink size={14} />
+      </button>
+      {onEdit && (
+        <button
+          onClick={onEdit}
+          style={{
+            padding: '2px 6px',
+            fontSize: '12px',
+            backgroundColor: '#f3f4f6',
+            color: '#374151',
+            border: '1px solid #d1d5db',
+            borderRadius: '4px',
+            cursor: 'pointer'
+          }}
+        >
+          Edit
+        </button>
+      )}
     </div>
   );
 };

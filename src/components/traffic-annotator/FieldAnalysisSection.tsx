@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronDown, ChevronRight } from 'lucide-react';
-import { FindingDropdown } from './FindingDropdown';
-import { CommentEditor } from './CommentEditor';
+import { ChevronDown, ChevronRight, Save } from 'lucide-react';
+import { FindingDisplay } from './FindingDropdown';
+import { CommentDisplay } from './CommentDisplay';
+import { FieldEditModal } from './FieldEditModal';
+import { SaveAnnotationsModal } from './SaveAnnotationsModal';
 
 interface ParsedRequest {
   url: string;
@@ -36,7 +38,6 @@ interface FieldData {
   policyAction: string;
   linkToFinding: string;
   comment: string;
-  // New editable fields for selected items
   selectedFinding?: string;
   selectedComment?: CommentData;
 }
@@ -53,11 +54,13 @@ interface FieldAnalysisData {
 interface FieldAnalysisSectionProps {
   parsedRequest: ParsedRequest | null;
   response: MockResponse;
+  curlInput?: string;
 }
 
 export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
   parsedRequest,
-  response
+  response,
+  curlInput = ''
 }) => {
   const [fieldAnalysisData, setFieldAnalysisData] = useState<FieldAnalysisData>({
     requestHeaders: [],
@@ -76,6 +79,8 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
     responseBody: true
   });
   const [selectedFields, setSelectedFields] = useState<FieldData[]>([]);
+  const [editingField, setEditingField] = useState<FieldData | null>(null);
+  const [showSaveModal, setShowSaveModal] = useState(false);
 
   useEffect(() => {
     if (parsedRequest && response) {
@@ -223,27 +228,20 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
       if (isSelected) {
         return prev.filter(f => f.id !== field.id);
       } else {
-        // Add to the beginning of the array (top of selected fields)
         return [{ ...field, selectedComment: { text: '', images: [] } }, ...prev];
       }
     });
   };
 
-  const updateSelectedFieldFinding = (fieldId: string, findingId: string) => {
-    setSelectedFields(prev => 
-      prev.map(field => 
-        field.id === fieldId 
-          ? { ...field, selectedFinding: findingId }
-          : field
-      )
-    );
+  const handleEditField = (field: FieldData) => {
+    setEditingField(field);
   };
 
-  const updateSelectedFieldComment = (fieldId: string, comment: CommentData) => {
+  const handleSaveFieldEdit = (fieldId: string, finding?: string, comment?: CommentData) => {
     setSelectedFields(prev => 
       prev.map(field => 
         field.id === fieldId 
-          ? { ...field, selectedComment: comment }
+          ? { ...field, selectedFinding: finding, selectedComment: comment }
           : field
       )
     );
@@ -276,16 +274,37 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
             Field Analysis
           </h3>
           {selectedFields.length > 0 && (
-            <span style={{ 
-              backgroundColor: '#dbeafe', 
-              color: '#1e40af', 
-              padding: '4px 12px', 
-              borderRadius: '16px', 
-              fontSize: '14px',
-              fontWeight: '500'
-            }}>
-              {selectedFields.length} fields selected
-            </span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <span style={{ 
+                backgroundColor: '#dbeafe', 
+                color: '#1e40af', 
+                padding: '4px 12px', 
+                borderRadius: '16px', 
+                fontSize: '14px',
+                fontWeight: '500'
+              }}>
+                {selectedFields.length} fields selected
+              </span>
+              <button
+                onClick={() => setShowSaveModal(true)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '8px 16px',
+                  backgroundColor: '#059669',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '500'
+                }}
+              >
+                <Save size={16} />
+                Save Annotations
+              </button>
+            </div>
           )}
         </div>
 
@@ -300,7 +319,7 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
                 <table style={{ width: '100%', fontSize: '14px' }}>
                   <thead style={{ backgroundColor: '#f9fafb', borderBottom: '1px solid #e5e7eb' }}>
                     <tr>
-                      {['Field', 'Has Schema', 'Prod Tag', 'GCP Tag', 'DECC Tag', 'Attributed To', 'Data Sovereignty', 'Policy Action', 'Finding', 'Comment'].map((header) => (
+                      {['Field', 'Group', 'Has Schema', 'Prod Tag', 'GCP Tag', 'DECC Tag', 'Attributed To', 'Data Sovereignty', 'Policy Action', 'Finding', 'Comment', 'Actions'].map((header) => (
                         <th key={header} style={{ 
                           padding: '12px',
                           textAlign: 'left',
@@ -331,6 +350,18 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
                         }}>
                           {field.fieldPath}
                         </td>
+                        <td style={{ padding: '12px' }}>
+                          <span style={{
+                            backgroundColor: '#f3f4f6',
+                            color: '#374151',
+                            padding: '2px 6px',
+                            borderRadius: '4px',
+                            fontSize: '11px',
+                            fontWeight: '500'
+                          }}>
+                            {field.source} {field.category}
+                          </span>
+                        </td>
                         <td style={{ padding: '12px' }}>{field.hasSchema}</td>
                         <td style={{ padding: '12px' }}>
                           <span style={{
@@ -359,17 +390,32 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
                           </span>
                         </td>
                         <td style={{ padding: '12px', minWidth: '200px' }}>
-                          <FindingDropdown
-                            value={field.selectedFinding}
-                            onValueChange={(value) => updateSelectedFieldFinding(field.id, value)}
+                          <FindingDisplay
+                            findingId={field.selectedFinding}
+                            onEdit={() => handleEditField(field)}
                           />
                         </td>
                         <td style={{ padding: '12px', minWidth: '250px' }}>
-                          <CommentEditor
-                            value={field.selectedComment || { text: '', images: [] }}
-                            onChange={(comment) => updateSelectedFieldComment(field.id, comment)}
-                            placeholder="Add comment..."
+                          <CommentDisplay
+                            comment={field.selectedComment}
+                            onEdit={() => handleEditField(field)}
                           />
+                        </td>
+                        <td style={{ padding: '12px' }}>
+                          <button
+                            onClick={() => toggleFieldSelection(field)}
+                            style={{
+                              padding: '4px 8px',
+                              fontSize: '12px',
+                              backgroundColor: '#ef4444',
+                              color: 'white',
+                              border: 'none',
+                              borderRadius: '4px',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            Remove
+                          </button>
                         </td>
                       </tr>
                     ))}
@@ -492,6 +538,22 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
           })}
         </div>
       </div>
+
+      <FieldEditModal
+        field={editingField}
+        isOpen={!!editingField}
+        onClose={() => setEditingField(null)}
+        onSave={handleSaveFieldEdit}
+      />
+
+      <SaveAnnotationsModal
+        isOpen={showSaveModal}
+        onClose={() => setShowSaveModal(false)}
+        curlInput={curlInput}
+        parsedRequest={parsedRequest}
+        response={response}
+        selectedFields={selectedFields}
+      />
     </div>
   );
 };

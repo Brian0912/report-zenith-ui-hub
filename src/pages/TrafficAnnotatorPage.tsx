@@ -73,6 +73,7 @@ export const TrafficAnnotatorPage: React.FC = () => {
               <FieldAnalysisSection 
                 parsedRequest={parsedRequest}
                 response={response}
+                curlInput={curlInput}
               />
             </>
           )}
