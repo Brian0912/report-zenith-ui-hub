@@ -125,14 +125,6 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
     images: false
   });
 
-  // Update group column visibility based on view mode
-  useEffect(() => {
-    setColumnVisibility(prev => ({
-      ...prev,
-      group: viewMode === 'compact'
-    }));
-  }, [viewMode]);
-
   useEffect(() => {
     if (parsedRequest && response) {
       const analysisData = generateFieldAnalysis(parsedRequest, response);
@@ -365,16 +357,6 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
     overflow: 'hidden'
   };
 
-  const selectedFieldsHeaderStyle: React.CSSProperties = {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-    fontSize: '16px',
-    fontWeight: '600',
-    color: '#1a202c',
-    marginBottom: '12px'
-  };
-
   return (
     <div style={cardStyle}>
       <div style={{ padding: '24px' }}>
@@ -391,13 +373,25 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
               onModeChange={setViewMode}
             />
             
-            <ColumnVisibilityDropdown
-              visibility={columnVisibility}
-              onVisibilityChange={setColumnVisibility}
-            />
+            {(viewMode === 'compact' || viewMode === 'tabs') && (
+              <ColumnVisibilityDropdown
+                visibility={columnVisibility}
+                onVisibilityChange={setColumnVisibility}
+              />
+            )}
             
             {selectedFields.length > 0 && (
               <>
+                <span style={{ 
+                  backgroundColor: '#EEF2FF', 
+                  color: '#4F46E5', 
+                  padding: '4px 12px', 
+                  borderRadius: '16px', 
+                  fontSize: '14px',
+                  fontWeight: '500'
+                }}>
+                  {selectedFields.length} fields selected
+                </span>
                 <button
                   onClick={clearAllSelectedFields}
                   style={{
@@ -483,19 +477,9 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
         {/* Selected Fields Section */}
         {selectedFields.length > 0 && (
           <div style={{ marginBottom: '24px' }}>
-            <div style={selectedFieldsHeaderStyle}>
-              <span>Selected Fields</span>
-              <span style={{ 
-                backgroundColor: '#EEF2FF', 
-                color: '#4F46E5', 
-                padding: '4px 12px', 
-                borderRadius: '16px', 
-                fontSize: '14px',
-                fontWeight: '500'
-              }}>
-                {selectedFields.length} fields
-              </span>
-            </div>
+            <h4 style={{ fontSize: '16px', fontWeight: '600', color: '#1a202c', marginBottom: '12px' }}>
+              Selected Fields
+            </h4>
             <div style={{ border: '1px solid #e5e7eb', borderRadius: '8px', overflow: 'hidden' }}>
               <CompactFieldView
                 fields={selectedFields}
