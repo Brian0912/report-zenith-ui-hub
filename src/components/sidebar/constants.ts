@@ -35,7 +35,7 @@ export const productGroups: ProductGroup[] = [
       },
       {
         id: 'annotator',
-        label: 'Annotator',
+        label: 'X-Ray',
         icon: Tag,
         path: '/aplus/annotator'
       }

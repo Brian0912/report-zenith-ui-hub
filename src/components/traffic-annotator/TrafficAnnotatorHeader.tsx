@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { Tag } from 'lucide-react';
 
 export const TrafficAnnotatorHeader: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -39,9 +40,7 @@ export const TrafficAnnotatorHeader: React.FC = () => {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    color: 'hsl(var(--primary-foreground))',
-    fontSize: '20px',
-    fontWeight: 'bold'
+    color: 'hsl(var(--primary-foreground))'
   };
 
   const logoTextStyle: React.CSSProperties = {
@@ -87,8 +86,10 @@ export const TrafficAnnotatorHeader: React.FC = () => {
       <div style={containerStyle}>
         <div style={leftSectionStyle}>
           <div style={logoStyle}>
-            <div style={logoCircleStyle}>T</div>
-            <h1 style={logoTextStyle}>Traffic Annotator</h1>
+            <div style={logoCircleStyle}>
+              <Tag size={20} />
+            </div>
+            <h1 style={logoTextStyle}>Traffic X-Ray and Annotator</h1>
           </div>
         </div>
 
