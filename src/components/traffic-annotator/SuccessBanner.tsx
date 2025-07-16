@@ -15,68 +15,66 @@ interface SuccessBannerProps {
 
 export const SuccessBanner: React.FC<SuccessBannerProps> = ({ parsedRequest }) => {
   const extractTrafficInfo = (request: ParsedRequest) => {
-    // Extract PSM service name (mock format)
-    const hostname = new URL(request.url).hostname;
-    const psmService = hostname.replace(/\./g, '.').substring(0, 15) + '.service.api';
-    
-    // Extract API path
-    const apiPath = new URL(request.url).pathname;
-    
-    // Extract HTTP method
+    const urlObj = new URL(request.url);
+    const host = urlObj.hostname;
+    const psmService = host.replace(/\./g, '.').substring(0, 15) + '.service.api';
+    const apiPath = urlObj.pathname;
     const httpMethod = request.method.toUpperCase();
+    const bytetree = 'Security';
     
-    // Mock bytetree info
-    const bytetree = 'data.users.profile';
-    
-    return { psmService, apiPath, httpMethod, bytetree };
+    return { host, psmService, apiPath, httpMethod, bytetree };
   };
 
-  const { psmService, apiPath, httpMethod, bytetree } = extractTrafficInfo(parsedRequest);
+  const { host, psmService, apiPath, httpMethod, bytetree } = extractTrafficInfo(parsedRequest);
 
   const handleEnhancementLinkClick = () => {
     console.log('Navigate to enhancement page');
-    // Navigation logic would go here
   };
 
   const bannerStyle: React.CSSProperties = {
     backgroundColor: '#f0f9ff',
     border: '1px solid #0ea5e9',
-    borderRadius: '8px',
-    padding: '16px',
+    borderRadius: '12px',
+    padding: '20px 24px',
     marginBottom: '24px'
   };
 
   const headerStyle: React.CSSProperties = {
     display: 'flex',
     alignItems: 'center',
-    gap: '8px',
-    marginBottom: '12px'
+    justifyContent: 'space-between',
+    marginBottom: '16px'
   };
 
   const titleStyle: React.CSSProperties = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
     fontSize: '16px',
     fontWeight: '600',
     color: '#0c4a6e',
     margin: 0
   };
 
-  const infoGridStyle: React.CSSProperties = {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-    gap: '16px'
+  const trafficInfoStyle: React.CSSProperties = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '24px',
+    flexWrap: 'wrap',
+    fontSize: '14px'
   };
 
   const infoItemStyle: React.CSSProperties = {
     display: 'flex',
-    flexDirection: 'column',
-    gap: '4px'
+    alignItems: 'center',
+    gap: '6px'
   };
 
   const labelStyle: React.CSSProperties = {
     fontSize: '12px',
     fontWeight: '500',
     color: '#64748b',
-    textTransform: 'uppercase',
+    textTransform: 'uppercase' as const,
     letterSpacing: '0.05em'
   };
 
@@ -91,28 +89,42 @@ export const SuccessBanner: React.FC<SuccessBannerProps> = ({ parsedRequest }) =
     display: 'inline-flex',
     alignItems: 'center',
     gap: '6px',
-    padding: '8px 12px',
+    padding: '8px 16px',
     backgroundColor: '#0ea5e9',
     color: 'white',
     border: 'none',
-    borderRadius: '6px',
+    borderRadius: '8px',
     fontSize: '14px',
     fontWeight: '500',
     cursor: 'pointer',
-    textDecoration: 'none',
-    marginTop: '8px'
+    textDecoration: 'none'
   };
 
   return (
     <div style={bannerStyle}>
       <div style={headerStyle}>
-        <CheckCircle size={20} color="#0ea5e9" />
-        <h3 style={titleStyle}>Traffic Analysis Complete</h3>
+        <h3 style={titleStyle}>
+          <CheckCircle size={20} color="#0ea5e9" />
+          Traffic Analysis Complete
+        </h3>
+        
+        <button
+          onClick={handleEnhancementLinkClick}
+          style={linkButtonStyle}
+        >
+          <ExternalLink size={16} />
+          View Enhancement Page
+        </button>
       </div>
       
-      <div style={infoGridStyle}>
+      <div style={trafficInfoStyle}>
         <div style={infoItemStyle}>
-          <span style={labelStyle}>PSM Service</span>
+          <span style={labelStyle}>Host</span>
+          <span style={valueStyle}>{host}</span>
+        </div>
+        
+        <div style={infoItemStyle}>
+          <span style={labelStyle}>PSM</span>
           <span style={valueStyle}>{psmService}</span>
         </div>
         
@@ -131,14 +143,6 @@ export const SuccessBanner: React.FC<SuccessBannerProps> = ({ parsedRequest }) =
           <span style={valueStyle}>{bytetree}</span>
         </div>
       </div>
-      
-      <button
-        onClick={handleEnhancementLinkClick}
-        style={linkButtonStyle}
-      >
-        <ExternalLink size={16} />
-        View Enhancement Page
-      </button>
     </div>
   );
 };

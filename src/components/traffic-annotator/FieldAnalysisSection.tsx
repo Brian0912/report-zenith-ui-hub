@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronDown, ChevronRight, Save } from 'lucide-react';
+import { ChevronDown, ChevronRight, Save, CheckCircle, X } from 'lucide-react';
 import { FindingDisplay } from './FindingDropdown';
 import { CommentDisplay } from './CommentDisplay';
 import { FieldEditModal } from './FieldEditModal';
@@ -7,6 +7,7 @@ import { SaveAnnotationsModal } from './SaveAnnotationsModal';
 import { SuccessBanner } from './SuccessBanner';
 import { EnhancementBadge } from './EnhancementBadge';
 import { ColumnVisibilityDropdown } from './ColumnVisibilityDropdown';
+import { TableFilter } from './TableFilter';
 
 interface ParsedRequest {
   url: string;
@@ -38,6 +39,7 @@ interface FieldData {
   fieldPath: string;
   source: string;
   category: string;
+  value: string;
   hasSchema: string;
   prodTag: string;
   gcpTag: string;
@@ -102,6 +104,8 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
     gcpTag: false,
     deccTag: false
   });
+  const [filters, setFilters] = useState<Record<string, string>>({});
+  const [sortConfig, setSortConfig] = useState<{ column: string; direction: 'asc' | 'desc' } | null>(null);
 
   useEffect(() => {
     if (parsedRequest && response) {
@@ -109,6 +113,41 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
       setFieldAnalysisData(analysisData);
     }
   }, [parsedRequest, response]);
+
+  const extractFieldValue = (fieldPath: string, source: string, category: string): string => {
+    try {
+      if (category === 'Header' && source === 'Request') {
+        return parsedRequest?.headers[fieldPath] || '';
+      }
+      if (category === 'Header' && source === 'Response') {
+        return response.headers[fieldPath] || '';
+      }
+      if (category === 'Query' && source === 'Request' && parsedRequest) {
+        const url = new URL(parsedRequest.url);
+        return url.searchParams.get(fieldPath.replace('query.', '')) || '';
+      }
+      if (category === 'Body' && source === 'Request' && parsedRequest?.body) {
+        const data = JSON.parse(parsedRequest.body);
+        return getNestedValue(data, fieldPath) || '';
+      }
+      if (category === 'Body' && source === 'Response') {
+        const data = JSON.parse(response.body);
+        return getNestedValue(data, fieldPath) || '';
+      }
+      return '';
+    } catch {
+      return '';
+    }
+  };
+
+  const getNestedValue = (obj: any, path: string): string => {
+    return path.split('.').reduce((current, key) => {
+      if (current && typeof current === 'object') {
+        return current[key];
+      }
+      return undefined;
+    }, obj)?.toString() || '';
+  };
 
   const createFieldData = (fieldPath: string, source: string, category: string): FieldData => {
     // Generate mock enhancements
@@ -127,12 +166,14 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
         link: 'https://example.com/enhancement'
       });
     }
+    const fieldValue = extractFieldValue(fieldPath, source, category);
 
     return {
       id: `${fieldPath}_${source}_${category}`,
       fieldPath,
       source,
       category,
+      value: fieldValue,
       hasSchema: Math.random() > 0.5 ? 'Yes' : 'No',
       prodTag: Math.random() > 0.7 ? 'PII' : Math.random() > 0.5 ? 'Public' : 'Internal',
       gcpTag: Math.random() > 0.6 ? 'Sensitive' : 'Standard',
@@ -288,13 +329,84 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
     );
   };
 
+  const handleFilter = (column: string, value: string) => {
+    setFilters(prev => ({ ...prev, [column]: value }));
+  };
+
+  const handleSort = (column: string, direction: 'asc' | 'desc' | null) => {
+    setSortConfig(direction ? { column, direction } : null);
+  };
+
+  const filterAndSortData = (data: FieldData[]) => {
+    let filtered = data.filter(field => {
+      return Object.entries(filters).every(([column, value]) => {
+        if (!value) return true;
+        const fieldValue = field[column as keyof FieldData]?.toString().toLowerCase();
+        return fieldValue?.includes(value.toLowerCase());
+      });
+    });
+
+    if (sortConfig) {
+      filtered.sort((a, b) => {
+        const aValue = a[sortConfig.column as keyof FieldData]?.toString() || '';
+        const bValue = b[sortConfig.column as keyof FieldData]?.toString() || '';
+        
+        if (sortConfig.direction === 'asc') {
+          return aValue.localeCompare(bValue);
+        } else {
+          return bValue.localeCompare(aValue);
+        }
+      });
+    }
+
+    return filtered;
+  };
+
   const getVisibleColumns = () => {
-    const columns = ['Field', 'Group', 'Has Schema'];
+    const columns = ['Field', 'Group', 'Value', 'Has Schema'];
     if (columnVisibility.prodTag) columns.push('Prod Tag');
     if (columnVisibility.gcpTag) columns.push('GCP Tag');
     if (columnVisibility.deccTag) columns.push('DECC Tag');
     columns.push('Attributed To', 'Data Sovereignty', 'Policy Action', 'Enhancements', 'Finding', 'Comment', 'Actions');
     return columns;
+  };
+
+  const renderSchemaIcon = (hasSchema: string) => {
+    return hasSchema === 'Yes' ? 
+      <CheckCircle size={16} color="#10b981" /> : 
+      <X size={16} color="#9ca3af" />;
+  };
+
+  const renderTableHeader = (column: string, data: FieldData[]) => {
+    const columnValues = [...new Set(data.map(field => field[column.toLowerCase().replace(' ', '') as keyof FieldData]?.toString() || ''))];
+    
+    return (
+      <th key={column} style={{ 
+        padding: '12px',
+        textAlign: 'left',
+        fontWeight: '500',
+        color: '#374151',
+        whiteSpace: 'nowrap',
+        position: 'sticky',
+        top: 0,
+        backgroundColor: '#f9fafb',
+        borderBottom: '1px solid #e5e7eb',
+        zIndex: 10
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          {column}
+          {column !== 'Actions' && (
+            <TableFilter
+              column={column.toLowerCase().replace(' ', '')}
+              values={columnValues}
+              onFilter={handleFilter}
+              onSort={handleSort}
+              sortDirection={sortConfig?.column === column.toLowerCase().replace(' ', '') ? sortConfig.direction : null}
+            />
+          )}
+        </div>
+      </th>
+    );
   };
 
   const cardStyle: React.CSSProperties = {
@@ -349,10 +461,10 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
                     alignItems: 'center',
                     gap: '6px',
                     padding: '8px 16px',
-                    backgroundColor: '#059669',
+                    backgroundColor: '#10b981',
                     color: 'white',
                     border: 'none',
-                    borderRadius: '6px',
+                    borderRadius: '8px',
                     cursor: 'pointer',
                     fontSize: '14px',
                     fontWeight: '500'
@@ -373,25 +485,15 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
               Selected Fields
             </h4>
             <div style={{ border: '1px solid #e5e7eb', borderRadius: '8px', overflow: 'hidden' }}>
-              <div style={{ overflow: 'auto' }}>
+              <div style={{ overflow: 'auto', maxHeight: '400px' }}>
                 <table style={{ width: '100%', fontSize: '14px' }}>
                   <thead style={{ backgroundColor: '#f9fafb', borderBottom: '1px solid #e5e7eb' }}>
                     <tr>
-                      {getVisibleColumns().map((header) => (
-                        <th key={header} style={{ 
-                          padding: '12px',
-                          textAlign: 'left',
-                          fontWeight: '500',
-                          color: '#374151',
-                          whiteSpace: 'nowrap'
-                        }}>
-                          {header}
-                        </th>
-                      ))}
+                      {getVisibleColumns().map((header) => renderTableHeader(header, selectedFields))}
                     </tr>
                   </thead>
                   <tbody>
-                    {selectedFields.map((field) => (
+                    {filterAndSortData(selectedFields).map((field) => (
                       <tr
                         key={field.id}
                         style={{
@@ -399,13 +501,7 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
                           backgroundColor: '#eff6ff'
                         }}
                       >
-                        <td style={{ 
-                          padding: '12px',
-                          fontFamily: 'monospace',
-                          fontSize: '13px',
-                          color: '#1e40af',
-                          fontWeight: '500'
-                        }}>
+                        <td style={{ padding: '12px', fontFamily: 'monospace', fontSize: '13px', color: '#1e40af', fontWeight: '500' }}>
                           {field.fieldPath}
                         </td>
                         <td style={{ padding: '12px' }}>
@@ -420,7 +516,12 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
                             {field.source} {field.category}
                           </span>
                         </td>
-                        <td style={{ padding: '12px' }}>{field.hasSchema}</td>
+                        <td style={{ padding: '12px', maxWidth: '150px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {field.value || '-'}
+                        </td>
+                        <td style={{ padding: '12px', textAlign: 'center' }}>
+                          {renderSchemaIcon(field.hasSchema)}
+                        </td>
                         {columnVisibility.prodTag && (
                           <td style={{ padding: '12px' }}>
                             <span style={{
@@ -501,6 +602,8 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
             
             if (!hasFields) return null;
 
+            const filteredData = filterAndSortData(sectionData);
+
             return (
               <div key={sectionKey} style={{ border: '1px solid #e5e7eb', borderRadius: '8px', overflow: 'hidden' }}>
                 <div 
@@ -520,108 +623,57 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
                       fontSize: '12px',
                       fontWeight: '500'
                     }}>
-                      {sectionData.length} fields
+                      {filteredData.length} fields
                     </span>
                   </div>
                   {isExpanded ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
                 </div>
                 
                 {isExpanded && (
-                  <div style={{ overflow: 'auto' }}>
+                  <div style={{ overflow: 'auto', maxHeight: '400px' }}>
                     <table style={{ width: '100%', fontSize: '14px' }}>
                       <thead style={{ backgroundColor: '#f9fafb', borderBottom: '1px solid #e5e7eb' }}>
                         <tr>
-                          <th style={{ 
-                            padding: '12px',
-                            textAlign: 'left',
-                            fontWeight: '500',
-                            color: '#374151',
-                            whiteSpace: 'nowrap'
-                          }}>
+                          <th style={{ padding: '12px', textAlign: 'left', fontWeight: '500', color: '#374151', whiteSpace: 'nowrap', position: 'sticky', top: 0, backgroundColor: '#f9fafb', zIndex: 10 }}>
                             Field
                           </th>
-                          <th style={{ 
-                            padding: '12px',
-                            textAlign: 'left',
-                            fontWeight: '500',
-                            color: '#374151',
-                            whiteSpace: 'nowrap'
-                          }}>
+                          <th style={{ padding: '12px', textAlign: 'left', fontWeight: '500', color: '#374151', whiteSpace: 'nowrap', position: 'sticky', top: 0, backgroundColor: '#f9fafb', zIndex: 10 }}>
+                            Value
+                          </th>
+                          <th style={{ padding: '12px', textAlign: 'left', fontWeight: '500', color: '#374151', whiteSpace: 'nowrap', position: 'sticky', top: 0, backgroundColor: '#f9fafb', zIndex: 10 }}>
                             Has Schema
                           </th>
                           {columnVisibility.prodTag && (
-                            <th style={{ 
-                              padding: '12px',
-                              textAlign: 'left',
-                              fontWeight: '500',
-                              color: '#374151',
-                              whiteSpace: 'nowrap'
-                            }}>
+                            <th style={{ padding: '12px', textAlign: 'left', fontWeight: '500', color: '#374151', whiteSpace: 'nowrap', position: 'sticky', top: 0, backgroundColor: '#f9fafb', zIndex: 10 }}>
                               Prod Tag
                             </th>
                           )}
                           {columnVisibility.gcpTag && (
-                            <th style={{ 
-                              padding: '12px',
-                              textAlign: 'left',
-                              fontWeight: '500',
-                              color: '#374151',
-                              whiteSpace: 'nowrap'
-                            }}>
+                            <th style={{ padding: '12px', textAlign: 'left', fontWeight: '500', color: '#374151', whiteSpace: 'nowrap', position: 'sticky', top: 0, backgroundColor: '#f9fafb', zIndex: 10 }}>
                               GCP Tag
                             </th>
                           )}
                           {columnVisibility.deccTag && (
-                            <th style={{ 
-                              padding: '12px',
-                              textAlign: 'left',
-                              fontWeight: '500',
-                              color: '#374151',
-                              whiteSpace: 'nowrap'
-                            }}>
+                            <th style={{ padding: '12px', textAlign: 'left', fontWeight: '500', color: '#374151', whiteSpace: 'nowrap', position: 'sticky', top: 0, backgroundColor: '#f9fafb', zIndex: 10 }}>
                               DECC Tag
                             </th>
                           )}
-                          <th style={{ 
-                            padding: '12px',
-                            textAlign: 'left',
-                            fontWeight: '500',
-                            color: '#374151',
-                            whiteSpace: 'nowrap'
-                          }}>
+                          <th style={{ padding: '12px', textAlign: 'left', fontWeight: '500', color: '#374151', whiteSpace: 'nowrap', position: 'sticky', top: 0, backgroundColor: '#f9fafb', zIndex: 10 }}>
                             Attributed To
                           </th>
-                          <th style={{ 
-                            padding: '12px',
-                            textAlign: 'left',
-                            fontWeight: '500',
-                            color: '#374151',
-                            whiteSpace: 'nowrap'
-                          }}>
+                          <th style={{ padding: '12px', textAlign: 'left', fontWeight: '500', color: '#374151', whiteSpace: 'nowrap', position: 'sticky', top: 0, backgroundColor: '#f9fafb', zIndex: 10 }}>
                             Data Sovereignty
                           </th>
-                          <th style={{ 
-                            padding: '12px',
-                            textAlign: 'left',
-                            fontWeight: '500',
-                            color: '#374151',
-                            whiteSpace: 'nowrap'
-                          }}>
+                          <th style={{ padding: '12px', textAlign: 'left', fontWeight: '500', color: '#374151', whiteSpace: 'nowrap', position: 'sticky', top: 0, backgroundColor: '#f9fafb', zIndex: 10 }}>
                             Policy Action
                           </th>
-                          <th style={{ 
-                            padding: '12px',
-                            textAlign: 'left',
-                            fontWeight: '500',
-                            color: '#374151',
-                            whiteSpace: 'nowrap'
-                          }}>
+                          <th style={{ padding: '12px', textAlign: 'left', fontWeight: '500', color: '#374151', whiteSpace: 'nowrap', position: 'sticky', top: 0, backgroundColor: '#f9fafb', zIndex: 10 }}>
                             Enhancements
                           </th>
                         </tr>
                       </thead>
                       <tbody>
-                        {sectionData.map((field) => {
+                        {filteredData.map((field) => {
                           const isSelected = selectedFields.some(f => f.id === field.id);
                           return (
                             <tr
@@ -632,17 +684,26 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
                                 backgroundColor: isSelected ? '#eff6ff' : '#ffffff',
                                 cursor: 'pointer'
                               }}
+                              onMouseEnter={(e) => {
+                                if (!isSelected) {
+                                  e.currentTarget.style.backgroundColor = '#f9fafb';
+                                }
+                              }}
+                              onMouseLeave={(e) => {
+                                if (!isSelected) {
+                                  e.currentTarget.style.backgroundColor = '#ffffff';
+                                }
+                              }}
                             >
-                              <td style={{ 
-                                padding: '12px',
-                                fontFamily: 'monospace',
-                                fontSize: '13px',
-                                color: isSelected ? '#1e40af' : '#111827',
-                                fontWeight: isSelected ? '500' : 'normal'
-                              }}>
+                              <td style={{ padding: '12px', fontFamily: 'monospace', fontSize: '13px', color: isSelected ? '#1e40af' : '#111827', fontWeight: isSelected ? '500' : 'normal' }}>
                                 {field.fieldPath}
                               </td>
-                              <td style={{ padding: '12px' }}>{field.hasSchema}</td>
+                              <td style={{ padding: '12px', maxWidth: '150px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                {field.value || '-'}
+                              </td>
+                              <td style={{ padding: '12px', textAlign: 'center' }}>
+                                {renderSchemaIcon(field.hasSchema)}
+                              </td>
                               {columnVisibility.prodTag && (
                                 <td style={{ padding: '12px' }}>
                                   <span style={{
