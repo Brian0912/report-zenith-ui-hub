@@ -4,6 +4,9 @@ import { FindingDisplay } from './FindingDropdown';
 import { CommentDisplay } from './CommentDisplay';
 import { FieldEditModal } from './FieldEditModal';
 import { SaveAnnotationsModal } from './SaveAnnotationsModal';
+import { SuccessBanner } from './SuccessBanner';
+import { EnhancementBadge } from './EnhancementBadge';
+import { ColumnVisibilityDropdown } from './ColumnVisibilityDropdown';
 
 interface ParsedRequest {
   url: string;
@@ -24,6 +27,12 @@ interface CommentData {
   images: string[];
 }
 
+interface Enhancement {
+  name: string;
+  timestamp?: string;
+  link?: string;
+}
+
 interface FieldData {
   id: string;
   fieldPath: string;
@@ -38,6 +47,7 @@ interface FieldData {
   policyAction: string;
   linkToFinding: string;
   comment: string;
+  enhancements: Enhancement[];
   selectedFinding?: string;
   selectedComment?: CommentData;
 }
@@ -49,6 +59,12 @@ interface FieldAnalysisData {
   responseHeaders: FieldData[];
   responseCookies: FieldData[];
   responseBody: FieldData[];
+}
+
+interface ColumnVisibilityState {
+  prodTag: boolean;
+  gcpTag: boolean;
+  deccTag: boolean;
 }
 
 interface FieldAnalysisSectionProps {
@@ -81,6 +97,11 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
   const [selectedFields, setSelectedFields] = useState<FieldData[]>([]);
   const [editingField, setEditingField] = useState<FieldData | null>(null);
   const [showSaveModal, setShowSaveModal] = useState(false);
+  const [columnVisibility, setColumnVisibility] = useState<ColumnVisibilityState>({
+    prodTag: true,
+    gcpTag: false,
+    deccTag: false
+  });
 
   useEffect(() => {
     if (parsedRequest && response) {
@@ -89,22 +110,42 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
     }
   }, [parsedRequest, response]);
 
-  const createFieldData = (fieldPath: string, source: string, category: string): FieldData => ({
-    id: `${fieldPath}_${source}_${category}`,
-    fieldPath,
-    source,
-    category,
-    hasSchema: Math.random() > 0.5 ? 'Yes' : 'No',
-    prodTag: Math.random() > 0.7 ? 'PII' : Math.random() > 0.5 ? 'Public' : 'Internal',
-    gcpTag: Math.random() > 0.6 ? 'Sensitive' : 'Standard',
-    deccTag: Math.random() > 0.8 ? 'Restricted' : 'Approved',
-    attributedTo: ['Engineering', 'Product', 'Data Science', 'Security'][Math.floor(Math.random() * 4)],
-    dataSovereignty: ['US', 'EU', 'Global', 'Restricted'][Math.floor(Math.random() * 4)],
-    policyAction: ['Review Required', 'Approved', 'Pending', 'Flagged'][Math.floor(Math.random() * 4)],
-    linkToFinding: `https://compliance-portal.com/finding/${Math.floor(Math.random() * 1000)}`,
-    comment: ['Needs review', 'Compliant', 'Under investigation', 'Action required'][Math.floor(Math.random() * 4)],
-    selectedComment: { text: '', images: [] }
-  });
+  const createFieldData = (fieldPath: string, source: string, category: string): FieldData => {
+    // Generate mock enhancements
+    const mockEnhancements: Enhancement[] = [];
+    if (Math.random() > 0.6) {
+      mockEnhancements.push({
+        name: `e${Math.floor(Math.random() * 10) + 1}`,
+        timestamp: Math.random() > 0.5 ? '2024-01-15' : undefined,
+        link: 'https://example.com/enhancement'
+      });
+    }
+    if (Math.random() > 0.8) {
+      mockEnhancements.push({
+        name: `e${Math.floor(Math.random() * 10) + 1}`,
+        timestamp: '2024-02-20',
+        link: 'https://example.com/enhancement'
+      });
+    }
+
+    return {
+      id: `${fieldPath}_${source}_${category}`,
+      fieldPath,
+      source,
+      category,
+      hasSchema: Math.random() > 0.5 ? 'Yes' : 'No',
+      prodTag: Math.random() > 0.7 ? 'PII' : Math.random() > 0.5 ? 'Public' : 'Internal',
+      gcpTag: Math.random() > 0.6 ? 'Sensitive' : 'Standard',
+      deccTag: Math.random() > 0.8 ? 'Restricted' : 'Approved',
+      attributedTo: ['Engineering', 'Product', 'Data Science', 'Security'][Math.floor(Math.random() * 4)],
+      dataSovereignty: ['US', 'EU', 'Global', 'Restricted'][Math.floor(Math.random() * 4)],
+      policyAction: ['Review Required', 'Approved', 'Pending', 'Flagged'][Math.floor(Math.random() * 4)],
+      linkToFinding: `https://compliance-portal.com/finding/${Math.floor(Math.random() * 1000)}`,
+      comment: ['Needs review', 'Compliant', 'Under investigation', 'Action required'][Math.floor(Math.random() * 4)],
+      enhancements: mockEnhancements,
+      selectedComment: { text: '', images: [] }
+    };
+  };
 
   const extractFieldPaths = (obj: any, prefix = ''): string[] => {
     const fields: string[] = [];
@@ -247,6 +288,15 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
     );
   };
 
+  const getVisibleColumns = () => {
+    const columns = ['Field', 'Group', 'Has Schema'];
+    if (columnVisibility.prodTag) columns.push('Prod Tag');
+    if (columnVisibility.gcpTag) columns.push('GCP Tag');
+    if (columnVisibility.deccTag) columns.push('DECC Tag');
+    columns.push('Attributed To', 'Data Sovereignty', 'Policy Action', 'Enhancements', 'Finding', 'Comment', 'Actions');
+    return columns;
+  };
+
   const cardStyle: React.CSSProperties = {
     backgroundColor: '#ffffff',
     borderRadius: '12px',
@@ -269,43 +319,51 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
   return (
     <div style={cardStyle}>
       <div style={{ padding: '24px' }}>
+        {parsedRequest && <SuccessBanner parsedRequest={parsedRequest} />}
+        
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
           <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#111827', margin: 0 }}>
             Field Analysis
           </h3>
-          {selectedFields.length > 0 && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <span style={{ 
-                backgroundColor: '#dbeafe', 
-                color: '#1e40af', 
-                padding: '4px 12px', 
-                borderRadius: '16px', 
-                fontSize: '14px',
-                fontWeight: '500'
-              }}>
-                {selectedFields.length} fields selected
-              </span>
-              <button
-                onClick={() => setShowSaveModal(true)}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  padding: '8px 16px',
-                  backgroundColor: '#059669',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '6px',
-                  cursor: 'pointer',
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <ColumnVisibilityDropdown
+              visibility={columnVisibility}
+              onVisibilityChange={setColumnVisibility}
+            />
+            {selectedFields.length > 0 && (
+              <>
+                <span style={{ 
+                  backgroundColor: '#dbeafe', 
+                  color: '#1e40af', 
+                  padding: '4px 12px', 
+                  borderRadius: '16px', 
                   fontSize: '14px',
                   fontWeight: '500'
-                }}
-              >
-                <Save size={16} />
-                Save Annotations
-              </button>
-            </div>
-          )}
+                }}>
+                  {selectedFields.length} fields selected
+                </span>
+                <button
+                  onClick={() => setShowSaveModal(true)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '8px 16px',
+                    backgroundColor: '#059669',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    fontWeight: '500'
+                  }}
+                >
+                  <Save size={16} />
+                  Save Annotations
+                </button>
+              </>
+            )}
+          </div>
         </div>
 
         {/* Selected Fields Section */}
@@ -319,7 +377,7 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
                 <table style={{ width: '100%', fontSize: '14px' }}>
                   <thead style={{ backgroundColor: '#f9fafb', borderBottom: '1px solid #e5e7eb' }}>
                     <tr>
-                      {['Field', 'Group', 'Has Schema', 'Prod Tag', 'GCP Tag', 'DECC Tag', 'Attributed To', 'Data Sovereignty', 'Policy Action', 'Finding', 'Comment', 'Actions'].map((header) => (
+                      {getVisibleColumns().map((header) => (
                         <th key={header} style={{ 
                           padding: '12px',
                           textAlign: 'left',
@@ -363,19 +421,25 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
                           </span>
                         </td>
                         <td style={{ padding: '12px' }}>{field.hasSchema}</td>
-                        <td style={{ padding: '12px' }}>
-                          <span style={{
-                            backgroundColor: field.prodTag === 'PII' ? '#fef2f2' : field.prodTag === 'Internal' ? '#fefce8' : '#f0fdf4',
-                            color: field.prodTag === 'PII' ? '#991b1b' : field.prodTag === 'Internal' ? '#a16207' : '#166534',
-                            padding: '4px 8px',
-                            borderRadius: '4px',
-                            fontSize: '12px'
-                          }}>
-                            {field.prodTag}
-                          </span>
-                        </td>
-                        <td style={{ padding: '12px' }}>{field.gcpTag}</td>
-                        <td style={{ padding: '12px' }}>{field.deccTag}</td>
+                        {columnVisibility.prodTag && (
+                          <td style={{ padding: '12px' }}>
+                            <span style={{
+                              backgroundColor: field.prodTag === 'PII' ? '#fef2f2' : field.prodTag === 'Internal' ? '#fefce8' : '#f0fdf4',
+                              color: field.prodTag === 'PII' ? '#991b1b' : field.prodTag === 'Internal' ? '#a16207' : '#166534',
+                              padding: '4px 8px',
+                              borderRadius: '4px',
+                              fontSize: '12px'
+                            }}>
+                              {field.prodTag}
+                            </span>
+                          </td>
+                        )}
+                        {columnVisibility.gcpTag && (
+                          <td style={{ padding: '12px' }}>{field.gcpTag}</td>
+                        )}
+                        {columnVisibility.deccTag && (
+                          <td style={{ padding: '12px' }}>{field.deccTag}</td>
+                        )}
                         <td style={{ padding: '12px' }}>{field.attributedTo}</td>
                         <td style={{ padding: '12px' }}>{field.dataSovereignty}</td>
                         <td style={{ padding: '12px' }}>
@@ -388,6 +452,9 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
                           }}>
                             {field.policyAction}
                           </span>
+                        </td>
+                        <td style={{ padding: '12px', minWidth: '150px' }}>
+                          <EnhancementBadge enhancements={field.enhancements} />
                         </td>
                         <td style={{ padding: '12px', minWidth: '200px' }}>
                           <FindingDisplay
@@ -464,17 +531,93 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
                     <table style={{ width: '100%', fontSize: '14px' }}>
                       <thead style={{ backgroundColor: '#f9fafb', borderBottom: '1px solid #e5e7eb' }}>
                         <tr>
-                          {['Field', 'Has Schema', 'Prod Tag', 'GCP Tag', 'DECC Tag', 'Attributed To', 'Data Sovereignty', 'Policy Action'].map((header) => (
-                            <th key={header} style={{ 
+                          <th style={{ 
+                            padding: '12px',
+                            textAlign: 'left',
+                            fontWeight: '500',
+                            color: '#374151',
+                            whiteSpace: 'nowrap'
+                          }}>
+                            Field
+                          </th>
+                          <th style={{ 
+                            padding: '12px',
+                            textAlign: 'left',
+                            fontWeight: '500',
+                            color: '#374151',
+                            whiteSpace: 'nowrap'
+                          }}>
+                            Has Schema
+                          </th>
+                          {columnVisibility.prodTag && (
+                            <th style={{ 
                               padding: '12px',
                               textAlign: 'left',
                               fontWeight: '500',
                               color: '#374151',
                               whiteSpace: 'nowrap'
                             }}>
-                              {header}
+                              Prod Tag
                             </th>
-                          ))}
+                          )}
+                          {columnVisibility.gcpTag && (
+                            <th style={{ 
+                              padding: '12px',
+                              textAlign: 'left',
+                              fontWeight: '500',
+                              color: '#374151',
+                              whiteSpace: 'nowrap'
+                            }}>
+                              GCP Tag
+                            </th>
+                          )}
+                          {columnVisibility.deccTag && (
+                            <th style={{ 
+                              padding: '12px',
+                              textAlign: 'left',
+                              fontWeight: '500',
+                              color: '#374151',
+                              whiteSpace: 'nowrap'
+                            }}>
+                              DECC Tag
+                            </th>
+                          )}
+                          <th style={{ 
+                            padding: '12px',
+                            textAlign: 'left',
+                            fontWeight: '500',
+                            color: '#374151',
+                            whiteSpace: 'nowrap'
+                          }}>
+                            Attributed To
+                          </th>
+                          <th style={{ 
+                            padding: '12px',
+                            textAlign: 'left',
+                            fontWeight: '500',
+                            color: '#374151',
+                            whiteSpace: 'nowrap'
+                          }}>
+                            Data Sovereignty
+                          </th>
+                          <th style={{ 
+                            padding: '12px',
+                            textAlign: 'left',
+                            fontWeight: '500',
+                            color: '#374151',
+                            whiteSpace: 'nowrap'
+                          }}>
+                            Policy Action
+                          </th>
+                          <th style={{ 
+                            padding: '12px',
+                            textAlign: 'left',
+                            fontWeight: '500',
+                            color: '#374151',
+                            whiteSpace: 'nowrap'
+                          }}>
+                            Enhancements
+                          </th>
                         </tr>
                       </thead>
                       <tbody>
@@ -500,19 +643,25 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
                                 {field.fieldPath}
                               </td>
                               <td style={{ padding: '12px' }}>{field.hasSchema}</td>
-                              <td style={{ padding: '12px' }}>
-                                <span style={{
-                                  backgroundColor: field.prodTag === 'PII' ? '#fef2f2' : field.prodTag === 'Internal' ? '#fefce8' : '#f0fdf4',
-                                  color: field.prodTag === 'PII' ? '#991b1b' : field.prodTag === 'Internal' ? '#a16207' : '#166534',
-                                  padding: '4px 8px',
-                                  borderRadius: '4px',
-                                  fontSize: '12px'
-                                }}>
-                                  {field.prodTag}
-                                </span>
-                              </td>
-                              <td style={{ padding: '12px' }}>{field.gcpTag}</td>
-                              <td style={{ padding: '12px' }}>{field.deccTag}</td>
+                              {columnVisibility.prodTag && (
+                                <td style={{ padding: '12px' }}>
+                                  <span style={{
+                                    backgroundColor: field.prodTag === 'PII' ? '#fef2f2' : field.prodTag === 'Internal' ? '#fefce8' : '#f0fdf4',
+                                    color: field.prodTag === 'PII' ? '#991b1b' : field.prodTag === 'Internal' ? '#a16207' : '#166534',
+                                    padding: '4px 8px',
+                                    borderRadius: '4px',
+                                    fontSize: '12px'
+                                  }}>
+                                    {field.prodTag}
+                                  </span>
+                                </td>
+                              )}
+                              {columnVisibility.gcpTag && (
+                                <td style={{ padding: '12px' }}>{field.gcpTag}</td>
+                              )}
+                              {columnVisibility.deccTag && (
+                                <td style={{ padding: '12px' }}>{field.deccTag}</td>
+                              )}
                               <td style={{ padding: '12px' }}>{field.attributedTo}</td>
                               <td style={{ padding: '12px' }}>{field.dataSovereignty}</td>
                               <td style={{ padding: '12px' }}>
@@ -525,6 +674,9 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
                                 }}>
                                   {field.policyAction}
                                 </span>
+                              </td>
+                              <td style={{ padding: '12px' }}>
+                                <EnhancementBadge enhancements={field.enhancements} />
                               </td>
                             </tr>
                           );
