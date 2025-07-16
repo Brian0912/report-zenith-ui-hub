@@ -31,7 +31,7 @@ export const Sidebar: React.FC = () => {
   const allMenuItems = productGroups.flatMap(group => group.subItems);
 
   const sidebarStyle: React.CSSProperties = {
-    width: isCollapsed ? '80px' : '500px',
+    width: isCollapsed ? '80px' : '1000px',
     height: '100vh',
     backgroundColor: '#ffffff',
     borderRight: '1px solid #e5e7eb',
