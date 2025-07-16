@@ -12,8 +12,8 @@ export const Sidebar: React.FC = () => {
   const location = useLocation();
 
   const toggleGroup = (groupId: string) => {
-    setExpandedGroups(prev =>
-      prev.includes(groupId)
+    setExpandedGroups(prev => 
+      prev.includes(groupId) 
         ? prev.filter(id => id !== groupId)
         : [...prev, groupId]
     );
@@ -31,7 +31,7 @@ export const Sidebar: React.FC = () => {
   const allMenuItems = productGroups.flatMap(group => group.subItems);
 
   const sidebarStyle: React.CSSProperties = {
-    width: isCollapsed ? '80px' : '1000px',
+    width: isCollapsed ? '80px' : '280px',
     height: '100vh',
     backgroundColor: '#ffffff',
     borderRight: '1px solid #e5e7eb',
@@ -139,8 +139,8 @@ export const Sidebar: React.FC = () => {
 
   return (
     <div style={sidebarStyle}>
-      <button
-        style={toggleButtonStyle}
+      <button 
+        style={toggleButtonStyle} 
         onClick={() => setIsCollapsed(!isCollapsed)}
         aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         onMouseEnter={e => {
@@ -166,9 +166,9 @@ export const Sidebar: React.FC = () => {
             {allMenuItems.map(item => {
               const isItemActiveState = isItemActive(item.path);
               const ItemIconComponent = item.icon;
-
+              
               return (
-                <div
+                <div 
                   key={item.id}
                   style={subItemStyle(isItemActiveState)}
                   onClick={() => navigate(item.path)}
@@ -204,7 +204,7 @@ export const Sidebar: React.FC = () => {
           // Expanded view - show grouped structure
           productGroups.map(group => {
             const isGroupExpanded = expandedGroups.includes(group.id);
-
+            
             return (
               <div key={group.id} style={groupContainerStyle}>
                 <div style={groupLabelStyle}>
@@ -216,9 +216,9 @@ export const Sidebar: React.FC = () => {
                     {group.subItems.map(item => {
                       const isItemActiveState = isItemActive(item.path);
                       const ItemIconComponent = item.icon;
-
+                      
                       return (
-                        <div
+                        <div 
                           key={item.id}
                           style={subItemStyle(isItemActiveState)}
                           onClick={() => navigate(item.path)}
