@@ -64,6 +64,7 @@ interface FieldAnalysisData {
   responseHeaders: FieldData[];
   responseCookies: FieldData[];
   responseBody: FieldData[];
+  [key: string]: FieldData[]; // Add index signature for compatibility
 }
 
 export interface ColumnVisibilityState {

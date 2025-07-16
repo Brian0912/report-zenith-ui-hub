@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { LayoutGrid, List, Tabs } from 'lucide-react';
+import { LayoutGrid, List, Layers3 } from 'lucide-react';
 
 export type ViewMode = 'grouped' | 'compact' | 'tabs';
 
@@ -16,7 +16,7 @@ export const ViewModeSelector: React.FC<ViewModeSelectorProps> = ({
   const modes = [
     { key: 'grouped' as const, label: 'Grouped', icon: LayoutGrid },
     { key: 'compact' as const, label: 'Compact', icon: List },
-    { key: 'tabs' as const, label: 'Tabs', icon: Tabs }
+    { key: 'tabs' as const, label: 'Tabs', icon: Layers3 }
   ];
 
   const containerStyle: React.CSSProperties = {
