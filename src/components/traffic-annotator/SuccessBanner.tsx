@@ -31,9 +31,12 @@ export const SuccessBanner: React.FC<SuccessBannerProps> = ({ parsedRequest }) =
     console.log('Navigate to enhancement page');
   };
 
+  // Determine layout based on content length
+  const hasLongContent = [host, psmService, apiPath].some(value => value.length > 30);
+
   const bannerStyle: React.CSSProperties = {
-    backgroundColor: '#f0f9ff',
-    border: '1px solid #0ea5e9',
+    backgroundColor: 'hsl(var(--primary) / 0.05)',
+    border: '1px solid hsl(var(--primary) / 0.2)',
     borderRadius: '12px',
     padding: '20px 24px',
     marginBottom: '24px'
@@ -43,7 +46,9 @@ export const SuccessBanner: React.FC<SuccessBannerProps> = ({ parsedRequest }) =
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: '16px'
+    marginBottom: '16px',
+    flexWrap: 'wrap',
+    gap: '12px'
   };
 
   const titleStyle: React.CSSProperties = {
@@ -52,37 +57,39 @@ export const SuccessBanner: React.FC<SuccessBannerProps> = ({ parsedRequest }) =
     gap: '8px',
     fontSize: '16px',
     fontWeight: '600',
-    color: '#0c4a6e',
+    color: 'hsl(var(--primary))',
     margin: 0
   };
 
   const trafficInfoStyle: React.CSSProperties = {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '24px',
-    flexWrap: 'wrap',
+    display: 'grid',
+    gridTemplateColumns: hasLongContent ? '1fr' : 'repeat(auto-fit, minmax(200px, 1fr))',
+    gap: hasLongContent ? '12px' : '24px',
     fontSize: '14px'
   };
 
   const infoItemStyle: React.CSSProperties = {
     display: 'flex',
-    alignItems: 'center',
-    gap: '6px'
+    flexDirection: hasLongContent ? 'column' : 'row',
+    alignItems: hasLongContent ? 'flex-start' : 'center',
+    gap: hasLongContent ? '4px' : '6px'
   };
 
   const labelStyle: React.CSSProperties = {
     fontSize: '12px',
-    fontWeight: '500',
-    color: '#64748b',
+    fontWeight: '600',
+    color: 'hsl(var(--muted-foreground))',
     textTransform: 'uppercase' as const,
-    letterSpacing: '0.05em'
+    letterSpacing: '0.05em',
+    minWidth: hasLongContent ? 'auto' : '80px'
   };
 
   const valueStyle: React.CSSProperties = {
     fontSize: '14px',
     fontWeight: '500',
-    color: '#1e293b',
-    fontFamily: 'monospace'
+    color: 'hsl(var(--foreground))',
+    fontFamily: 'monospace',
+    wordBreak: hasLongContent ? 'break-all' : 'normal'
   };
 
   const linkButtonStyle: React.CSSProperties = {
@@ -90,27 +97,34 @@ export const SuccessBanner: React.FC<SuccessBannerProps> = ({ parsedRequest }) =
     alignItems: 'center',
     gap: '6px',
     padding: '8px 16px',
-    backgroundColor: '#0ea5e9',
-    color: 'white',
+    backgroundColor: 'hsl(var(--primary))',
+    color: '#ffffff',
     border: 'none',
     borderRadius: '8px',
     fontSize: '14px',
     fontWeight: '500',
     cursor: 'pointer',
-    textDecoration: 'none'
+    textDecoration: 'none',
+    transition: 'all 0.2s'
   };
 
   return (
     <div style={bannerStyle}>
       <div style={headerStyle}>
         <h3 style={titleStyle}>
-          <CheckCircle size={20} color="#0ea5e9" />
+          <CheckCircle size={20} color="hsl(var(--primary))" />
           Traffic Analysis Complete
         </h3>
         
         <button
           onClick={handleEnhancementLinkClick}
           style={linkButtonStyle}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = 'hsl(var(--primary) / 0.9)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = 'hsl(var(--primary))';
+          }}
         >
           <ExternalLink size={16} />
           View Enhancement Page

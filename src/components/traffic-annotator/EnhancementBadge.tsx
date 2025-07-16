@@ -16,7 +16,7 @@ export const EnhancementBadge: React.FC<EnhancementBadgeProps> = ({ enhancements
   if (!enhancements || enhancements.length === 0) {
     return (
       <span style={{ 
-        color: '#9ca3af', 
+        color: 'hsl(var(--muted-foreground))', 
         fontSize: '12px',
         fontStyle: 'italic'
       }}>
@@ -41,23 +41,31 @@ export const EnhancementBadge: React.FC<EnhancementBadgeProps> = ({ enhancements
   const badgeStyle: React.CSSProperties = {
     display: 'inline-flex',
     alignItems: 'center',
-    gap: '4px',
+    justifyContent: 'space-between',
+    gap: '8px',
     padding: '4px 8px',
-    backgroundColor: '#dbeafe',
-    color: '#1e40af',
+    backgroundColor: 'hsl(var(--primary) / 0.1)',
+    color: 'hsl(var(--primary))',
     borderRadius: '12px',
     fontSize: '11px',
     fontWeight: '500',
     cursor: 'pointer',
-    border: '1px solid #93c5fd',
-    transition: 'all 0.2s ease'
+    border: '1px solid hsl(var(--primary) / 0.2)',
+    transition: 'all 0.2s ease',
+    minWidth: '0'
+  };
+
+  const contentStyle: React.CSSProperties = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '4px',
+    minWidth: '0'
   };
 
   const timestampStyle: React.CSSProperties = {
     fontSize: '10px',
-    color: '#6b7280',
-    fontStyle: 'italic',
-    marginLeft: '4px'
+    color: 'hsl(var(--muted-foreground))',
+    fontStyle: 'italic'
   };
 
   return (
@@ -68,22 +76,24 @@ export const EnhancementBadge: React.FC<EnhancementBadgeProps> = ({ enhancements
           style={badgeStyle}
           onClick={() => handleEnhancementClick(enhancement)}
           onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = '#bfdbfe';
+            e.currentTarget.style.backgroundColor = 'hsl(var(--primary) / 0.15)';
             e.currentTarget.style.transform = 'translateY(-1px)';
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = '#dbeafe';
+            e.currentTarget.style.backgroundColor = 'hsl(var(--primary) / 0.1)';
             e.currentTarget.style.transform = 'translateY(0)';
           }}
         >
-          <span>{enhancement.name}</span>
+          <div style={contentStyle}>
+            <span>{enhancement.name}</span>
+            {enhancement.timestamp && (
+              <div style={timestampStyle}>
+                <Clock size={8} style={{ display: 'inline', marginRight: '2px' }} />
+                {enhancement.timestamp}
+              </div>
+            )}
+          </div>
           {enhancement.link && <ExternalLink size={10} />}
-          {enhancement.timestamp && (
-            <div style={timestampStyle}>
-              <Clock size={8} style={{ display: 'inline', marginRight: '2px' }} />
-              {enhancement.timestamp}
-            </div>
-          )}
         </div>
       ))}
     </div>

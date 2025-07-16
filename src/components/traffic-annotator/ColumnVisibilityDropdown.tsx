@@ -3,9 +3,18 @@ import React, { useState } from 'react';
 import { Eye, EyeOff, ChevronDown } from 'lucide-react';
 
 interface ColumnVisibilityState {
+  group: boolean;
+  value: boolean;
+  hasSchema: boolean;
   prodTag: boolean;
   gcpTag: boolean;
   deccTag: boolean;
+  attributedTo: boolean;
+  dataSovereignty: boolean;
+  policyAction: boolean;
+  enhancements: boolean;
+  finding: boolean;
+  comment: boolean;
 }
 
 interface ColumnVisibilityDropdownProps {
@@ -35,14 +44,15 @@ export const ColumnVisibilityDropdown: React.FC<ColumnVisibilityDropdownProps> =
     display: 'flex',
     alignItems: 'center',
     gap: '6px',
-    padding: '8px 12px',
-    backgroundColor: 'white',
-    border: '1px solid #e5e7eb',
-    borderRadius: '6px',
+    padding: '8px 16px',
+    backgroundColor: '#ffffff',
+    border: '1px solid hsl(var(--border))',
+    borderRadius: '8px',
     fontSize: '14px',
     fontWeight: '500',
     cursor: 'pointer',
-    color: '#374151'
+    color: 'hsl(var(--foreground))',
+    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
   };
 
   const menuStyle: React.CSSProperties = {
@@ -50,12 +60,12 @@ export const ColumnVisibilityDropdown: React.FC<ColumnVisibilityDropdownProps> =
     top: '100%',
     right: 0,
     marginTop: '4px',
-    backgroundColor: 'white',
-    border: '1px solid #e5e7eb',
-    borderRadius: '8px',
-    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+    backgroundColor: '#ffffff',
+    border: '1px solid hsl(var(--border))',
+    borderRadius: '12px',
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
     zIndex: 1000,
-    minWidth: '180px',
+    minWidth: '200px',
     padding: '8px'
   };
 
@@ -64,16 +74,26 @@ export const ColumnVisibilityDropdown: React.FC<ColumnVisibilityDropdownProps> =
     alignItems: 'center',
     gap: '8px',
     padding: '8px 12px',
-    borderRadius: '4px',
+    borderRadius: '6px',
     cursor: 'pointer',
     fontSize: '14px',
-    color: '#374151'
+    color: 'hsl(var(--foreground))',
+    transition: 'background-color 0.2s'
   };
 
   const columns = [
+    { key: 'group' as const, label: 'Group' },
+    { key: 'value' as const, label: 'Value' },
+    { key: 'hasSchema' as const, label: 'Has Schema' },
     { key: 'prodTag' as const, label: 'Prod Tag' },
     { key: 'gcpTag' as const, label: 'GCP Tag' },
-    { key: 'deccTag' as const, label: 'DECC Tag' }
+    { key: 'deccTag' as const, label: 'DECC Tag' },
+    { key: 'attributedTo' as const, label: 'Attributed To' },
+    { key: 'dataSovereignty' as const, label: 'Data Sovereignty' },
+    { key: 'policyAction' as const, label: 'Policy Action' },
+    { key: 'enhancements' as const, label: 'Enhancements' },
+    { key: 'finding' as const, label: 'Finding' },
+    { key: 'comment' as const, label: 'Comment' }
   ];
 
   return (
@@ -82,10 +102,10 @@ export const ColumnVisibilityDropdown: React.FC<ColumnVisibilityDropdownProps> =
         style={buttonStyle}
         onClick={() => setIsOpen(!isOpen)}
         onMouseEnter={(e) => {
-          e.currentTarget.style.backgroundColor = '#f9fafb';
+          e.currentTarget.style.backgroundColor = 'hsl(var(--muted))';
         }}
         onMouseLeave={(e) => {
-          e.currentTarget.style.backgroundColor = 'white';
+          e.currentTarget.style.backgroundColor = '#ffffff';
         }}
       >
         <Eye size={16} />
@@ -101,16 +121,16 @@ export const ColumnVisibilityDropdown: React.FC<ColumnVisibilityDropdownProps> =
               style={menuItemStyle}
               onClick={() => toggleColumn(column.key)}
               onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = '#f3f4f6';
+                e.currentTarget.style.backgroundColor = 'hsl(var(--muted))';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.backgroundColor = 'transparent';
               }}
             >
               {visibility[column.key] ? (
-                <Eye size={16} color="#059669" />
+                <Eye size={16} color="hsl(var(--primary))" />
               ) : (
-                <EyeOff size={16} color="#9ca3af" />
+                <EyeOff size={16} color="hsl(var(--muted-foreground))" />
               )}
               <span>{column.label}</span>
             </div>

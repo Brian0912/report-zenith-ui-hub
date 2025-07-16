@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronDown, ChevronRight, Save, CheckCircle, X } from 'lucide-react';
+import { Save } from 'lucide-react';
 import { FindingDisplay } from './FindingDropdown';
 import { CommentDisplay } from './CommentDisplay';
 import { FieldEditModal } from './FieldEditModal';
@@ -7,7 +7,10 @@ import { SaveAnnotationsModal } from './SaveAnnotationsModal';
 import { SuccessBanner } from './SuccessBanner';
 import { EnhancementBadge } from './EnhancementBadge';
 import { ColumnVisibilityDropdown } from './ColumnVisibilityDropdown';
-import { TableFilter } from './TableFilter';
+import { ViewModeSelector, ViewMode } from './ViewModeSelector';
+import { GroupedFieldView } from './GroupedFieldView';
+import { CompactFieldView } from './CompactFieldView';
+import { TabsFieldView } from './TabsFieldView';
 
 interface ParsedRequest {
   url: string;
@@ -34,7 +37,7 @@ interface Enhancement {
   link?: string;
 }
 
-interface FieldData {
+export interface FieldData {
   id: string;
   fieldPath: string;
   source: string;
@@ -63,10 +66,19 @@ interface FieldAnalysisData {
   responseBody: FieldData[];
 }
 
-interface ColumnVisibilityState {
+export interface ColumnVisibilityState {
+  group: boolean;
+  value: boolean;
+  hasSchema: boolean;
   prodTag: boolean;
   gcpTag: boolean;
   deccTag: boolean;
+  attributedTo: boolean;
+  dataSovereignty: boolean;
+  policyAction: boolean;
+  enhancements: boolean;
+  finding: boolean;
+  comment: boolean;
 }
 
 interface FieldAnalysisSectionProps {
@@ -88,24 +100,24 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
     responseCookies: [],
     responseBody: []
   });
-  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
-    requestHeaders: true,
-    requestQuery: true,
-    requestBody: true,
-    responseHeaders: true,
-    responseCookies: true,
-    responseBody: true
-  });
   const [selectedFields, setSelectedFields] = useState<FieldData[]>([]);
   const [editingField, setEditingField] = useState<FieldData | null>(null);
   const [showSaveModal, setShowSaveModal] = useState(false);
+  const [viewMode, setViewMode] = useState<ViewMode>('grouped');
   const [columnVisibility, setColumnVisibility] = useState<ColumnVisibilityState>({
+    group: true,
+    value: true,
+    hasSchema: true,
     prodTag: true,
     gcpTag: false,
-    deccTag: false
+    deccTag: false,
+    attributedTo: true,
+    dataSovereignty: true,
+    policyAction: true,
+    enhancements: true,
+    finding: false,
+    comment: false
   });
-  const [filters, setFilters] = useState<Record<string, string>>({});
-  const [sortConfig, setSortConfig] = useState<{ column: string; direction: 'asc' | 'desc' } | null>(null);
 
   useEffect(() => {
     if (parsedRequest && response) {
@@ -166,7 +178,13 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
         link: 'https://example.com/enhancement'
       });
     }
+    
     const fieldValue = extractFieldValue(fieldPath, source, category);
+
+    // Generate realistic data tags
+    const dataTags = ['phone number', 'email', 'engineering data', 'user id', 'session token', 'api key', 'personal data', 'device info'];
+    const countryCodes = ['US', 'EU', 'UK', 'CA', 'AU', 'JP'];
+    const policyActions = ['encrypted', 'plain-text', 'noise', 'masked', 'hashed'];
 
     return {
       id: `${fieldPath}_${source}_${category}`,
@@ -175,12 +193,12 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
       category,
       value: fieldValue,
       hasSchema: Math.random() > 0.5 ? 'Yes' : 'No',
-      prodTag: Math.random() > 0.7 ? 'PII' : Math.random() > 0.5 ? 'Public' : 'Internal',
+      prodTag: dataTags[Math.floor(Math.random() * dataTags.length)],
       gcpTag: Math.random() > 0.6 ? 'Sensitive' : 'Standard',
       deccTag: Math.random() > 0.8 ? 'Restricted' : 'Approved',
-      attributedTo: ['Engineering', 'Product', 'Data Science', 'Security'][Math.floor(Math.random() * 4)],
-      dataSovereignty: ['US', 'EU', 'Global', 'Restricted'][Math.floor(Math.random() * 4)],
-      policyAction: ['Review Required', 'Approved', 'Pending', 'Flagged'][Math.floor(Math.random() * 4)],
+      attributedTo: `${source.toLowerCase()}.${fieldPath}`,
+      dataSovereignty: countryCodes[Math.floor(Math.random() * countryCodes.length)],
+      policyAction: policyActions[Math.floor(Math.random() * policyActions.length)],
       linkToFinding: `https://compliance-portal.com/finding/${Math.floor(Math.random() * 1000)}`,
       comment: ['Needs review', 'Compliant', 'Under investigation', 'Action required'][Math.floor(Math.random() * 4)],
       enhancements: mockEnhancements,
@@ -285,25 +303,6 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
     return analysis;
   };
 
-  const getSectionInfo = (sectionKey: string) => {
-    const sections: Record<string, { title: string; icon: string; color: string }> = {
-      requestHeaders: { title: 'Request Headers', icon: '📤', color: '#dbeafe' },
-      requestQuery: { title: 'Request Query Parameters', icon: '🔍', color: '#fed7aa' },
-      requestBody: { title: 'Request Body', icon: '📝', color: '#dcfce7' },
-      responseHeaders: { title: 'Response Headers', icon: '📥', color: '#e9d5ff' },
-      responseCookies: { title: 'Response Cookies', icon: '🍪', color: '#fce7f3' },
-      responseBody: { title: 'Response Body', icon: '📋', color: '#e0e7ff' }
-    };
-    return sections[sectionKey] || { title: sectionKey, icon: '📄', color: '#f3f4f6' };
-  };
-
-  const toggleSection = (section: string) => {
-    setExpandedSections(prev => ({
-      ...prev,
-      [section]: !prev[section]
-    }));
-  };
-
   const toggleFieldSelection = (field: FieldData) => {
     setSelectedFields(prev => {
       const isSelected = prev.some(f => f.id === field.id);
@@ -329,124 +328,53 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
     );
   };
 
-  const handleFilter = (column: string, value: string) => {
-    setFilters(prev => ({ ...prev, [column]: value }));
-  };
-
-  const handleSort = (column: string, direction: 'asc' | 'desc' | null) => {
-    setSortConfig(direction ? { column, direction } : null);
-  };
-
-  const filterAndSortData = (data: FieldData[]) => {
-    let filtered = data.filter(field => {
-      return Object.entries(filters).every(([column, value]) => {
-        if (!value) return true;
-        const fieldValue = field[column as keyof FieldData]?.toString().toLowerCase();
-        return fieldValue?.includes(value.toLowerCase());
-      });
+  const handleSelectFieldsFromGroup = (fields: FieldData[]) => {
+    setSelectedFields(prev => {
+      const newFields = fields.filter(field => !prev.some(f => f.id === field.id));
+      return [...prev, ...newFields.map(field => ({ ...field, selectedComment: { text: '', images: [] } }))];
     });
-
-    if (sortConfig) {
-      filtered.sort((a, b) => {
-        const aValue = a[sortConfig.column as keyof FieldData]?.toString() || '';
-        const bValue = b[sortConfig.column as keyof FieldData]?.toString() || '';
-        
-        if (sortConfig.direction === 'asc') {
-          return aValue.localeCompare(bValue);
-        } else {
-          return bValue.localeCompare(aValue);
-        }
-      });
-    }
-
-    return filtered;
   };
 
-  const getVisibleColumns = () => {
-    const columns = ['Field', 'Group', 'Value', 'Has Schema'];
-    if (columnVisibility.prodTag) columns.push('Prod Tag');
-    if (columnVisibility.gcpTag) columns.push('GCP Tag');
-    if (columnVisibility.deccTag) columns.push('DECC Tag');
-    columns.push('Attributed To', 'Data Sovereignty', 'Policy Action', 'Enhancements', 'Finding', 'Comment', 'Actions');
-    return columns;
-  };
-
-  const renderSchemaIcon = (hasSchema: string) => {
-    return hasSchema === 'Yes' ? 
-      <CheckCircle size={16} color="#10b981" /> : 
-      <X size={16} color="#9ca3af" />;
-  };
-
-  const renderTableHeader = (column: string, data: FieldData[]) => {
-    const columnValues = [...new Set(data.map(field => field[column.toLowerCase().replace(' ', '') as keyof FieldData]?.toString() || ''))];
-    
-    return (
-      <th key={column} style={{ 
-        padding: '12px',
-        textAlign: 'left',
-        fontWeight: '500',
-        color: '#374151',
-        whiteSpace: 'nowrap',
-        position: 'sticky',
-        top: 0,
-        backgroundColor: '#f9fafb',
-        borderBottom: '1px solid #e5e7eb',
-        zIndex: 10
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          {column}
-          {column !== 'Actions' && (
-            <TableFilter
-              column={column.toLowerCase().replace(' ', '')}
-              values={columnValues}
-              onFilter={handleFilter}
-              onSort={handleSort}
-              sortDirection={sortConfig?.column === column.toLowerCase().replace(' ', '') ? sortConfig.direction : null}
-            />
-          )}
-        </div>
-      </th>
-    );
+  const getAllFields = (): FieldData[] => {
+    return Object.values(fieldAnalysisData).flat();
   };
 
   const cardStyle: React.CSSProperties = {
     backgroundColor: '#ffffff',
     borderRadius: '12px',
-    border: '1px solid #e5e7eb',
+    border: '1px solid hsl(var(--border))',
     boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
     overflow: 'hidden'
   };
-
-  const sectionHeaderStyle = (sectionInfo: any, isExpanded: boolean): React.CSSProperties => ({
-    padding: '16px',
-    borderBottom: '1px solid #e5e7eb',
-    cursor: 'pointer',
-    backgroundColor: sectionInfo.color,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    transition: 'background-color 0.2s'
-  });
 
   return (
     <div style={cardStyle}>
       <div style={{ padding: '24px' }}>
         {parsedRequest && <SuccessBanner parsedRequest={parsedRequest} />}
         
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-          <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#111827', margin: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
+          <h3 style={{ fontSize: '18px', fontWeight: '600', color: 'hsl(var(--foreground))', margin: 0 }}>
             Field Analysis
           </h3>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <ColumnVisibilityDropdown
-              visibility={columnVisibility}
-              onVisibilityChange={setColumnVisibility}
+          
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+            <ViewModeSelector
+              currentMode={viewMode}
+              onModeChange={setViewMode}
             />
+            
+            {(viewMode === 'compact' || viewMode === 'tabs') && (
+              <ColumnVisibilityDropdown
+                visibility={columnVisibility}
+                onVisibilityChange={setColumnVisibility}
+              />
+            )}
+            
             {selectedFields.length > 0 && (
               <>
                 <span style={{ 
-                  backgroundColor: '#dbeafe', 
-                  color: '#1e40af', 
+                  backgroundColor: 'hsl(var(--primary) / 0.1)', 
+                  color: 'hsl(var(--primary))', 
                   padding: '4px 12px', 
                   borderRadius: '16px', 
                   fontSize: '14px',
@@ -461,13 +389,20 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
                     alignItems: 'center',
                     gap: '6px',
                     padding: '8px 16px',
-                    backgroundColor: '#10b981',
-                    color: 'white',
+                    backgroundColor: 'hsl(var(--success))',
+                    color: '#ffffff',
                     border: 'none',
                     borderRadius: '8px',
                     cursor: 'pointer',
                     fontSize: '14px',
-                    fontWeight: '500'
+                    fontWeight: '500',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = 'hsl(var(--success) / 0.9)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'hsl(var(--success))';
                   }}
                 >
                   <Save size={16} />
@@ -481,275 +416,51 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
         {/* Selected Fields Section */}
         {selectedFields.length > 0 && (
           <div style={{ marginBottom: '24px' }}>
-            <h4 style={{ fontSize: '16px', fontWeight: '500', color: '#111827', marginBottom: '12px' }}>
+            <h4 style={{ fontSize: '16px', fontWeight: '600', color: 'hsl(var(--foreground))', marginBottom: '12px' }}>
               Selected Fields
             </h4>
-            <div style={{ border: '1px solid #e5e7eb', borderRadius: '8px', overflow: 'hidden' }}>
-              <div style={{ overflow: 'auto', maxHeight: '400px' }}>
-                <table style={{ width: '100%', fontSize: '14px' }}>
-                  <thead style={{ backgroundColor: '#f9fafb', borderBottom: '1px solid #e5e7eb' }}>
-                    <tr>
-                      {getVisibleColumns().map((header) => renderTableHeader(header, selectedFields))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filterAndSortData(selectedFields).map((field) => (
-                      <tr
-                        key={field.id}
-                        style={{
-                          borderBottom: '1px solid #e5e7eb',
-                          backgroundColor: '#eff6ff'
-                        }}
-                      >
-                        <td style={{ padding: '12px', fontFamily: 'monospace', fontSize: '13px', color: '#1e40af', fontWeight: '500' }}>
-                          {field.fieldPath}
-                        </td>
-                        <td style={{ padding: '12px' }}>
-                          <span style={{
-                            backgroundColor: '#f3f4f6',
-                            color: '#374151',
-                            padding: '2px 6px',
-                            borderRadius: '4px',
-                            fontSize: '11px',
-                            fontWeight: '500'
-                          }}>
-                            {field.source} {field.category}
-                          </span>
-                        </td>
-                        <td style={{ padding: '12px', maxWidth: '150px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                          {field.value || '-'}
-                        </td>
-                        <td style={{ padding: '12px', textAlign: 'center' }}>
-                          {renderSchemaIcon(field.hasSchema)}
-                        </td>
-                        {columnVisibility.prodTag && (
-                          <td style={{ padding: '12px' }}>
-                            <span style={{
-                              backgroundColor: field.prodTag === 'PII' ? '#fef2f2' : field.prodTag === 'Internal' ? '#fefce8' : '#f0fdf4',
-                              color: field.prodTag === 'PII' ? '#991b1b' : field.prodTag === 'Internal' ? '#a16207' : '#166534',
-                              padding: '4px 8px',
-                              borderRadius: '4px',
-                              fontSize: '12px'
-                            }}>
-                              {field.prodTag}
-                            </span>
-                          </td>
-                        )}
-                        {columnVisibility.gcpTag && (
-                          <td style={{ padding: '12px' }}>{field.gcpTag}</td>
-                        )}
-                        {columnVisibility.deccTag && (
-                          <td style={{ padding: '12px' }}>{field.deccTag}</td>
-                        )}
-                        <td style={{ padding: '12px' }}>{field.attributedTo}</td>
-                        <td style={{ padding: '12px' }}>{field.dataSovereignty}</td>
-                        <td style={{ padding: '12px' }}>
-                          <span style={{
-                            backgroundColor: field.policyAction === 'Flagged' ? '#fef2f2' : field.policyAction === 'Review Required' ? '#fefce8' : '#f0fdf4',
-                            color: field.policyAction === 'Flagged' ? '#991b1b' : field.policyAction === 'Review Required' ? '#a16207' : '#166534',
-                            padding: '4px 8px',
-                            borderRadius: '4px',
-                            fontSize: '12px'
-                          }}>
-                            {field.policyAction}
-                          </span>
-                        </td>
-                        <td style={{ padding: '12px', minWidth: '150px' }}>
-                          <EnhancementBadge enhancements={field.enhancements} />
-                        </td>
-                        <td style={{ padding: '12px', minWidth: '200px' }}>
-                          <FindingDisplay
-                            findingId={field.selectedFinding}
-                            onEdit={() => handleEditField(field)}
-                          />
-                        </td>
-                        <td style={{ padding: '12px', minWidth: '250px' }}>
-                          <CommentDisplay
-                            comment={field.selectedComment}
-                            onEdit={() => handleEditField(field)}
-                          />
-                        </td>
-                        <td style={{ padding: '12px' }}>
-                          <button
-                            onClick={() => toggleFieldSelection(field)}
-                            style={{
-                              padding: '4px 8px',
-                              fontSize: '12px',
-                              backgroundColor: '#ef4444',
-                              color: 'white',
-                              border: 'none',
-                              borderRadius: '4px',
-                              cursor: 'pointer'
-                            }}
-                          >
-                            Remove
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+            <div style={{ border: '1px solid hsl(var(--border))', borderRadius: '8px', overflow: 'hidden' }}>
+              <CompactFieldView
+                fields={selectedFields}
+                columnVisibility={columnVisibility}
+                selectedFields={selectedFields}
+                onFieldToggle={toggleFieldSelection}
+                onEditField={handleEditField}
+                showSectionHeaders={false}
+              />
             </div>
           </div>
         )}
 
-        <div style={{ display: 'grid', gap: '16px' }}>
-          {Object.entries(fieldAnalysisData).map(([sectionKey, sectionData]) => {
-            const sectionInfo = getSectionInfo(sectionKey);
-            const isExpanded = expandedSections[sectionKey];
-            const hasFields = sectionData.length > 0;
-            
-            if (!hasFields) return null;
+        {/* Field Analysis Views */}
+        {viewMode === 'grouped' && (
+          <GroupedFieldView
+            fieldAnalysisData={fieldAnalysisData}
+            onSelectFields={handleSelectFieldsFromGroup}
+          />
+        )}
 
-            const filteredData = filterAndSortData(sectionData);
+        {viewMode === 'compact' && (
+          <div style={{ border: '1px solid hsl(var(--border))', borderRadius: '8px', overflow: 'hidden' }}>
+            <CompactFieldView
+              fields={getAllFields()}
+              columnVisibility={columnVisibility}
+              selectedFields={selectedFields}
+              onFieldToggle={toggleFieldSelection}
+              onEditField={handleEditField}
+            />
+          </div>
+        )}
 
-            return (
-              <div key={sectionKey} style={{ border: '1px solid #e5e7eb', borderRadius: '8px', overflow: 'hidden' }}>
-                <div 
-                  style={sectionHeaderStyle(sectionInfo, isExpanded)}
-                  onClick={() => toggleSection(sectionKey)}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <span style={{ fontSize: '20px' }}>{sectionInfo.icon}</span>
-                    <h4 style={{ fontSize: '16px', fontWeight: '500', color: '#111827', margin: 0 }}>
-                      {sectionInfo.title}
-                    </h4>
-                    <span style={{ 
-                      backgroundColor: '#6b7280', 
-                      color: '#ffffff', 
-                      padding: '2px 8px', 
-                      borderRadius: '12px', 
-                      fontSize: '12px',
-                      fontWeight: '500'
-                    }}>
-                      {filteredData.length} fields
-                    </span>
-                  </div>
-                  {isExpanded ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
-                </div>
-                
-                {isExpanded && (
-                  <div style={{ overflow: 'auto', maxHeight: '400px' }}>
-                    <table style={{ width: '100%', fontSize: '14px' }}>
-                      <thead style={{ backgroundColor: '#f9fafb', borderBottom: '1px solid #e5e7eb' }}>
-                        <tr>
-                          <th style={{ padding: '12px', textAlign: 'left', fontWeight: '500', color: '#374151', whiteSpace: 'nowrap', position: 'sticky', top: 0, backgroundColor: '#f9fafb', zIndex: 10 }}>
-                            Field
-                          </th>
-                          <th style={{ padding: '12px', textAlign: 'left', fontWeight: '500', color: '#374151', whiteSpace: 'nowrap', position: 'sticky', top: 0, backgroundColor: '#f9fafb', zIndex: 10 }}>
-                            Value
-                          </th>
-                          <th style={{ padding: '12px', textAlign: 'left', fontWeight: '500', color: '#374151', whiteSpace: 'nowrap', position: 'sticky', top: 0, backgroundColor: '#f9fafb', zIndex: 10 }}>
-                            Has Schema
-                          </th>
-                          {columnVisibility.prodTag && (
-                            <th style={{ padding: '12px', textAlign: 'left', fontWeight: '500', color: '#374151', whiteSpace: 'nowrap', position: 'sticky', top: 0, backgroundColor: '#f9fafb', zIndex: 10 }}>
-                              Prod Tag
-                            </th>
-                          )}
-                          {columnVisibility.gcpTag && (
-                            <th style={{ padding: '12px', textAlign: 'left', fontWeight: '500', color: '#374151', whiteSpace: 'nowrap', position: 'sticky', top: 0, backgroundColor: '#f9fafb', zIndex: 10 }}>
-                              GCP Tag
-                            </th>
-                          )}
-                          {columnVisibility.deccTag && (
-                            <th style={{ padding: '12px', textAlign: 'left', fontWeight: '500', color: '#374151', whiteSpace: 'nowrap', position: 'sticky', top: 0, backgroundColor: '#f9fafb', zIndex: 10 }}>
-                              DECC Tag
-                            </th>
-                          )}
-                          <th style={{ padding: '12px', textAlign: 'left', fontWeight: '500', color: '#374151', whiteSpace: 'nowrap', position: 'sticky', top: 0, backgroundColor: '#f9fafb', zIndex: 10 }}>
-                            Attributed To
-                          </th>
-                          <th style={{ padding: '12px', textAlign: 'left', fontWeight: '500', color: '#374151', whiteSpace: 'nowrap', position: 'sticky', top: 0, backgroundColor: '#f9fafb', zIndex: 10 }}>
-                            Data Sovereignty
-                          </th>
-                          <th style={{ padding: '12px', textAlign: 'left', fontWeight: '500', color: '#374151', whiteSpace: 'nowrap', position: 'sticky', top: 0, backgroundColor: '#f9fafb', zIndex: 10 }}>
-                            Policy Action
-                          </th>
-                          <th style={{ padding: '12px', textAlign: 'left', fontWeight: '500', color: '#374151', whiteSpace: 'nowrap', position: 'sticky', top: 0, backgroundColor: '#f9fafb', zIndex: 10 }}>
-                            Enhancements
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {filteredData.map((field) => {
-                          const isSelected = selectedFields.some(f => f.id === field.id);
-                          return (
-                            <tr
-                              key={field.id}
-                              onClick={() => toggleFieldSelection(field)}
-                              style={{
-                                borderBottom: '1px solid #e5e7eb',
-                                backgroundColor: isSelected ? '#eff6ff' : '#ffffff',
-                                cursor: 'pointer'
-                              }}
-                              onMouseEnter={(e) => {
-                                if (!isSelected) {
-                                  e.currentTarget.style.backgroundColor = '#f9fafb';
-                                }
-                              }}
-                              onMouseLeave={(e) => {
-                                if (!isSelected) {
-                                  e.currentTarget.style.backgroundColor = '#ffffff';
-                                }
-                              }}
-                            >
-                              <td style={{ padding: '12px', fontFamily: 'monospace', fontSize: '13px', color: isSelected ? '#1e40af' : '#111827', fontWeight: isSelected ? '500' : 'normal' }}>
-                                {field.fieldPath}
-                              </td>
-                              <td style={{ padding: '12px', maxWidth: '150px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                {field.value || '-'}
-                              </td>
-                              <td style={{ padding: '12px', textAlign: 'center' }}>
-                                {renderSchemaIcon(field.hasSchema)}
-                              </td>
-                              {columnVisibility.prodTag && (
-                                <td style={{ padding: '12px' }}>
-                                  <span style={{
-                                    backgroundColor: field.prodTag === 'PII' ? '#fef2f2' : field.prodTag === 'Internal' ? '#fefce8' : '#f0fdf4',
-                                    color: field.prodTag === 'PII' ? '#991b1b' : field.prodTag === 'Internal' ? '#a16207' : '#166534',
-                                    padding: '4px 8px',
-                                    borderRadius: '4px',
-                                    fontSize: '12px'
-                                  }}>
-                                    {field.prodTag}
-                                  </span>
-                                </td>
-                              )}
-                              {columnVisibility.gcpTag && (
-                                <td style={{ padding: '12px' }}>{field.gcpTag}</td>
-                              )}
-                              {columnVisibility.deccTag && (
-                                <td style={{ padding: '12px' }}>{field.deccTag}</td>
-                              )}
-                              <td style={{ padding: '12px' }}>{field.attributedTo}</td>
-                              <td style={{ padding: '12px' }}>{field.dataSovereignty}</td>
-                              <td style={{ padding: '12px' }}>
-                                <span style={{
-                                  backgroundColor: field.policyAction === 'Flagged' ? '#fef2f2' : field.policyAction === 'Review Required' ? '#fefce8' : '#f0fdf4',
-                                  color: field.policyAction === 'Flagged' ? '#991b1b' : field.policyAction === 'Review Required' ? '#a16207' : '#166534',
-                                  padding: '4px 8px',
-                                  borderRadius: '4px',
-                                  fontSize: '12px'
-                                }}>
-                                  {field.policyAction}
-                                </span>
-                              </td>
-                              <td style={{ padding: '12px' }}>
-                                <EnhancementBadge enhancements={field.enhancements} />
-                              </td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
+        {viewMode === 'tabs' && (
+          <TabsFieldView
+            fieldAnalysisData={fieldAnalysisData}
+            columnVisibility={columnVisibility}
+            selectedFields={selectedFields}
+            onFieldToggle={toggleFieldSelection}
+            onEditField={handleEditField}
+          />
+        )}
       </div>
 
       <FieldEditModal
