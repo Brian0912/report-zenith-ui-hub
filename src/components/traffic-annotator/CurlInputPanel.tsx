@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { History } from 'lucide-react';
 
@@ -151,7 +150,7 @@ export const CurlInputPanel: React.FC<CurlInputPanelProps> = ({
   };
 
   const headerStyle: React.CSSProperties = {
-    background: 'linear-gradient(to right, #2563eb, #7c3aed)',
+    background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)',
     color: '#ffffff',
     padding: '24px'
   };
@@ -162,8 +161,8 @@ export const CurlInputPanel: React.FC<CurlInputPanelProps> = ({
 
   const labelStyle: React.CSSProperties = {
     fontSize: '14px',
-    fontWeight: '500',
-    color: '#374151',
+    fontWeight: '600',
+    color: '#1a202c',
     marginBottom: '8px',
     display: 'block'
   };
@@ -174,11 +173,12 @@ export const CurlInputPanel: React.FC<CurlInputPanelProps> = ({
     padding: '16px',
     border: '1px solid #d1d5db',
     borderRadius: '8px',
-    fontFamily: 'monospace',
+    fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Cascadia, "Cascadia Code", Fira Code, "Fira Mono", Consolas, "Liberation Mono", Menlo, monospace',
     fontSize: '14px',
     resize: 'none',
     outline: 'none',
-    backgroundColor: '#ffffff'
+    backgroundColor: '#ffffff',
+    transition: 'border-color 0.2s'
   };
 
   const buttonStyle: React.CSSProperties = {
@@ -186,14 +186,15 @@ export const CurlInputPanel: React.FC<CurlInputPanelProps> = ({
     alignItems: 'center',
     gap: '8px',
     padding: '12px 32px',
-    backgroundColor: '#2563eb',
+    backgroundColor: '#4F46E5',
     color: '#ffffff',
     border: 'none',
     borderRadius: '8px',
     fontSize: '14px',
-    fontWeight: '500',
+    fontWeight: '600',
     cursor: 'pointer',
-    transition: 'background-color 0.2s'
+    transition: 'all 0.2s',
+    boxShadow: '0 1px 3px rgba(79, 70, 229, 0.3)'
   };
 
   const historyButtonStyle: React.CSSProperties = {
@@ -205,12 +206,14 @@ export const CurlInputPanel: React.FC<CurlInputPanelProps> = ({
     fontSize: '14px',
     cursor: 'pointer',
     border: 'none',
-    backgroundColor: 'transparent'
+    backgroundColor: 'transparent',
+    borderRadius: '6px',
+    transition: 'all 0.2s'
   };
 
   const errorStyle: React.CSSProperties = {
-    backgroundColor: '#fef2f2',
-    border: '1px solid #fecaca',
+    backgroundColor: '#FEF2F2',
+    border: '1px solid #FECACA',
     borderRadius: '8px',
     padding: '16px',
     display: 'flex',
@@ -222,10 +225,10 @@ export const CurlInputPanel: React.FC<CurlInputPanelProps> = ({
   return (
     <div style={cardStyle}>
       <div style={headerStyle}>
-        <h2 style={{ fontSize: '24px', fontWeight: 'bold', margin: 0 }}>
-          cURL Traffic Analysis
+        <h2 style={{ fontSize: '24px', fontWeight: '700', margin: 0 }}>
+          Traffic X-Ray & Annotator
         </h2>
-        <p style={{ color: '#bfdbfe', marginTop: '8px', marginBottom: 0 }}>
+        <p style={{ color: 'rgba(255, 255, 255, 0.9)', marginTop: '8px', marginBottom: 0, fontSize: '16px' }}>
           Paste your cURL command to analyze field compliance and data governance
         </p>
       </div>
@@ -236,6 +239,12 @@ export const CurlInputPanel: React.FC<CurlInputPanelProps> = ({
           <button
             onClick={() => setShowHistory(!showHistory)}
             style={historyButtonStyle}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#F3F4F6';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'transparent';
+            }}
           >
             <History size={16} />
             History
@@ -248,6 +257,12 @@ export const CurlInputPanel: React.FC<CurlInputPanelProps> = ({
             onChange={(e) => handleInputChange(e.target.value)}
             placeholder={PLACEHOLDER_TEXT}
             style={textareaStyle}
+            onFocus={(e) => {
+              e.currentTarget.style.borderColor = '#4F46E5';
+            }}
+            onBlur={(e) => {
+              e.currentTarget.style.borderColor = '#d1d5db';
+            }}
           />
           {curlInput && (
             <button
@@ -265,7 +280,18 @@ export const CurlInputPanel: React.FC<CurlInputPanelProps> = ({
                 fontSize: '20px',
                 cursor: 'pointer',
                 border: 'none',
-                backgroundColor: 'transparent'
+                backgroundColor: 'transparent',
+                padding: '4px',
+                borderRadius: '4px',
+                transition: 'all 0.2s'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#F3F4F6';
+                e.currentTarget.style.color = '#6B7280';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent';
+                e.currentTarget.style.color = '#9ca3af';
               }}
             >
               ×
@@ -275,8 +301,8 @@ export const CurlInputPanel: React.FC<CurlInputPanelProps> = ({
 
         {error && (
           <div style={errorStyle}>
-            <span style={{ color: '#dc2626', fontSize: '20px' }}>⚠️</span>
-            <span style={{ color: '#b91c1c', fontSize: '14px' }}>{error}</span>
+            <span style={{ color: '#DC2626', fontSize: '20px' }}>⚠️</span>
+            <span style={{ color: '#B91C1C', fontSize: '14px' }}>{error}</span>
           </div>
         )}
 
@@ -286,8 +312,22 @@ export const CurlInputPanel: React.FC<CurlInputPanelProps> = ({
             disabled={!parsedRequest || loading}
             style={{
               ...buttonStyle,
-              opacity: !parsedRequest || loading ? 0.5 : 1,
+              opacity: !parsedRequest || loading ? 0.6 : 1,
               cursor: !parsedRequest || loading ? 'not-allowed' : 'pointer'
+            }}
+            onMouseEnter={(e) => {
+              if (!(!parsedRequest || loading)) {
+                e.currentTarget.style.backgroundColor = '#4338CA';
+                e.currentTarget.style.transform = 'translateY(-1px)';
+                e.currentTarget.style.boxShadow = '0 4px 12px rgba(79, 70, 229, 0.4)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!(!parsedRequest || loading)) {
+                e.currentTarget.style.backgroundColor = '#4F46E5';
+                e.currentTarget.style.transform = 'translateY(0px)';
+                e.currentTarget.style.boxShadow = '0 1px 3px rgba(79, 70, 229, 0.3)';
+              }
             }}
           >
             {loading ? '⏳ Analyzing...' : '🚀 Send & Analyze'}

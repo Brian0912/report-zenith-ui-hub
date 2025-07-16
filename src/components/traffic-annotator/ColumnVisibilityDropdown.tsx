@@ -15,6 +15,7 @@ interface ColumnVisibilityState {
   enhancements: boolean;
   finding: boolean;
   comment: boolean;
+  images: boolean;
 }
 
 interface ColumnVisibilityDropdownProps {
@@ -46,12 +47,12 @@ export const ColumnVisibilityDropdown: React.FC<ColumnVisibilityDropdownProps> =
     gap: '6px',
     padding: '8px 16px',
     backgroundColor: '#ffffff',
-    border: '1px solid hsl(var(--border))',
+    border: '1px solid #e5e7eb',
     borderRadius: '8px',
     fontSize: '14px',
     fontWeight: '500',
     cursor: 'pointer',
-    color: 'hsl(var(--foreground))',
+    color: '#1a202c',
     boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
   };
 
@@ -61,11 +62,11 @@ export const ColumnVisibilityDropdown: React.FC<ColumnVisibilityDropdownProps> =
     right: 0,
     marginTop: '4px',
     backgroundColor: '#ffffff',
-    border: '1px solid hsl(var(--border))',
+    border: '1px solid #e5e7eb',
     borderRadius: '12px',
     boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
     zIndex: 1000,
-    minWidth: '200px',
+    minWidth: '220px',
     padding: '8px'
   };
 
@@ -77,7 +78,7 @@ export const ColumnVisibilityDropdown: React.FC<ColumnVisibilityDropdownProps> =
     borderRadius: '6px',
     cursor: 'pointer',
     fontSize: '14px',
-    color: 'hsl(var(--foreground))',
+    color: '#1a202c',
     transition: 'background-color 0.2s'
   };
 
@@ -92,8 +93,9 @@ export const ColumnVisibilityDropdown: React.FC<ColumnVisibilityDropdownProps> =
     { key: 'dataSovereignty' as const, label: 'Data Sovereignty' },
     { key: 'policyAction' as const, label: 'Policy Action' },
     { key: 'enhancements' as const, label: 'Enhancements' },
-    { key: 'finding' as const, label: 'Finding' },
-    { key: 'comment' as const, label: 'Comment' }
+    { key: 'finding' as const, label: 'Existing Finding' },
+    { key: 'comment' as const, label: 'Comment' },
+    { key: 'images' as const, label: 'Images' }
   ];
 
   return (
@@ -102,7 +104,7 @@ export const ColumnVisibilityDropdown: React.FC<ColumnVisibilityDropdownProps> =
         style={buttonStyle}
         onClick={() => setIsOpen(!isOpen)}
         onMouseEnter={(e) => {
-          e.currentTarget.style.backgroundColor = 'hsl(var(--muted))';
+          e.currentTarget.style.backgroundColor = '#F9FAFB';
         }}
         onMouseLeave={(e) => {
           e.currentTarget.style.backgroundColor = '#ffffff';
@@ -121,16 +123,16 @@ export const ColumnVisibilityDropdown: React.FC<ColumnVisibilityDropdownProps> =
               style={menuItemStyle}
               onClick={() => toggleColumn(column.key)}
               onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = 'hsl(var(--muted))';
+                e.currentTarget.style.backgroundColor = '#F3F4F6';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.backgroundColor = 'transparent';
               }}
             >
               {visibility[column.key] ? (
-                <Eye size={16} color="hsl(var(--primary))" />
+                <Eye size={16} color="#4F46E5" />
               ) : (
-                <EyeOff size={16} color="hsl(var(--muted-foreground))" />
+                <EyeOff size={16} color="#9CA3AF" />
               )}
               <span>{column.label}</span>
             </div>

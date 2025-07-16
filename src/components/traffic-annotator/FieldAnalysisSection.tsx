@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Save } from 'lucide-react';
+import { Save, X } from 'lucide-react';
 import { FindingDisplay } from './FindingDropdown';
 import { CommentDisplay } from './CommentDisplay';
 import { FieldEditModal } from './FieldEditModal';
@@ -11,6 +11,7 @@ import { ViewModeSelector, ViewMode } from './ViewModeSelector';
 import { GroupedFieldView } from './GroupedFieldView';
 import { CompactFieldView } from './CompactFieldView';
 import { TabsFieldView } from './TabsFieldView';
+import { BulkCommentModal } from './BulkCommentModal';
 
 interface ParsedRequest {
   url: string;
@@ -55,6 +56,7 @@ export interface FieldData {
   enhancements: Enhancement[];
   selectedFinding?: string;
   selectedComment?: CommentData;
+  images?: string[];
 }
 
 interface FieldAnalysisData {
@@ -64,7 +66,7 @@ interface FieldAnalysisData {
   responseHeaders: FieldData[];
   responseCookies: FieldData[];
   responseBody: FieldData[];
-  [key: string]: FieldData[]; // Add index signature for compatibility
+  [key: string]: FieldData[];
 }
 
 export interface ColumnVisibilityState {
@@ -80,6 +82,7 @@ export interface ColumnVisibilityState {
   enhancements: boolean;
   finding: boolean;
   comment: boolean;
+  images: boolean;
 }
 
 interface FieldAnalysisSectionProps {
@@ -104,6 +107,7 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
   const [selectedFields, setSelectedFields] = useState<FieldData[]>([]);
   const [editingField, setEditingField] = useState<FieldData | null>(null);
   const [showSaveModal, setShowSaveModal] = useState(false);
+  const [showBulkCommentModal, setShowBulkCommentModal] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>('grouped');
   const [columnVisibility, setColumnVisibility] = useState<ColumnVisibilityState>({
     group: true,
@@ -117,7 +121,8 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
     policyAction: true,
     enhancements: true,
     finding: false,
-    comment: false
+    comment: false,
+    images: false
   });
 
   useEffect(() => {
@@ -163,7 +168,6 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
   };
 
   const createFieldData = (fieldPath: string, source: string, category: string): FieldData => {
-    // Generate mock enhancements
     const mockEnhancements: Enhancement[] = [];
     if (Math.random() > 0.6) {
       mockEnhancements.push({
@@ -181,8 +185,6 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
     }
     
     const fieldValue = extractFieldValue(fieldPath, source, category);
-
-    // Generate realistic data tags
     const dataTags = ['phone number', 'email', 'engineering data', 'user id', 'session token', 'api key', 'personal data', 'device info'];
     const countryCodes = ['US', 'EU', 'UK', 'CA', 'AU', 'JP'];
     const policyActions = ['encrypted', 'plain-text', 'noise', 'masked', 'hashed'];
@@ -203,7 +205,8 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
       linkToFinding: `https://compliance-portal.com/finding/${Math.floor(Math.random() * 1000)}`,
       comment: ['Needs review', 'Compliant', 'Under investigation', 'Action required'][Math.floor(Math.random() * 4)],
       enhancements: mockEnhancements,
-      selectedComment: { text: '', images: [] }
+      selectedComment: { text: '', images: [] },
+      images: []
     };
   };
 
@@ -315,6 +318,10 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
     });
   };
 
+  const clearAllSelectedFields = () => {
+    setSelectedFields([]);
+  };
+
   const handleEditField = (field: FieldData) => {
     setEditingField(field);
   };
@@ -329,11 +336,13 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
     );
   };
 
-  const handleSelectFieldsFromGroup = (fields: FieldData[]) => {
-    setSelectedFields(prev => {
-      const newFields = fields.filter(field => !prev.some(f => f.id === field.id));
-      return [...prev, ...newFields.map(field => ({ ...field, selectedComment: { text: '', images: [] } }))];
-    });
+  const handleBulkComment = (comment: CommentData) => {
+    setSelectedFields(prev => 
+      prev.map(field => ({ 
+        ...field, 
+        selectedComment: comment 
+      }))
+    );
   };
 
   const getAllFields = (): FieldData[] => {
@@ -343,7 +352,7 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
   const cardStyle: React.CSSProperties = {
     backgroundColor: '#ffffff',
     borderRadius: '12px',
-    border: '1px solid hsl(var(--border))',
+    border: '1px solid #e5e7eb',
     boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
     overflow: 'hidden'
   };
@@ -354,7 +363,7 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
         {parsedRequest && <SuccessBanner parsedRequest={parsedRequest} />}
         
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
-          <h3 style={{ fontSize: '18px', fontWeight: '600', color: 'hsl(var(--foreground))', margin: 0 }}>
+          <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#1a202c', margin: 0 }}>
             Field Analysis
           </h3>
           
@@ -374,8 +383,8 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
             {selectedFields.length > 0 && (
               <>
                 <span style={{ 
-                  backgroundColor: 'hsl(var(--primary) / 0.1)', 
-                  color: 'hsl(var(--primary))', 
+                  backgroundColor: '#EEF2FF', 
+                  color: '#4F46E5', 
                   padding: '4px 12px', 
                   borderRadius: '16px', 
                   fontSize: '14px',
@@ -384,13 +393,39 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
                   {selectedFields.length} fields selected
                 </span>
                 <button
-                  onClick={() => setShowSaveModal(true)}
+                  onClick={clearAllSelectedFields}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    padding: '6px 10px',
+                    backgroundColor: '#F3F4F6',
+                    color: '#6B7280',
+                    border: '1px solid #D1D5DB',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    fontSize: '12px',
+                    fontWeight: '500',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#E5E7EB';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = '#F3F4F6';
+                  }}
+                >
+                  <X size={14} />
+                  Clear All
+                </button>
+                <button
+                  onClick={() => setShowBulkCommentModal(true)}
                   style={{
                     display: 'flex',
                     alignItems: 'center',
                     gap: '6px',
                     padding: '8px 16px',
-                    backgroundColor: 'hsl(var(--success))',
+                    backgroundColor: '#F59E0B',
                     color: '#ffffff',
                     border: 'none',
                     borderRadius: '8px',
@@ -400,10 +435,35 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
                     transition: 'all 0.2s'
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = 'hsl(var(--success) / 0.9)';
+                    e.currentTarget.style.backgroundColor = '#D97706';
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = 'hsl(var(--success))';
+                    e.currentTarget.style.backgroundColor = '#F59E0B';
+                  }}
+                >
+                  Add Comment to All
+                </button>
+                <button
+                  onClick={() => setShowSaveModal(true)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '8px 16px',
+                    backgroundColor: '#10B981',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    fontWeight: '500',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#059669';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = '#10B981';
                   }}
                 >
                   <Save size={16} />
@@ -417,10 +477,10 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
         {/* Selected Fields Section */}
         {selectedFields.length > 0 && (
           <div style={{ marginBottom: '24px' }}>
-            <h4 style={{ fontSize: '16px', fontWeight: '600', color: 'hsl(var(--foreground))', marginBottom: '12px' }}>
+            <h4 style={{ fontSize: '16px', fontWeight: '600', color: '#1a202c', marginBottom: '12px' }}>
               Selected Fields
             </h4>
-            <div style={{ border: '1px solid hsl(var(--border))', borderRadius: '8px', overflow: 'hidden' }}>
+            <div style={{ border: '1px solid #e5e7eb', borderRadius: '8px', overflow: 'hidden' }}>
               <CompactFieldView
                 fields={selectedFields}
                 columnVisibility={columnVisibility}
@@ -437,12 +497,15 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
         {viewMode === 'grouped' && (
           <GroupedFieldView
             fieldAnalysisData={fieldAnalysisData}
-            onSelectFields={handleSelectFieldsFromGroup}
+            columnVisibility={columnVisibility}
+            selectedFields={selectedFields}
+            onFieldToggle={toggleFieldSelection}
+            onEditField={handleEditField}
           />
         )}
 
         {viewMode === 'compact' && (
-          <div style={{ border: '1px solid hsl(var(--border))', borderRadius: '8px', overflow: 'hidden' }}>
+          <div style={{ border: '1px solid #e5e7eb', borderRadius: '8px', overflow: 'hidden' }}>
             <CompactFieldView
               fields={getAllFields()}
               columnVisibility={columnVisibility}
@@ -478,6 +541,13 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
         parsedRequest={parsedRequest}
         response={response}
         selectedFields={selectedFields}
+      />
+
+      <BulkCommentModal
+        isOpen={showBulkCommentModal}
+        onClose={() => setShowBulkCommentModal(false)}
+        selectedFields={selectedFields}
+        onSave={handleBulkComment}
       />
     </div>
   );

@@ -2,28 +2,35 @@
 import React, { useState } from 'react';
 import { ChevronRight, Eye } from 'lucide-react';
 import { FieldData } from './FieldAnalysisSection';
+import { CompactFieldView } from './CompactFieldView';
 
 interface GroupedFieldViewProps {
   fieldAnalysisData: Record<string, FieldData[]>;
-  onSelectFields: (fields: FieldData[]) => void;
+  columnVisibility: any;
+  selectedFields: FieldData[];
+  onFieldToggle: (field: FieldData) => void;
+  onEditField: (field: FieldData) => void;
 }
 
 export const GroupedFieldView: React.FC<GroupedFieldViewProps> = ({
   fieldAnalysisData,
-  onSelectFields
+  columnVisibility,
+  selectedFields,
+  onFieldToggle,
+  onEditField
 }) => {
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({});
 
   const getSectionInfo = (sectionKey: string) => {
     const sections: Record<string, { title: string; icon: string; color: string }> = {
-      requestHeaders: { title: 'Request Headers', icon: '📤', color: 'hsl(var(--primary) / 0.1)' },
-      requestQuery: { title: 'Request Query Parameters', icon: '🔍', color: 'hsl(var(--warning) / 0.1)' },
-      requestBody: { title: 'Request Body', icon: '📝', color: 'hsl(var(--success) / 0.1)' },
-      responseHeaders: { title: 'Response Headers', icon: '📥', color: 'hsl(var(--secondary) / 0.1)' },
-      responseCookies: { title: 'Response Cookies', icon: '🍪', color: 'hsl(var(--muted) / 0.2)' },
-      responseBody: { title: 'Response Body', icon: '📋', color: 'hsl(var(--accent) / 0.1)' }
+      requestHeaders: { title: 'Request Headers', icon: '📤', color: '#4F46E5' },
+      requestQuery: { title: 'Request Query Parameters', icon: '🔍', color: '#F59E0B' },
+      requestBody: { title: 'Request Body', icon: '📝', color: '#10B981' },
+      responseHeaders: { title: 'Response Headers', icon: '📥', color: '#8B5CF6' },
+      responseCookies: { title: 'Response Cookies', icon: '🍪', color: '#F97316' },
+      responseBody: { title: 'Response Body', icon: '📋', color: '#06B6D4' }
     };
-    return sections[sectionKey] || { title: sectionKey, icon: '📄', color: 'hsl(var(--muted) / 0.1)' };
+    return sections[sectionKey] || { title: sectionKey, icon: '📄', color: '#6B7280' };
   };
 
   const toggleGroup = (groupKey: string) => {
@@ -36,7 +43,7 @@ export const GroupedFieldView: React.FC<GroupedFieldViewProps> = ({
   const cardStyle: React.CSSProperties = {
     backgroundColor: '#ffffff',
     borderRadius: '12px',
-    border: '1px solid hsl(var(--border))',
+    border: '1px solid #e5e7eb',
     boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
     overflow: 'hidden',
     marginBottom: '16px'
@@ -44,9 +51,9 @@ export const GroupedFieldView: React.FC<GroupedFieldViewProps> = ({
 
   const headerStyle = (sectionInfo: any): React.CSSProperties => ({
     padding: '16px 20px',
-    borderBottom: '1px solid hsl(var(--border))',
+    borderBottom: '1px solid #e5e7eb',
     cursor: 'pointer',
-    backgroundColor: sectionInfo.color,
+    backgroundColor: `${sectionInfo.color}10`,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -54,7 +61,6 @@ export const GroupedFieldView: React.FC<GroupedFieldViewProps> = ({
   });
 
   const contentStyle: React.CSSProperties = {
-    padding: '20px',
     backgroundColor: '#ffffff'
   };
 
@@ -63,7 +69,7 @@ export const GroupedFieldView: React.FC<GroupedFieldViewProps> = ({
     alignItems: 'center',
     gap: '6px',
     padding: '6px 12px',
-    backgroundColor: 'hsl(var(--primary))',
+    backgroundColor: '#4F46E5',
     color: '#ffffff',
     border: 'none',
     borderRadius: '6px',
@@ -91,10 +97,10 @@ export const GroupedFieldView: React.FC<GroupedFieldViewProps> = ({
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <span style={{ fontSize: '20px' }}>{sectionInfo.icon}</span>
                 <div>
-                  <h3 style={{ fontSize: '16px', fontWeight: '600', color: 'hsl(var(--foreground))', margin: 0 }}>
+                  <h3 style={{ fontSize: '16px', fontWeight: '600', color: '#1a202c', margin: 0 }}>
                     {sectionInfo.title}
                   </h3>
-                  <p style={{ fontSize: '14px', color: 'hsl(var(--muted-foreground))', margin: 0 }}>
+                  <p style={{ fontSize: '14px', color: '#6b7280', margin: 0 }}>
                     {sectionData.length} fields detected
                   </p>
                 </div>
@@ -105,13 +111,13 @@ export const GroupedFieldView: React.FC<GroupedFieldViewProps> = ({
                   style={viewDetailsButtonStyle}
                   onClick={(e) => {
                     e.stopPropagation();
-                    onSelectFields(sectionData);
+                    toggleGroup(sectionKey);
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = 'hsl(var(--primary) / 0.9)';
+                    e.currentTarget.style.backgroundColor = '#4338CA';
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = 'hsl(var(--primary))';
+                    e.currentTarget.style.backgroundColor = '#4F46E5';
                   }}
                 >
                   <Eye size={14} />
@@ -122,7 +128,8 @@ export const GroupedFieldView: React.FC<GroupedFieldViewProps> = ({
                   size={20} 
                   style={{ 
                     transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)',
-                    transition: 'transform 0.2s'
+                    transition: 'transform 0.2s',
+                    color: sectionInfo.color
                   }} 
                 />
               </div>
@@ -130,40 +137,14 @@ export const GroupedFieldView: React.FC<GroupedFieldViewProps> = ({
             
             {isExpanded && (
               <div style={contentStyle}>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
-                  {sectionData.slice(0, 6).map((field, index) => (
-                    <div
-                      key={field.id}
-                      style={{
-                        padding: '8px 12px',
-                        backgroundColor: 'hsl(var(--muted) / 0.5)',
-                        borderRadius: '6px',
-                        fontSize: '13px',
-                        fontFamily: 'monospace',
-                        color: 'hsl(var(--foreground))'
-                      }}
-                    >
-                      {field.fieldPath}
-                    </div>
-                  ))}
-                  {sectionData.length > 6 && (
-                    <div
-                      style={{
-                        padding: '8px 12px',
-                        backgroundColor: 'hsl(var(--muted) / 0.3)',
-                        borderRadius: '6px',
-                        fontSize: '13px',
-                        color: 'hsl(var(--muted-foreground))',
-                        fontStyle: 'italic',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                      }}
-                    >
-                      +{sectionData.length - 6} more...
-                    </div>
-                  )}
-                </div>
+                <CompactFieldView
+                  fields={sectionData}
+                  columnVisibility={columnVisibility}
+                  selectedFields={selectedFields}
+                  onFieldToggle={onFieldToggle}
+                  onEditField={onEditField}
+                  showSectionHeaders={false}
+                />
               </div>
             )}
           </div>
