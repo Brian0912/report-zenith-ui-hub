@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { FieldData, ColumnVisibilityState } from './FieldAnalysisSection';
 import { CompactFieldView } from './CompactFieldView';
@@ -117,7 +116,7 @@ export const TabsFieldView: React.FC<TabsFieldViewProps> = ({
             <CompactFieldView
               key={sectionKey}
               fields={sectionData}
-              columnVisibility={columnVisibility}
+              columnVisibility={{ ...columnVisibility, group: false }}
               selectedFields={selectedFields}
               onFieldToggle={onFieldToggle}
               onEditField={onEditField}

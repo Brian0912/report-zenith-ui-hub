@@ -31,9 +31,6 @@ export const SuccessBanner: React.FC<SuccessBannerProps> = ({ parsedRequest }) =
     console.log('Navigate to enhancement page');
   };
 
-  // Determine layout based on content length
-  const hasLongContent = [host, psmService, apiPath].some(value => value.length > 30);
-
   const bannerStyle: React.CSSProperties = {
     backgroundColor: 'hsl(var(--primary) / 0.05)',
     border: '1px solid hsl(var(--primary) / 0.2)',
@@ -63,16 +60,15 @@ export const SuccessBanner: React.FC<SuccessBannerProps> = ({ parsedRequest }) =
 
   const trafficInfoStyle: React.CSSProperties = {
     display: 'grid',
-    gridTemplateColumns: hasLongContent ? '1fr' : 'repeat(auto-fit, minmax(200px, 1fr))',
-    gap: hasLongContent ? '12px' : '24px',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+    gap: '20px',
     fontSize: '14px'
   };
 
   const infoItemStyle: React.CSSProperties = {
     display: 'flex',
-    flexDirection: hasLongContent ? 'column' : 'row',
-    alignItems: hasLongContent ? 'flex-start' : 'center',
-    gap: hasLongContent ? '4px' : '6px'
+    flexDirection: 'column',
+    gap: '6px'
   };
 
   const labelStyle: React.CSSProperties = {
@@ -80,8 +76,7 @@ export const SuccessBanner: React.FC<SuccessBannerProps> = ({ parsedRequest }) =
     fontWeight: '600',
     color: 'hsl(var(--muted-foreground))',
     textTransform: 'uppercase' as const,
-    letterSpacing: '0.05em',
-    minWidth: hasLongContent ? 'auto' : '80px'
+    letterSpacing: '0.05em'
   };
 
   const valueStyle: React.CSSProperties = {
@@ -89,7 +84,8 @@ export const SuccessBanner: React.FC<SuccessBannerProps> = ({ parsedRequest }) =
     fontWeight: '500',
     color: 'hsl(var(--foreground))',
     fontFamily: 'monospace',
-    wordBreak: hasLongContent ? 'break-all' : 'normal'
+    wordBreak: 'break-all',
+    lineHeight: '1.4'
   };
 
   const linkButtonStyle: React.CSSProperties = {

@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { ChevronRight, Eye } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import { FieldData } from './FieldAnalysisSection';
 import { CompactFieldView } from './CompactFieldView';
 
@@ -50,7 +50,7 @@ export const GroupedFieldView: React.FC<GroupedFieldViewProps> = ({
   };
 
   const headerStyle = (sectionInfo: any): React.CSSProperties => ({
-    padding: '16px 20px',
+    padding: '12px 20px',
     borderBottom: '1px solid #e5e7eb',
     cursor: 'pointer',
     backgroundColor: `${sectionInfo.color}10`,
@@ -60,23 +60,21 @@ export const GroupedFieldView: React.FC<GroupedFieldViewProps> = ({
     transition: 'all 0.2s'
   });
 
-  const contentStyle: React.CSSProperties = {
-    backgroundColor: '#ffffff'
-  };
-
-  const viewDetailsButtonStyle: React.CSSProperties = {
+  const headerContentStyle: React.CSSProperties = {
     display: 'flex',
     alignItems: 'center',
-    gap: '6px',
-    padding: '6px 12px',
-    backgroundColor: '#4F46E5',
-    color: '#ffffff',
-    border: 'none',
-    borderRadius: '6px',
-    fontSize: '12px',
-    fontWeight: '500',
-    cursor: 'pointer',
-    transition: 'all 0.2s'
+    gap: '12px',
+    flex: 1
+  };
+
+  const titleContainerStyle: React.CSSProperties = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px'
+  };
+
+  const contentStyle: React.CSSProperties = {
+    backgroundColor: '#ffffff'
   };
 
   return (
@@ -94,52 +92,40 @@ export const GroupedFieldView: React.FC<GroupedFieldViewProps> = ({
               style={headerStyle(sectionInfo)}
               onClick={() => toggleGroup(sectionKey)}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <span style={{ fontSize: '20px' }}>{sectionInfo.icon}</span>
-                <div>
+              <div style={headerContentStyle}>
+                <span style={{ fontSize: '18px' }}>{sectionInfo.icon}</span>
+                <div style={titleContainerStyle}>
                   <h3 style={{ fontSize: '16px', fontWeight: '600', color: '#1a202c', margin: 0 }}>
                     {sectionInfo.title}
                   </h3>
-                  <p style={{ fontSize: '14px', color: '#6b7280', margin: 0 }}>
-                    {sectionData.length} fields detected
-                  </p>
+                  <span style={{ 
+                    fontSize: '14px', 
+                    color: '#6b7280', 
+                    fontWeight: '500',
+                    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+                    padding: '2px 8px',
+                    borderRadius: '12px'
+                  }}>
+                    {sectionData.length} fields
+                  </span>
                 </div>
               </div>
               
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <button
-                  style={viewDetailsButtonStyle}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    toggleGroup(sectionKey);
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = '#4338CA';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = '#4F46E5';
-                  }}
-                >
-                  <Eye size={14} />
-                  View Details
-                </button>
-                
-                <ChevronRight 
-                  size={20} 
-                  style={{ 
-                    transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)',
-                    transition: 'transform 0.2s',
-                    color: sectionInfo.color
-                  }} 
-                />
-              </div>
+              <ChevronRight 
+                size={20} 
+                style={{ 
+                  transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)',
+                  transition: 'transform 0.2s',
+                  color: sectionInfo.color
+                }} 
+              />
             </div>
             
             {isExpanded && (
               <div style={contentStyle}>
                 <CompactFieldView
                   fields={sectionData}
-                  columnVisibility={columnVisibility}
+                  columnVisibility={{ ...columnVisibility, group: false }}
                   selectedFields={selectedFields}
                   onFieldToggle={onFieldToggle}
                   onEditField={onEditField}
