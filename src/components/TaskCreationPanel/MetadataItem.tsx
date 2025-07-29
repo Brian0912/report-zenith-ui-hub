@@ -104,17 +104,6 @@ export const MetadataItem: React.FC<MetadataItemProps> = ({ item, onUpdate, onRe
           />
         );
 
-      case 'number':
-        return (
-          <input
-            type="number"
-            value={item.value}
-            onChange={(e) => onUpdate(item.id, e.target.value)}
-            placeholder={option.placeholder}
-            style={commonInputStyle}
-          />
-        );
-
       case 'text':
       default:
         return (

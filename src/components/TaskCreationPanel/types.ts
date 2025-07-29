@@ -31,7 +31,7 @@ export interface MetadataOption {
   label: string;
   description: string;
   examples: string[];
-  inputType: 'text' | 'autocomplete' | 'dropdown' | 'multiselect' | 'datetime' | 'number' | 'range';
+  inputType: 'text' | 'autocomplete' | 'dropdown' | 'multiselect' | 'datetime' | 'range';
   options?: string[];
   placeholder: string;
 }
