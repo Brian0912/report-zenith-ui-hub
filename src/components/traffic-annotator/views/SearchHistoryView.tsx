@@ -1,72 +1,23 @@
 import React, { useState } from 'react';
 import { Search, Clock, Star, MoreVertical } from 'lucide-react';
-
-interface HistoryItem {
-  id: string;
-  curlCommand: string;
-  timestamp: string;
-  status: number;
-  method: string;
-  url: string;
-  isStarred: boolean;
-}
+import { AnalysisReport } from '../../../types/xray';
 
 interface SearchHistoryViewProps {
   onLoadCurl: (curl: string) => void;
+  onSelectReport: (report: AnalysisReport) => void;
+  reports: AnalysisReport[];
+  searchTerm: string;
+  onSearchChange: (term: string) => void;
 }
 
-export const SearchHistoryView: React.FC<SearchHistoryViewProps> = ({ onLoadCurl }) => {
-  const [searchTerm, setSearchTerm] = useState('');
-  
-  const [historyItems] = useState<HistoryItem[]>([
-    {
-      id: '1',
-      curlCommand: 'curl -X POST https://api.example.com/login -H "Content-Type: application/json" -d \'{"username":"admin","password":"secret"}\'',
-      timestamp: '2024-01-15 16:45:23',
-      status: 200,
-      method: 'POST',
-      url: 'https://api.example.com/login',
-      isStarred: true
-    },
-    {
-      id: '2',
-      curlCommand: 'curl -X GET https://api.example.com/users?page=1&limit=10 -H "Authorization: Bearer token123"',
-      timestamp: '2024-01-15 16:30:15',
-      status: 200,
-      method: 'GET',
-      url: 'https://api.example.com/users',
-      isStarred: false
-    },
-    {
-      id: '3',
-      curlCommand: 'curl -X PUT https://api.example.com/profile/123 -H "Content-Type: application/json" -d \'{"name":"John Doe","email":"john@example.com"}\'',
-      timestamp: '2024-01-15 15:20:45',
-      status: 404,
-      method: 'PUT',
-      url: 'https://api.example.com/profile/123',
-      isStarred: false
-    },
-    {
-      id: '4',
-      curlCommand: 'curl -X DELETE https://api.example.com/posts/456 -H "Authorization: Bearer token123"',
-      timestamp: '2024-01-15 14:15:30',
-      status: 403,
-      method: 'DELETE',
-      url: 'https://api.example.com/posts/456',
-      isStarred: true
-    },
-    {
-      id: '5',
-      curlCommand: 'curl -X GET https://api.example.com/status -H "Accept: application/json"',
-      timestamp: '2024-01-15 13:45:12',
-      status: 200,
-      method: 'GET',
-      url: 'https://api.example.com/status',
-      isStarred: false
-    }
-  ]);
-
-  const filteredItems = historyItems.filter(item =>
+export const SearchHistoryView: React.FC<SearchHistoryViewProps> = ({ 
+  onLoadCurl, 
+  onSelectReport, 
+  reports, 
+  searchTerm, 
+  onSearchChange 
+}) => {
+  const filteredItems = reports.filter(item =>
     item.curlCommand.toLowerCase().includes(searchTerm.toLowerCase()) ||
     item.url.toLowerCase().includes(searchTerm.toLowerCase()) ||
     item.method.toLowerCase().includes(searchTerm.toLowerCase())
@@ -89,8 +40,8 @@ export const SearchHistoryView: React.FC<SearchHistoryViewProps> = ({ onLoadCurl
     }
   };
 
-  const handleItemClick = (curlCommand: string) => {
-    onLoadCurl(curlCommand);
+  const handleItemClick = (report: AnalysisReport) => {
+    onSelectReport(report);
   };
 
   const containerStyle: React.CSSProperties = {
@@ -225,7 +176,7 @@ export const SearchHistoryView: React.FC<SearchHistoryViewProps> = ({ onLoadCurl
             type="text"
             placeholder="Search cURL commands, URLs, or methods..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => onSearchChange(e.target.value)}
             style={searchInputStyle}
             onFocus={(e) => {
               e.currentTarget.style.borderColor = 'hsl(var(--primary))';
@@ -251,7 +202,7 @@ export const SearchHistoryView: React.FC<SearchHistoryViewProps> = ({ onLoadCurl
             <div
               key={item.id}
               style={historyItemStyle}
-              onClick={() => handleItemClick(item.curlCommand)}
+              onClick={() => handleItemClick(item)}
               onMouseEnter={(e) => {
                 e.currentTarget.style.backgroundColor = 'hsl(var(--muted))';
                 e.currentTarget.style.transform = 'translateY(-1px)';

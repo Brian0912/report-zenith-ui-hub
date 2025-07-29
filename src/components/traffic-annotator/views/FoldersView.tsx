@@ -1,110 +1,27 @@
 import React, { useState } from 'react';
 import { Folder, FolderOpen, File, Plus, MoreVertical, ChevronRight, ChevronDown } from 'lucide-react';
-
-interface FolderNode {
-  id: string;
-  name: string;
-  type: 'folder' | 'curl';
-  children?: FolderNode[];
-  curlCommand?: string;
-  timestamp?: string;
-  parentId?: string;
-}
+import { FolderNode, AnalysisReport } from '../../../types/xray';
 
 interface FoldersViewProps {
   onLoadCurl: (curl: string) => void;
+  onSelectReport: (report: AnalysisReport) => void;
+  folders: FolderNode[];
+  reports: AnalysisReport[];
+  onCreateFolder: (name: string, parentId?: string) => void;
+  highlightedReportId?: string;
 }
 
-export const FoldersView: React.FC<FoldersViewProps> = ({ onLoadCurl }) => {
-  const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set(['1', '2']));
-  
-  const [folderTree] = useState<FolderNode[]>([
-    {
-      id: '1',
-      name: 'Authentication APIs',
-      type: 'folder',
-      children: [
-        {
-          id: '1-1',
-          name: 'Login',
-          type: 'curl',
-          curlCommand: 'curl -X POST https://api.example.com/login -H "Content-Type: application/json" -d \'{"username":"admin","password":"secret"}\'',
-          timestamp: '2024-01-15 16:45',
-          parentId: '1'
-        },
-        {
-          id: '1-2',
-          name: 'Logout',
-          type: 'curl',
-          curlCommand: 'curl -X POST https://api.example.com/logout -H "Authorization: Bearer token123"',
-          timestamp: '2024-01-15 16:30',
-          parentId: '1'
-        },
-        {
-          id: '1-3',
-          name: 'Refresh Token',
-          type: 'curl',
-          curlCommand: 'curl -X POST https://api.example.com/refresh -H "Content-Type: application/json" -d \'{"refresh_token":"refresh123"}\'',
-          timestamp: '2024-01-15 15:20',
-          parentId: '1'
-        }
-      ]
-    },
-    {
-      id: '2',
-      name: 'User Management',
-      type: 'folder',
-      children: [
-        {
-          id: '2-1',
-          name: 'Get Users',
-          type: 'curl',
-          curlCommand: 'curl -X GET https://api.example.com/users?page=1&limit=10 -H "Authorization: Bearer token123"',
-          timestamp: '2024-01-15 14:15',
-          parentId: '2'
-        },
-        {
-          id: '2-2',
-          name: 'Create User',
-          type: 'curl',
-          curlCommand: 'curl -X POST https://api.example.com/users -H "Content-Type: application/json" -H "Authorization: Bearer token123" -d \'{"name":"John Doe","email":"john@example.com"}\'',
-          timestamp: '2024-01-15 13:45',
-          parentId: '2'
-        },
-        {
-          id: '2-3',
-          name: 'Admin Operations',
-          type: 'folder',
-          parentId: '2',
-          children: [
-            {
-              id: '2-3-1',
-              name: 'Delete User',
-              type: 'curl',
-              curlCommand: 'curl -X DELETE https://api.example.com/users/123 -H "Authorization: Bearer admin_token"',
-              timestamp: '2024-01-15 12:30',
-              parentId: '2-3'
-            }
-          ]
-        }
-      ]
-    },
-    {
-      id: '3',
-      name: 'API Status',
-      type: 'folder',
-      children: [
-        {
-          id: '3-1',
-          name: 'Health Check',
-          type: 'curl',
-          curlCommand: 'curl -X GET https://api.example.com/health',
-          timestamp: '2024-01-15 11:00',
-          parentId: '3'
-        }
-      ]
-    }
-  ]);
+export const FoldersView: React.FC<FoldersViewProps> = ({ 
+  onLoadCurl, 
+  onSelectReport, 
+  folders, 
+  reports, 
+  onCreateFolder, 
+  highlightedReportId 
+}) => {
+  const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set(folders.map(f => f.id)));
+  const [newFolderName, setNewFolderName] = useState('');
+  const [creatingFolder, setCreatingFolder] = useState(false);
 
   const toggleFolder = (folderId: string) => {
     const newExpanded = new Set(expandedFolders);
@@ -116,14 +33,30 @@ export const FoldersView: React.FC<FoldersViewProps> = ({ onLoadCurl }) => {
     setExpandedFolders(newExpanded);
   };
 
-  const handleCurlClick = (curlCommand: string) => {
-    onLoadCurl(curlCommand);
+  const handleReportClick = (reportId: string) => {
+    const report = reports.find(r => r.id === reportId);
+    if (report) {
+      onSelectReport(report);
+    }
+  };
+
+  const getReportsInFolder = (folderId: string) => {
+    return reports.filter(r => r.folderId === folderId);
+  };
+
+  const handleCreateFolder = () => {
+    if (newFolderName.trim()) {
+      onCreateFolder(newFolderName.trim());
+      setNewFolderName('');
+      setCreatingFolder(false);
+    }
   };
 
   const renderTreeNode = (node: FolderNode, depth: number = 0): React.ReactNode => {
     const isExpanded = expandedFolders.has(node.id);
     const hasChildren = node.children && node.children.length > 0;
-
+    const folderReports = node.type === 'folder' ? getReportsInFolder(node.id) : [];
+    
     const nodeStyle: React.CSSProperties = {
       display: 'flex',
       alignItems: 'center',
@@ -151,12 +84,6 @@ export const FoldersView: React.FC<FoldersViewProps> = ({ onLoadCurl }) => {
       whiteSpace: 'nowrap'
     };
 
-    const timestampStyle: React.CSSProperties = {
-      fontSize: '11px',
-      color: 'hsl(var(--muted-foreground))',
-      opacity: 0.7
-    };
-
     const actionButtonStyle: React.CSSProperties = {
       padding: '4px',
       backgroundColor: 'transparent',
@@ -173,10 +100,10 @@ export const FoldersView: React.FC<FoldersViewProps> = ({ onLoadCurl }) => {
         <div
           style={nodeStyle}
           onClick={() => {
-            if (node.type === 'folder' && hasChildren) {
+            if (node.type === 'folder') {
               toggleFolder(node.id);
-            } else if (node.type === 'curl' && node.curlCommand) {
-              handleCurlClick(node.curlCommand);
+            } else if (node.type === 'report' && node.reportId) {
+              handleReportClick(node.reportId);
             }
           }}
           onMouseEnter={(e) => {
@@ -190,15 +117,12 @@ export const FoldersView: React.FC<FoldersViewProps> = ({ onLoadCurl }) => {
             if (actionBtn) actionBtn.style.opacity = '0';
           }}
         >
-          {node.type === 'folder' && hasChildren && (
+          {node.type === 'folder' && (
             <div style={{ width: '16px', display: 'flex', justifyContent: 'center' }}>
               {isExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
             </div>
           )}
-          {node.type === 'folder' && !hasChildren && (
-            <div style={{ width: '16px' }} />
-          )}
-          {node.type === 'curl' && (
+          {node.type === 'report' && (
             <div style={{ width: '16px' }} />
           )}
           
@@ -212,8 +136,26 @@ export const FoldersView: React.FC<FoldersViewProps> = ({ onLoadCurl }) => {
           
           <span style={nameStyle}>{node.name}</span>
           
-          {node.timestamp && (
-            <span style={timestampStyle}>{node.timestamp}</span>
+          {node.type === 'folder' && folderReports.length > 0 && (
+            <span style={{ 
+              fontSize: '11px', 
+              color: 'hsl(var(--muted-foreground))', 
+              backgroundColor: 'hsl(var(--muted))', 
+              padding: '2px 6px', 
+              borderRadius: '10px' 
+            }}>
+              {folderReports.length}
+            </span>
+          )}
+          
+          {highlightedReportId && node.reportId === highlightedReportId && (
+            <div style={{
+              width: '8px',
+              height: '8px',
+              borderRadius: '50%',
+              backgroundColor: 'hsl(var(--primary))',
+              animation: 'pulse 2s infinite'
+            }} />
           )}
           
           <button
@@ -234,9 +176,25 @@ export const FoldersView: React.FC<FoldersViewProps> = ({ onLoadCurl }) => {
           </button>
         </div>
         
-        {node.type === 'folder' && hasChildren && isExpanded && (
+        {node.type === 'folder' && isExpanded && (
           <div>
-            {node.children!.map(child => renderTreeNode(child, depth + 1))}
+            {/* Render child folders */}
+            {hasChildren && node.children!.map(child => renderTreeNode(child, depth + 1))}
+            
+            {/* Render reports in this folder */}
+            {folderReports.map(report => (
+              <div key={`report-${report.id}`}>
+                {renderTreeNode({
+                  id: `report-node-${report.id}`,
+                  name: `${report.method} ${new URL(report.url).pathname}`,
+                  type: 'report',
+                  reportId: report.id,
+                  parentId: node.id,
+                  createdAt: report.timestamp,
+                  updatedAt: report.timestamp
+                }, depth + 1)}
+              </div>
+            ))}
           </div>
         )}
       </div>
@@ -295,34 +253,94 @@ export const FoldersView: React.FC<FoldersViewProps> = ({ onLoadCurl }) => {
           Folders
         </h1>
         
-        <button
-          style={createButtonStyle}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = 'translateY(-1px)';
-            e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'translateY(0px)';
-            e.currentTarget.style.boxShadow = 'none';
-          }}
-        >
-          <Plus size={16} />
-          New Folder
-        </button>
+        {!creatingFolder ? (
+          <button
+            style={createButtonStyle}
+            onClick={() => setCreatingFolder(true)}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-1px)';
+              e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0px)';
+              e.currentTarget.style.boxShadow = 'none';
+            }}
+          >
+            <Plus size={16} />
+            New Folder
+          </button>
+        ) : (
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <input
+              type="text"
+              value={newFolderName}
+              onChange={(e) => setNewFolderName(e.target.value)}
+              placeholder="Folder name"
+              style={{
+                padding: '8px 12px',
+                border: '1px solid hsl(var(--border))',
+                borderRadius: '6px',
+                fontSize: '14px',
+                outline: 'none',
+                backgroundColor: 'hsl(var(--background))',
+                color: 'hsl(var(--foreground))'
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') handleCreateFolder();
+                if (e.key === 'Escape') {
+                  setCreatingFolder(false);
+                  setNewFolderName('');
+                }
+              }}
+              autoFocus
+            />
+            <button
+              onClick={handleCreateFolder}
+              style={{
+                padding: '8px 12px',
+                backgroundColor: 'hsl(var(--primary))',
+                color: 'hsl(var(--primary-foreground))',
+                border: 'none',
+                borderRadius: '6px',
+                fontSize: '14px',
+                cursor: 'pointer'
+              }}
+            >
+              Create
+            </button>
+            <button
+              onClick={() => {
+                setCreatingFolder(false);
+                setNewFolderName('');
+              }}
+              style={{
+                padding: '8px 12px',
+                backgroundColor: 'transparent',
+                color: 'hsl(var(--muted-foreground))',
+                border: '1px solid hsl(var(--border))',
+                borderRadius: '6px',
+                fontSize: '14px',
+                cursor: 'pointer'
+              }}
+            >
+              Cancel
+            </button>
+          </div>
+        )}
       </div>
 
       <div style={treeContainerStyle}>
-        {folderTree.length === 0 ? (
+        {folders.length === 0 ? (
           <div style={{
             textAlign: 'center',
             padding: '40px',
             color: 'hsl(var(--muted-foreground))'
           }}>
-            No folders created yet. Create your first folder to organize your cURL commands.
+            No folders created yet. Create your first folder to organize your analysis reports.
           </div>
         ) : (
           <div style={{ padding: '12px 0' }}>
-            {folderTree.map(node => renderTreeNode(node))}
+            {folders.map(node => renderTreeNode(node))}
           </div>
         )}
       </div>

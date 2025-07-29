@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { ChevronDown, Folder } from 'lucide-react';
+import { FolderNode } from '../../../types/xray';
 
 interface ParsedRequest {
   url: string;
@@ -24,6 +26,10 @@ interface NewScanViewProps {
   error: string | null;
   setError: (value: string | null) => void;
   setResponse: (value: MockResponse | null) => void;
+  selectedFolderId: string;
+  folders: FolderNode[];
+  onFolderSelect: (folderId: string) => void;
+  onAnalysisComplete: (analysisData: any) => void;
 }
 
 export const NewScanView: React.FC<NewScanViewProps> = ({
@@ -35,8 +41,13 @@ export const NewScanView: React.FC<NewScanViewProps> = ({
   setLoading,
   error,
   setError,
-  setResponse
+  setResponse,
+  selectedFolderId,
+  folders,
+  onFolderSelect,
+  onAnalysisComplete
 }) => {
+  const [showFolderDropdown, setShowFolderDropdown] = useState(false);
   const PLACEHOLDER_TEXT = `curl -X POST 'https://api.example.com/data?userId=123&format=json' -H 'Content-Type: application/json' -H 'Authorization: Bearer token123' -d '{"name": "John", "email": "john@example.com"}'`;
 
   const parseCurl = (curlCommand: string): ParsedRequest | null => {
@@ -102,7 +113,7 @@ export const NewScanView: React.FC<NewScanViewProps> = ({
     setError(null);
     setResponse(null);
 
-    // Mock API response simulation
+    // Mock API response simulation with analysis generation
     setTimeout(() => {
       const mockResponse: MockResponse = {
         status: 200,
@@ -131,9 +142,46 @@ export const NewScanView: React.FC<NewScanViewProps> = ({
         }, null, 2)
       };
 
+      // Generate analysis data
+      const analysisData = {
+        curlCommand: curlInput,
+        parsedRequest,
+        response: mockResponse,
+        folderId: selectedFolderId,
+        timestamp: new Date().toISOString()
+      };
+
       setResponse(mockResponse);
       setLoading(false);
+      onAnalysisComplete(analysisData);
     }, 1000);
+  };
+
+  const getSelectedFolderName = () => {
+    const findFolder = (folders: FolderNode[], id: string): string => {
+      for (const folder of folders) {
+        if (folder.id === id) return folder.name;
+        if (folder.children) {
+          const found = findFolder(folder.children, id);
+          if (found) return found;
+        }
+      }
+      return 'Unknown Folder';
+    };
+    return findFolder(folders, selectedFolderId);
+  };
+
+  const getAllFolders = (folders: FolderNode[], depth = 0): Array<{id: string, name: string, depth: number}> => {
+    let result: Array<{id: string, name: string, depth: number}> = [];
+    for (const folder of folders) {
+      if (folder.type === 'folder') {
+        result.push({ id: folder.id, name: folder.name, depth });
+        if (folder.children) {
+          result = result.concat(getAllFolders(folder.children, depth + 1));
+        }
+      }
+    }
+    return result;
   };
 
   const containerStyle: React.CSSProperties = {
@@ -212,9 +260,102 @@ export const NewScanView: React.FC<NewScanViewProps> = ({
     width: '100%'
   };
 
+  const folderSelectorStyle: React.CSSProperties = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    padding: '12px 16px',
+    backgroundColor: 'hsl(var(--card))',
+    border: '1px solid hsl(var(--border))',
+    borderRadius: '8px',
+    cursor: 'pointer',
+    marginBottom: '24px',
+    position: 'relative'
+  };
+
+  const dropdownStyle: React.CSSProperties = {
+    position: 'absolute',
+    top: '100%',
+    left: 0,
+    right: 0,
+    backgroundColor: 'hsl(var(--card))',
+    border: '1px solid hsl(var(--border))',
+    borderRadius: '8px',
+    boxShadow: '0 8px 24px rgba(0, 0, 0, 0.15)',
+    zIndex: 10,
+    maxHeight: '200px',
+    overflow: 'auto'
+  };
+
+  const dropdownItemStyle: React.CSSProperties = {
+    padding: '12px 16px',
+    cursor: 'pointer',
+    fontSize: '14px',
+    borderBottom: '1px solid hsl(var(--border))',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px'
+  };
+
   return (
     <div style={containerStyle}>
       <h1 style={titleStyle}>X-Ray</h1>
+      
+      {/* Folder Selection */}
+      <div style={folderSelectorStyle} onClick={() => setShowFolderDropdown(!showFolderDropdown)}>
+        <Folder size={16} />
+        <span style={{ flex: 1, fontSize: '14px' }}>Save to: {getSelectedFolderName()}</span>
+        <ChevronDown size={16} style={{ 
+          transform: showFolderDropdown ? 'rotate(180deg)' : 'rotate(0deg)',
+          transition: 'transform 0.2s'
+        }} />
+        
+        {showFolderDropdown && (
+          <>
+            <div style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              zIndex: 5
+            }} onClick={(e) => {
+              e.stopPropagation();
+              setShowFolderDropdown(false);
+            }} />
+            <div style={dropdownStyle}>
+              {getAllFolders(folders).map((folder) => (
+                <div
+                  key={folder.id}
+                  style={{
+                    ...dropdownItemStyle,
+                    paddingLeft: `${16 + folder.depth * 20}px`,
+                    backgroundColor: folder.id === selectedFolderId ? 'hsl(var(--muted))' : 'transparent'
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onFolderSelect(folder.id);
+                    setShowFolderDropdown(false);
+                  }}
+                  onMouseEnter={(e) => {
+                    if (folder.id !== selectedFolderId) {
+                      e.currentTarget.style.backgroundColor = 'hsl(var(--muted))';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (folder.id !== selectedFolderId) {
+                      e.currentTarget.style.backgroundColor = 'transparent';
+                    }
+                  }}
+                >
+                  <Folder size={14} />
+                  {folder.name}
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+      </div>
       
       <div style={inputContainerStyle}>
         <label style={labelStyle}>Enter cURL Command</label>

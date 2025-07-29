@@ -1,13 +1,6 @@
 import React, { useState } from 'react';
-import { Scan, Search, Folder, Star, Clock, MoreVertical, ChevronLeft, ChevronRight } from 'lucide-react';
-
-interface CurlItem {
-  id: string;
-  command: string;
-  timestamp: string;
-  folderPath?: string;
-  isStarred: boolean;
-}
+import { Scan, Search, Folder, Star, Clock, MoreVertical, ChevronLeft, ChevronRight, FolderOpen } from 'lucide-react';
+import { AnalysisReport } from '../../types/xray';
 
 interface XRaySidebarProps {
   isCollapsed: boolean;
@@ -15,6 +8,11 @@ interface XRaySidebarProps {
   activeView: 'new-scan' | 'search-history' | 'folders';
   onViewChange: (view: 'new-scan' | 'search-history' | 'folders') => void;
   onLoadCurl: (curl: string) => void;
+  onSelectReport: (report: AnalysisReport) => void;
+  starredReports: AnalysisReport[];
+  recentReports: AnalysisReport[];
+  onToggleStar: (reportId: string) => void;
+  onShowInFolder: (reportId: string) => void;
 }
 
 export const XRaySidebar: React.FC<XRaySidebarProps> = ({
@@ -22,43 +20,14 @@ export const XRaySidebar: React.FC<XRaySidebarProps> = ({
   onToggleCollapse,
   activeView,
   onViewChange,
-  onLoadCurl
+  onLoadCurl,
+  onSelectReport,
+  starredReports,
+  recentReports,
+  onToggleStar,
+  onShowInFolder
 }) => {
-  const [starredCurls] = useState<CurlItem[]>([
-    {
-      id: '1',
-      command: 'curl -X POST https://api.example.com/login',
-      timestamp: '2024-01-15 14:30',
-      isStarred: true
-    },
-    {
-      id: '2',
-      command: 'curl -X GET https://api.example.com/users',
-      timestamp: '2024-01-14 09:15',
-      isStarred: true
-    }
-  ]);
-
-  const [recentCurls] = useState<CurlItem[]>([
-    {
-      id: '3',
-      command: 'curl -X POST https://api.example.com/data',
-      timestamp: '2024-01-15 16:45',
-      isStarred: false
-    },
-    {
-      id: '4',
-      command: 'curl -X GET https://api.example.com/status',
-      timestamp: '2024-01-15 16:30',
-      isStarred: false
-    },
-    {
-      id: '5',
-      command: 'curl -X PUT https://api.example.com/settings',
-      timestamp: '2024-01-15 15:20',
-      isStarred: false
-    }
-  ]);
+  const [contextMenu, setContextMenu] = useState<{ reportId: string; x: number; y: number } | null>(null);
 
   const sidebarStyle: React.CSSProperties = {
     width: isCollapsed ? '60px' : '300px',
@@ -158,14 +127,36 @@ export const XRaySidebar: React.FC<XRaySidebarProps> = ({
     transition: 'all 0.2s'
   };
 
-  const truncateCommand = (command: string, maxLength: number = 30): string => {
+
+  const handleReportClick = (report: AnalysisReport) => {
+    onSelectReport(report);
+  };
+
+  const handleContextMenu = (reportId: string, event: React.MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setContextMenu({
+      reportId,
+      x: event.clientX,
+      y: event.clientY
+    });
+  };
+
+  const closeContextMenu = () => {
+    setContextMenu(null);
+  };
+
+  const truncateCommand = (command: string, maxLength: number = 35): string => {
     return command.length > maxLength ? command.substring(0, maxLength) + '...' : command;
   };
 
-  const handleCurlItemClick = (command: string) => {
-    onLoadCurl(command);
-    if (activeView !== 'new-scan') {
-      onViewChange('new-scan');
+  const getMethodColor = (method: string): string => {
+    switch (method) {
+      case 'GET': return '#10B981';
+      case 'POST': return '#3B82F6';
+      case 'PUT': return '#F59E0B';
+      case 'DELETE': return '#EF4444';
+      default: return 'hsl(var(--muted-foreground))';
     }
   };
 
@@ -208,17 +199,17 @@ export const XRaySidebar: React.FC<XRaySidebarProps> = ({
       {/* Bottom Sections */}
       {!isCollapsed && (
         <div style={{ flex: 1, overflow: 'auto' }}>
-          {/* Starred cURLs */}
+          {/* Starred Analysis Reports */}
           <div style={{ marginTop: '16px' }}>
             <div style={sectionHeaderStyle}>
               <Star size={12} style={{ display: 'inline', marginRight: '6px' }} />
-              Starred cURLs
+              Starred Reports
             </div>
-            {starredCurls.map((item) => (
+            {starredReports.map((report) => (
               <div
-                key={item.id}
+                key={report.id}
                 style={curlItemStyle}
-                onClick={() => handleCurlItemClick(item.command)}
+                onClick={() => handleReportClick(report)}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.backgroundColor = 'hsl(var(--muted))';
                   const configBtn = e.currentTarget.querySelector('[data-config-btn]') as HTMLElement;
@@ -231,16 +222,27 @@ export const XRaySidebar: React.FC<XRaySidebarProps> = ({
                 }}
               >
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={curlCommandStyle}>{truncateCommand(item.command)}</div>
-                  <div style={timestampStyle}>{item.timestamp}</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+                    <span style={{
+                      backgroundColor: getMethodColor(report.method),
+                      color: '#ffffff',
+                      padding: '2px 6px',
+                      borderRadius: '3px',
+                      fontSize: '10px',
+                      fontWeight: '600'
+                    }}>
+                      {report.method}
+                    </span>
+                    <div style={{ ...curlCommandStyle, margin: 0, padding: 0, backgroundColor: 'transparent' }}>
+                      {truncateCommand(report.curlCommand)}
+                    </div>
+                  </div>
+                  <div style={timestampStyle}>{report.timestamp}</div>
                 </div>
                 <button
                   data-config-btn
                   style={configButtonStyle}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    // Handle config menu
-                  }}
+                  onClick={(e) => handleContextMenu(report.id, e)}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.backgroundColor = 'hsl(var(--muted))';
                   }}
@@ -254,17 +256,17 @@ export const XRaySidebar: React.FC<XRaySidebarProps> = ({
             ))}
           </div>
 
-          {/* Recent cURLs */}
+          {/* Recent Analysis Reports */}
           <div style={{ marginTop: '24px' }}>
             <div style={sectionHeaderStyle}>
               <Clock size={12} style={{ display: 'inline', marginRight: '6px' }} />
-              Recent cURLs
+              Recent Reports
             </div>
-            {recentCurls.map((item) => (
+            {recentReports.slice(0, 5).map((report) => (
               <div
-                key={item.id}
+                key={report.id}
                 style={curlItemStyle}
-                onClick={() => handleCurlItemClick(item.command)}
+                onClick={() => handleReportClick(report)}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.backgroundColor = 'hsl(var(--muted))';
                   const configBtn = e.currentTarget.querySelector('[data-config-btn]') as HTMLElement;
@@ -277,16 +279,27 @@ export const XRaySidebar: React.FC<XRaySidebarProps> = ({
                 }}
               >
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={curlCommandStyle}>{truncateCommand(item.command)}</div>
-                  <div style={timestampStyle}>{item.timestamp}</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+                    <span style={{
+                      backgroundColor: getMethodColor(report.method),
+                      color: '#ffffff',
+                      padding: '2px 6px',
+                      borderRadius: '3px',
+                      fontSize: '10px',
+                      fontWeight: '600'
+                    }}>
+                      {report.method}
+                    </span>
+                    <div style={{ ...curlCommandStyle, margin: 0, padding: 0, backgroundColor: 'transparent' }}>
+                      {truncateCommand(report.curlCommand)}
+                    </div>
+                  </div>
+                  <div style={timestampStyle}>{report.timestamp}</div>
                 </div>
                 <button
                   data-config-btn
                   style={configButtonStyle}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    // Handle config menu
-                  }}
+                  onClick={(e) => handleContextMenu(report.id, e)}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.backgroundColor = 'hsl(var(--muted))';
                   }}
@@ -300,6 +313,94 @@ export const XRaySidebar: React.FC<XRaySidebarProps> = ({
             ))}
           </div>
         </div>
+      )}
+
+      {/* Context Menu */}
+      {contextMenu && (
+        <>
+          <div
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              zIndex: 998
+            }}
+            onClick={closeContextMenu}
+          />
+          <div
+            style={{
+              position: 'fixed',
+              top: contextMenu.y,
+              left: contextMenu.x,
+              backgroundColor: 'hsl(var(--card))',
+              border: '1px solid hsl(var(--border))',
+              borderRadius: '8px',
+              boxShadow: '0 8px 24px rgba(0, 0, 0, 0.15)',
+              zIndex: 999,
+              minWidth: '180px',
+              overflow: 'hidden'
+            }}
+          >
+            <button
+              onClick={() => {
+                onToggleStar(contextMenu.reportId);
+                closeContextMenu();
+              }}
+              style={{
+                width: '100%',
+                padding: '12px 16px',
+                backgroundColor: 'transparent',
+                border: 'none',
+                textAlign: 'left',
+                fontSize: '14px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                color: 'hsl(var(--foreground))'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = 'hsl(var(--muted))';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent';
+              }}
+            >
+              <Star size={14} />
+              {starredReports.find(r => r.id === contextMenu.reportId) ? 'Remove from Star' : 'Add to Star'}
+            </button>
+            <button
+              onClick={() => {
+                onShowInFolder(contextMenu.reportId);
+                closeContextMenu();
+              }}
+              style={{
+                width: '100%',
+                padding: '12px 16px',
+                backgroundColor: 'transparent',
+                border: 'none',
+                textAlign: 'left',
+                fontSize: '14px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                color: 'hsl(var(--foreground))'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = 'hsl(var(--muted))';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent';
+              }}
+            >
+              <FolderOpen size={14} />
+              Show in Folder
+            </button>
+          </div>
+        </>
       )}
     </div>
   );
