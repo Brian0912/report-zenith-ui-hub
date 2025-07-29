@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Edit3, X } from 'lucide-react';
 import { EnhancedMetadataEditor } from '../EnhancedMetadataEditor';
+import { METADATA_CATEGORIES } from '../TaskCreationPanel/types';
 
 interface MetadataEditModeProps {
   metadata: Array<{
@@ -46,14 +47,11 @@ export const MetadataEditMode: React.FC<MetadataEditModeProps> = ({
   };
 
   const getMetadataLabel = (category: string, key: string) => {
-    const categoryLabels: Record<string, Record<string, string>> = {
-      priority: { high: 'High Priority', medium: 'Medium Priority', low: 'Low Priority', urgent: 'Urgent' },
-      type: { feature: 'Feature Request', bug: 'Bug Fix', enhancement: 'Enhancement', research: 'Research', documentation: 'Documentation' },
-      team: { frontend: 'Frontend', backend: 'Backend', design: 'Design', qa: 'Quality Assurance', devops: 'DevOps' },
-      complexity: { simple: 'Simple', moderate: 'Moderate', complex: 'Complex', expert: 'Expert Level' }
-    };
+    const categoryData = METADATA_CATEGORIES[category as keyof typeof METADATA_CATEGORIES];
+    if (!categoryData) return key;
     
-    return categoryLabels[category]?.[key] || key;
+    const option = categoryData.options.find(opt => opt.key === key);
+    return option?.label || key;
   };
 
   if (isEditing) {
@@ -173,31 +171,55 @@ export const MetadataEditMode: React.FC<MetadataEditModeProps> = ({
             No metadata available
           </div>
         ) : (
-          metadata.map((meta) => (
-            <div key={meta.id} style={{
-              padding: '12px',
-              backgroundColor: '#f8fafc',
-              borderRadius: '8px',
-              border: '1px solid #e2e8f0'
-            }}>
-              <div style={{
-                fontSize: '12px',
-                fontWeight: '600',
-                color: '#3b82f6',
-                marginBottom: '4px',
-                textTransform: 'capitalize'
+          metadata.map((meta) => {
+            const categoryData = METADATA_CATEGORIES[meta.category as keyof typeof METADATA_CATEGORIES];
+            const categoryIcon = categoryData?.icon;
+            
+            return (
+              <div key={meta.id} style={{
+                padding: '12px',
+                backgroundColor: '#f8fafc',
+                borderRadius: '8px',
+                border: '1px solid #e2e8f0',
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: '12px'
               }}>
-                {meta.category} • {getMetadataLabel(meta.category, meta.key)}
+                {categoryIcon && (
+                  <div style={{
+                    width: '24px',
+                    height: '24px',
+                    borderRadius: '6px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: '#dbeafe',
+                    flexShrink: 0
+                  }}>
+                    {React.createElement(categoryIcon, { size: 14, style: { color: '#2563eb' } })}
+                  </div>
+                )}
+                <div style={{ flex: 1 }}>
+                  <div style={{
+                    fontSize: '12px',
+                    fontWeight: '600',
+                    color: '#3b82f6',
+                    marginBottom: '4px',
+                    textTransform: 'capitalize'
+                  }}>
+                    {categoryData?.name || meta.category} • {getMetadataLabel(meta.category, meta.key)}
+                  </div>
+                  <div style={{
+                    fontSize: '13px',
+                    color: '#4b5563',
+                    lineHeight: '1.4'
+                  }}>
+                    {meta.value || 'No value set'}
+                  </div>
+                </div>
               </div>
-              <div style={{
-                fontSize: '13px',
-                color: '#4b5563',
-                lineHeight: '1.4'
-              }}>
-                {meta.value || 'No value set'}
-              </div>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
     </div>
