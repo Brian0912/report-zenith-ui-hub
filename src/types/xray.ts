@@ -4,6 +4,7 @@ export interface AnalysisReport {
   timestamp: string;
   folderId: string;
   isStarred: boolean;
+  isShared?: boolean;
   
   // Basic API Info
   method: string;

@@ -130,6 +130,11 @@ export const useXRayState = () => {
   }, []);
 
   // Computed values
+  const sharedReports = useMemo(() => 
+    state.reports.filter(report => (report as any).isShared).slice(0, 5),
+    [state.reports]
+  );
+
   const starredReports = useMemo(() => 
     state.reports.filter(report => state.starredReportIds.has(report.id)),
     [state.reports, state.starredReportIds]
@@ -185,6 +190,7 @@ export const useXRayState = () => {
     addFolder,
     moveReport,
     renameFolder,
+    sharedReports,
     starredReports,
     recentReports,
     filteredReports,

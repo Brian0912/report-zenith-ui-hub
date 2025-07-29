@@ -32,7 +32,7 @@ export const TrafficAnnotatorPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [activeView, setActiveView] = useState<'new-scan' | 'search-history' | 'folders'>('new-scan');
+  const [activeView, setActiveView] = useState<'new-scan' | 'search-history'>('new-scan');
   const [highlightedReportId, setHighlightedReportId] = useState<string | undefined>();
 
   const {
@@ -45,6 +45,7 @@ export const TrafficAnnotatorPage: React.FC = () => {
     addFolder,
     moveReport,
     renameFolder,
+    sharedReports,
     starredReports,
     recentReports,
     filteredReports
@@ -59,7 +60,7 @@ export const TrafficAnnotatorPage: React.FC = () => {
     setActiveView('new-scan');
   };
 
-  const handleViewChange = (view: 'new-scan' | 'search-history' | 'folders') => {
+  const handleViewChange = (view: 'new-scan' | 'search-history') => {
     // Always reset main area when changing views
     setCurrentReport(null);
     setActiveView(view);
@@ -69,11 +70,6 @@ export const TrafficAnnotatorPage: React.FC = () => {
     setCurrentReport(report);
   };
 
-  const handleShowInFolder = (reportId: string) => {
-    setHighlightedReportId(reportId);
-    setActiveView('folders');
-    setTimeout(() => setHighlightedReportId(undefined), 3000);
-  };
 
   const handleAnalysisComplete = (analysisData: any) => {
     // Create a new analysis report from the data
@@ -165,20 +161,6 @@ export const TrafficAnnotatorPage: React.FC = () => {
             onSearchChange={setSearchTerm}
           />
         );
-      case 'folders':
-        return (
-          <FoldersView 
-            onLoadCurl={handleLoadCurl}
-            onSelectReport={handleSelectReport}
-            folders={state.folders}
-            reports={state.reports}
-            onCreateFolder={addFolder}
-            highlightedReportId={highlightedReportId}
-            onMoveReport={handleMoveReport}
-            onRenameFolder={handleRenameFolder}
-            onNewScanInFolder={handleNewScanInFolder}
-          />
-        );
       default:
         return (
           <div style={{ padding: '24px' }}>
@@ -223,10 +205,10 @@ export const TrafficAnnotatorPage: React.FC = () => {
         onViewChange={handleViewChange}
         onLoadCurl={handleLoadCurl}
         onSelectReport={handleSelectReport}
+        sharedReports={sharedReports}
         starredReports={starredReports}
         recentReports={recentReports}
         onToggleStar={toggleStar}
-        onShowInFolder={handleShowInFolder}
       />
       
       <div style={mainContentStyle}>

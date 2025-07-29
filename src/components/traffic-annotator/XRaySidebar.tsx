@@ -1,18 +1,18 @@
 import React, { useState } from 'react';
-import { Scan, Search, Folder, Star, Clock, MoreVertical, ChevronLeft, ChevronRight, FolderOpen } from 'lucide-react';
 import { AnalysisReport } from '../../types/xray';
+import { ChevronLeft, ChevronRight, Plus, Search, Star, Clock, MoreVertical, Users } from 'lucide-react';
 
 interface XRaySidebarProps {
   isCollapsed: boolean;
   onToggleCollapse: () => void;
-  activeView: 'new-scan' | 'search-history' | 'folders';
-  onViewChange: (view: 'new-scan' | 'search-history' | 'folders') => void;
+  activeView: 'new-scan' | 'search-history';
+  onViewChange: (view: 'new-scan' | 'search-history') => void;
   onLoadCurl: (curl: string) => void;
   onSelectReport: (report: AnalysisReport) => void;
+  sharedReports: AnalysisReport[];
   starredReports: AnalysisReport[];
   recentReports: AnalysisReport[];
   onToggleStar: (reportId: string) => void;
-  onShowInFolder: (reportId: string) => void;
 }
 
 export const XRaySidebar: React.FC<XRaySidebarProps> = ({
@@ -22,12 +22,48 @@ export const XRaySidebar: React.FC<XRaySidebarProps> = ({
   onViewChange,
   onLoadCurl,
   onSelectReport,
+  sharedReports,
   starredReports,
   recentReports,
-  onToggleStar,
-  onShowInFolder
+  onToggleStar
 }) => {
-  const [contextMenu, setContextMenu] = useState<{ reportId: string; x: number; y: number } | null>(null);
+  const [contextMenu, setContextMenu] = useState<{
+    reportId: string;
+    x: number;
+    y: number;
+  } | null>(null);
+
+  const handleReportClick = (report: AnalysisReport) => {
+    onSelectReport(report);
+  };
+
+  const handleContextMenu = (reportId: string, event: React.MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setContextMenu({
+      reportId,
+      x: event.clientX,
+      y: event.clientY
+    });
+  };
+
+  const closeContextMenu = () => {
+    setContextMenu(null);
+  };
+
+  const truncateCommand = (command: string, maxLength: number = 35): string => {
+    return command.length > maxLength ? command.substring(0, maxLength) + '...' : command;
+  };
+
+  const getMethodColor = (method: string): string => {
+    switch (method) {
+      case 'GET': return '#10B981';
+      case 'POST': return '#3B82F6';
+      case 'PUT': return '#F59E0B';
+      case 'DELETE': return '#EF4444';
+      default: return 'hsl(var(--muted-foreground))';
+    }
+  };
 
   const sidebarStyle: React.CSSProperties = {
     width: isCollapsed ? '60px' : '300px',
@@ -81,6 +117,9 @@ export const XRaySidebar: React.FC<XRaySidebarProps> = ({
   };
 
   const sectionHeaderStyle: React.CSSProperties = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
     padding: '16px 16px 8px',
     fontSize: '12px',
     fontWeight: '600',
@@ -89,7 +128,7 @@ export const XRaySidebar: React.FC<XRaySidebarProps> = ({
     letterSpacing: '0.5px'
   };
 
-  const curlItemStyle: React.CSSProperties = {
+  const reportItemStyle: React.CSSProperties = {
     padding: '8px 16px',
     margin: '2px 8px',
     borderRadius: '6px',
@@ -97,67 +136,7 @@ export const XRaySidebar: React.FC<XRaySidebarProps> = ({
     transition: 'all 0.2s',
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'space-between',
     gap: '8px'
-  };
-
-  const curlCommandStyle: React.CSSProperties = {
-    fontSize: '11px',
-    color: 'hsl(var(--muted-foreground))',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap',
-    fontFamily: 'monospace'
-  };
-
-  const timestampStyle: React.CSSProperties = {
-    fontSize: '10px',
-    color: 'hsl(var(--muted-foreground))',
-    opacity: 0.7
-  };
-
-  const configButtonStyle: React.CSSProperties = {
-    padding: '4px',
-    backgroundColor: 'transparent',
-    border: 'none',
-    borderRadius: '4px',
-    cursor: 'pointer',
-    color: 'hsl(var(--muted-foreground))',
-    opacity: 0,
-    transition: 'all 0.2s'
-  };
-
-
-  const handleReportClick = (report: AnalysisReport) => {
-    onSelectReport(report);
-  };
-
-  const handleContextMenu = (reportId: string, event: React.MouseEvent) => {
-    event.preventDefault();
-    event.stopPropagation();
-    setContextMenu({
-      reportId,
-      x: event.clientX,
-      y: event.clientY
-    });
-  };
-
-  const closeContextMenu = () => {
-    setContextMenu(null);
-  };
-
-  const truncateCommand = (command: string, maxLength: number = 35): string => {
-    return command.length > maxLength ? command.substring(0, maxLength) + '...' : command;
-  };
-
-  const getMethodColor = (method: string): string => {
-    switch (method) {
-      case 'GET': return '#10B981';
-      case 'POST': return '#3B82F6';
-      case 'PUT': return '#F59E0B';
-      case 'DELETE': return '#EF4444';
-      default: return 'hsl(var(--muted-foreground))';
-    }
   };
 
   return (
@@ -166,154 +145,278 @@ export const XRaySidebar: React.FC<XRaySidebarProps> = ({
         {isCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
       </button>
 
-      {/* Top Navigation */}
+      {/* Top Navigation Buttons */}
       <div style={{ padding: '20px 0 16px', borderBottom: '1px solid hsl(var(--border))' }}>
         <button
-          style={activeView === 'new-scan' ? activeNavButtonStyle : navButtonStyle}
           onClick={() => onViewChange('new-scan')}
-          title="New Scan"
+          style={{
+            ...navButtonStyle,
+            ...(activeView === 'new-scan' ? activeNavButtonStyle : {})
+          }}
         >
-          <Scan size={18} />
+          <Plus style={{ width: '16px', height: '16px' }} />
           {!isCollapsed && <span>New Scan</span>}
         </button>
-        
         <button
-          style={activeView === 'search-history' ? activeNavButtonStyle : navButtonStyle}
           onClick={() => onViewChange('search-history')}
-          title="Search History"
+          style={{
+            ...navButtonStyle,
+            ...(activeView === 'search-history' ? activeNavButtonStyle : {})
+          }}
         >
-          <Search size={18} />
+          <Search style={{ width: '16px', height: '16px' }} />
           {!isCollapsed && <span>Search History</span>}
-        </button>
-        
-        <button
-          style={activeView === 'folders' ? activeNavButtonStyle : navButtonStyle}
-          onClick={() => onViewChange('folders')}
-          title="Folders"
-        >
-          <Folder size={18} />
-          {!isCollapsed && <span>Folders</span>}
         </button>
       </div>
 
-      {/* Bottom Sections */}
-      {!isCollapsed && (
-        <div style={{ flex: 1, overflow: 'auto' }}>
-          {/* Starred Analysis Reports */}
-          <div style={{ marginTop: '16px' }}>
-            <div style={sectionHeaderStyle}>
-              <Star size={12} style={{ display: 'inline', marginRight: '6px' }} />
-              Starred Reports
-            </div>
-            {starredReports.map((report) => (
-              <div
-                key={report.id}
-                style={curlItemStyle}
-                onClick={() => handleReportClick(report)}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = 'hsl(var(--muted))';
-                  const configBtn = e.currentTarget.querySelector('[data-config-btn]') as HTMLElement;
-                  if (configBtn) configBtn.style.opacity = '1';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'transparent';
-                  const configBtn = e.currentTarget.querySelector('[data-config-btn]') as HTMLElement;
-                  if (configBtn) configBtn.style.opacity = '0';
-                }}
-              >
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
-                    <span style={{
-                      backgroundColor: getMethodColor(report.method),
-                      color: '#ffffff',
-                      padding: '2px 6px',
-                      borderRadius: '3px',
-                      fontSize: '10px',
-                      fontWeight: '600'
-                    }}>
-                      {report.method}
-                    </span>
-                    <div style={{ ...curlCommandStyle, margin: 0, padding: 0, backgroundColor: 'transparent' }}>
-                      {truncateCommand(report.curlCommand)}
-                    </div>
-                  </div>
-                  <div style={timestampStyle}>{report.timestamp}</div>
-                </div>
-                <button
-                  data-config-btn
-                  style={configButtonStyle}
-                  onClick={(e) => handleContextMenu(report.id, e)}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = 'hsl(var(--muted))';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = 'transparent';
-                  }}
-                >
-                  <MoreVertical size={14} />
-                </button>
-              </div>
-            ))}
+      {/* Content Sections */}
+      <div style={{ flex: 1, overflow: 'auto' }}>
+        {/* Shared with You */}
+        <div style={{ padding: '16px 0 8px 0' }}>
+          <div style={sectionHeaderStyle}>
+            <Users style={{ width: '14px', height: '14px' }} />
+            {!isCollapsed && <span>Shared with You</span>}
           </div>
-
-          {/* Recent Analysis Reports */}
-          <div style={{ marginTop: '24px' }}>
-            <div style={sectionHeaderStyle}>
-              <Clock size={12} style={{ display: 'inline', marginRight: '6px' }} />
-              Recent Reports
-            </div>
-            {recentReports.slice(0, 5).map((report) => (
-              <div
-                key={report.id}
-                style={curlItemStyle}
-                onClick={() => handleReportClick(report)}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = 'hsl(var(--muted))';
-                  const configBtn = e.currentTarget.querySelector('[data-config-btn]') as HTMLElement;
-                  if (configBtn) configBtn.style.opacity = '1';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'transparent';
-                  const configBtn = e.currentTarget.querySelector('[data-config-btn]') as HTMLElement;
-                  if (configBtn) configBtn.style.opacity = '0';
-                }}
-              >
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
-                    <span style={{
-                      backgroundColor: getMethodColor(report.method),
-                      color: '#ffffff',
-                      padding: '2px 6px',
-                      borderRadius: '3px',
-                      fontSize: '10px',
-                      fontWeight: '600'
-                    }}>
-                      {report.method}
-                    </span>
-                    <div style={{ ...curlCommandStyle, margin: 0, padding: 0, backgroundColor: 'transparent' }}>
-                      {truncateCommand(report.curlCommand)}
-                    </div>
-                  </div>
-                  <div style={timestampStyle}>{report.timestamp}</div>
+          {!isCollapsed && (
+            <div style={{ padding: '8px 0' }}>
+              {sharedReports.length === 0 ? (
+                <div style={{ 
+                  padding: '8px 16px', 
+                  color: 'hsl(var(--muted-foreground))', 
+                  fontSize: '12px' 
+                }}>
+                  No shared items
                 </div>
-                <button
-                  data-config-btn
-                  style={configButtonStyle}
-                  onClick={(e) => handleContextMenu(report.id, e)}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = 'hsl(var(--muted))';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = 'transparent';
-                  }}
-                >
-                  <MoreVertical size={14} />
-                </button>
-              </div>
-            ))}
-          </div>
+              ) : (
+                sharedReports.map((report) => (
+                  <div
+                    key={report.id}
+                    style={reportItemStyle}
+                    onClick={() => handleReportClick(report)}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = 'hsl(var(--muted))';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = 'transparent';
+                    }}
+                  >
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{
+                        fontSize: '12px',
+                        fontWeight: '500',
+                        color: 'hsl(var(--foreground))',
+                        marginBottom: '2px'
+                      }}>
+                        <span style={{ 
+                          padding: '2px 6px', 
+                          borderRadius: '4px', 
+                          fontSize: '10px', 
+                          fontWeight: '600',
+                          backgroundColor: getMethodColor(report.method),
+                          color: 'white',
+                          marginRight: '6px'
+                        }}>
+                          {report.method}
+                        </span>
+                        {new URL(report.url).pathname}
+                      </div>
+                      <div style={{
+                        fontSize: '10px',
+                        color: 'hsl(var(--muted-foreground))',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap'
+                      }}>
+                        {truncateCommand(report.curlCommand, 35)}
+                      </div>
+                    </div>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleContextMenu(report.id, e);
+                      }}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        cursor: 'pointer',
+                        padding: '4px',
+                        color: 'hsl(var(--muted-foreground))',
+                        opacity: 0.7
+                      }}
+                    >
+                      <MoreVertical style={{ width: '12px', height: '12px' }} />
+                    </button>
+                  </div>
+                ))
+              )}
+            </div>
+          )}
         </div>
-      )}
+
+        {/* Starred */}
+        <div style={{ padding: '8px 0' }}>
+          <div style={sectionHeaderStyle}>
+            <Star style={{ width: '14px', height: '14px' }} />
+            {!isCollapsed && <span>Starred</span>}
+          </div>
+          {!isCollapsed && (
+            <div style={{ padding: '8px 0' }}>
+              {starredReports.length === 0 ? (
+                <div style={{ 
+                  padding: '8px 16px', 
+                  color: 'hsl(var(--muted-foreground))', 
+                  fontSize: '12px' 
+                }}>
+                  No starred items
+                </div>
+              ) : (
+                starredReports.map((report) => (
+                  <div
+                    key={report.id}
+                    style={reportItemStyle}
+                    onClick={() => handleReportClick(report)}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = 'hsl(var(--muted))';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = 'transparent';
+                    }}
+                  >
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{
+                        fontSize: '12px',
+                        fontWeight: '500',
+                        color: 'hsl(var(--foreground))',
+                        marginBottom: '2px'
+                      }}>
+                        <span style={{ 
+                          padding: '2px 6px', 
+                          borderRadius: '4px', 
+                          fontSize: '10px', 
+                          fontWeight: '600',
+                          backgroundColor: getMethodColor(report.method),
+                          color: 'white',
+                          marginRight: '6px'
+                        }}>
+                          {report.method}
+                        </span>
+                        {new URL(report.url).pathname}
+                      </div>
+                      <div style={{
+                        fontSize: '10px',
+                        color: 'hsl(var(--muted-foreground))',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap'
+                      }}>
+                        {truncateCommand(report.curlCommand, 35)}
+                      </div>
+                    </div>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleContextMenu(report.id, e);
+                      }}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        cursor: 'pointer',
+                        padding: '4px',
+                        color: 'hsl(var(--muted-foreground))',
+                        opacity: 0.7
+                      }}
+                    >
+                      <MoreVertical style={{ width: '12px', height: '12px' }} />
+                    </button>
+                  </div>
+                ))
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Recent */}
+        <div style={{ padding: '8px 0' }}>
+          <div style={sectionHeaderStyle}>
+            <Clock style={{ width: '14px', height: '14px' }} />
+            {!isCollapsed && <span>Recent</span>}
+          </div>
+          {!isCollapsed && (
+            <div style={{ padding: '8px 0' }}>
+              {recentReports.length === 0 ? (
+                <div style={{ 
+                  padding: '8px 16px', 
+                  color: 'hsl(var(--muted-foreground))', 
+                  fontSize: '12px' 
+                }}>
+                  No recent items
+                </div>
+              ) : (
+                recentReports.map((report) => (
+                  <div
+                    key={report.id}
+                    style={reportItemStyle}
+                    onClick={() => handleReportClick(report)}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = 'hsl(var(--muted))';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = 'transparent';
+                    }}
+                  >
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{
+                        fontSize: '12px',
+                        fontWeight: '500',
+                        color: 'hsl(var(--foreground))',
+                        marginBottom: '2px'
+                      }}>
+                        <span style={{ 
+                          padding: '2px 6px', 
+                          borderRadius: '4px', 
+                          fontSize: '10px', 
+                          fontWeight: '600',
+                          backgroundColor: getMethodColor(report.method),
+                          color: 'white',
+                          marginRight: '6px'
+                        }}>
+                          {report.method}
+                        </span>
+                        {new URL(report.url).pathname}
+                      </div>
+                      <div style={{
+                        fontSize: '10px',
+                        color: 'hsl(var(--muted-foreground))',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap'
+                      }}>
+                        {truncateCommand(report.curlCommand, 35)}
+                      </div>
+                    </div>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleContextMenu(report.id, e);
+                      }}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        cursor: 'pointer',
+                        padding: '4px',
+                        color: 'hsl(var(--muted-foreground))',
+                        opacity: 0.7
+                      }}
+                    >
+                      <MoreVertical style={{ width: '12px', height: '12px' }} />
+                    </button>
+                  </div>
+                ))
+              )}
+            </div>
+          )}
+        </div>
+      </div>
 
       {/* Context Menu */}
       {contextMenu && (
@@ -369,35 +472,7 @@ export const XRaySidebar: React.FC<XRaySidebarProps> = ({
               }}
             >
               <Star size={14} />
-              {starredReports.find(r => r.id === contextMenu.reportId) ? 'Remove from Star' : 'Add to Star'}
-            </button>
-            <button
-              onClick={() => {
-                onShowInFolder(contextMenu.reportId);
-                closeContextMenu();
-              }}
-              style={{
-                width: '100%',
-                padding: '12px 16px',
-                backgroundColor: 'transparent',
-                border: 'none',
-                textAlign: 'left',
-                fontSize: '14px',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                color: 'hsl(var(--foreground))'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = 'hsl(var(--muted))';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'transparent';
-              }}
-            >
-              <FolderOpen size={14} />
-              Show in Folder
+              {starredReports.find(r => r.id === contextMenu.reportId) ? 'Remove Star' : 'Add Star'}
             </button>
           </div>
         </>
