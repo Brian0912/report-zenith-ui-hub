@@ -43,6 +43,8 @@ export const TrafficAnnotatorPage: React.FC = () => {
     setSearchTerm,
     addReport,
     addFolder,
+    moveReport,
+    renameFolder,
     starredReports,
     recentReports,
     filteredReports
@@ -54,9 +56,13 @@ export const TrafficAnnotatorPage: React.FC = () => {
     setResponse(null);
     setError(null);
     setCurrentReport(null);
-    if (activeView !== 'new-scan') {
-      setActiveView('new-scan');
-    }
+    setActiveView('new-scan');
+  };
+
+  const handleViewChange = (view: 'new-scan' | 'search-history' | 'folders') => {
+    // Always reset main area when changing views
+    setCurrentReport(null);
+    setActiveView(view);
   };
 
   const handleSelectReport = (report: AnalysisReport) => {
@@ -109,6 +115,20 @@ export const TrafficAnnotatorPage: React.FC = () => {
     setCurrentReport(newReport);
   };
 
+  const handleMoveReport = (reportId: string, targetFolderId: string) => {
+    moveReport(reportId, targetFolderId);
+  };
+
+  const handleRenameFolder = (folderId: string, newName: string) => {
+    renameFolder(folderId, newName);
+  };
+
+  const handleNewScanInFolder = (folderId: string) => {
+    setSelectedFolder(folderId);
+    setActiveView('new-scan');
+    setCurrentReport(null);
+  };
+
   const containerStyle: React.CSSProperties = {
     display: 'flex',
     minHeight: '100vh',
@@ -154,6 +174,9 @@ export const TrafficAnnotatorPage: React.FC = () => {
             reports={state.reports}
             onCreateFolder={addFolder}
             highlightedReportId={highlightedReportId}
+            onMoveReport={handleMoveReport}
+            onRenameFolder={handleRenameFolder}
+            onNewScanInFolder={handleNewScanInFolder}
           />
         );
       default:
@@ -197,7 +220,7 @@ export const TrafficAnnotatorPage: React.FC = () => {
         isCollapsed={sidebarCollapsed}
         onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
         activeView={activeView}
-        onViewChange={setActiveView}
+        onViewChange={handleViewChange}
         onLoadCurl={handleLoadCurl}
         onSelectReport={handleSelectReport}
         starredReports={starredReports}

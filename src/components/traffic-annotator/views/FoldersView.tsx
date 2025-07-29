@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Folder, FolderOpen, File, Plus, MoreVertical, ChevronRight, ChevronDown } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { Folder, FolderOpen, File, Plus, MoreVertical, ChevronRight, ChevronDown, Edit2, Scan } from 'lucide-react';
 import { FolderNode, AnalysisReport } from '../../../types/xray';
 
 interface FoldersViewProps {
@@ -9,6 +9,9 @@ interface FoldersViewProps {
   reports: AnalysisReport[];
   onCreateFolder: (name: string, parentId?: string) => void;
   highlightedReportId?: string;
+  onMoveReport: (reportId: string, targetFolderId: string) => void;
+  onRenameFolder: (folderId: string, newName: string) => void;
+  onNewScanInFolder: (folderId: string) => void;
 }
 
 export const FoldersView: React.FC<FoldersViewProps> = ({ 
@@ -17,11 +20,20 @@ export const FoldersView: React.FC<FoldersViewProps> = ({
   folders, 
   reports, 
   onCreateFolder, 
-  highlightedReportId 
+  highlightedReportId,
+  onMoveReport,
+  onRenameFolder,
+  onNewScanInFolder
 }) => {
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set(folders.map(f => f.id)));
   const [newFolderName, setNewFolderName] = useState('');
   const [creatingFolder, setCreatingFolder] = useState(false);
+  const [folderContextMenu, setFolderContextMenu] = useState<{ folderId: string; x: number; y: number } | null>(null);
+  const [editingFolder, setEditingFolder] = useState<string | null>(null);
+  const [editFolderName, setEditFolderName] = useState('');
+  const [draggedReport, setDraggedReport] = useState<string | null>(null);
+  const [dropTarget, setDropTarget] = useState<string | null>(null);
+  const dragRef = useRef<HTMLDivElement>(null);
 
   const toggleFolder = (folderId: string) => {
     const newExpanded = new Set(expandedFolders);
@@ -50,6 +62,61 @@ export const FoldersView: React.FC<FoldersViewProps> = ({
       setNewFolderName('');
       setCreatingFolder(false);
     }
+  };
+
+  const handleFolderContextMenu = (folderId: string, event: React.MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setFolderContextMenu({
+      folderId,
+      x: event.clientX,
+      y: event.clientY
+    });
+  };
+
+  const closeFolderContextMenu = () => {
+    setFolderContextMenu(null);
+  };
+
+  const handleRenameStart = (folderId: string, currentName: string) => {
+    setEditingFolder(folderId);
+    setEditFolderName(currentName);
+    closeFolderContextMenu();
+  };
+
+  const handleRenameComplete = () => {
+    if (editingFolder && editFolderName.trim()) {
+      onRenameFolder(editingFolder, editFolderName.trim());
+    }
+    setEditingFolder(null);
+    setEditFolderName('');
+  };
+
+  const handleRenameCancel = () => {
+    setEditingFolder(null);
+    setEditFolderName('');
+  };
+
+  const handleDragStart = (reportId: string) => {
+    setDraggedReport(reportId);
+  };
+
+  const handleDragOver = (event: React.DragEvent, folderId: string) => {
+    event.preventDefault();
+    setDropTarget(folderId);
+  };
+
+  const handleDragLeave = () => {
+    setDropTarget(null);
+  };
+
+  const handleDrop = (event: React.DragEvent, targetFolderId: string) => {
+    event.preventDefault();
+    if (draggedReport && draggedReport !== targetFolderId) {
+      onMoveReport(draggedReport, targetFolderId);
+    }
+    setDraggedReport(null);
+    setDropTarget(null);
   };
 
   const renderTreeNode = (node: FolderNode, depth: number = 0): React.ReactNode => {
@@ -98,8 +165,16 @@ export const FoldersView: React.FC<FoldersViewProps> = ({
     return (
       <div key={node.id}>
         <div
-          style={nodeStyle}
+          ref={dragRef}
+          style={{
+            ...nodeStyle,
+            backgroundColor: node.type === 'folder' && dropTarget === node.id ? 'hsl(var(--primary) / 0.1)' : 
+                           highlightedReportId && node.reportId === highlightedReportId ? 'hsl(var(--primary) / 0.2)' : 'transparent',
+            border: node.type === 'folder' && dropTarget === node.id ? '2px dashed hsl(var(--primary))' : 'none',
+            cursor: node.type === 'report' ? 'move' : 'pointer'
+          }}
           onClick={() => {
+            if (editingFolder === node.id) return;
             if (node.type === 'folder') {
               toggleFolder(node.id);
             } else if (node.type === 'report' && node.reportId) {
@@ -107,15 +182,25 @@ export const FoldersView: React.FC<FoldersViewProps> = ({
             }
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = 'hsl(var(--muted))';
-            const actionBtn = e.currentTarget.querySelector('[data-action-btn]') as HTMLElement;
-            if (actionBtn) actionBtn.style.opacity = '1';
+            if (editingFolder !== node.id) {
+              e.currentTarget.style.backgroundColor = node.type === 'folder' && dropTarget === node.id ? 'hsl(var(--primary) / 0.1)' : 'hsl(var(--muted))';
+              const actionBtn = e.currentTarget.querySelector('[data-action-btn]') as HTMLElement;
+              if (actionBtn) actionBtn.style.opacity = '1';
+            }
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = 'transparent';
-            const actionBtn = e.currentTarget.querySelector('[data-action-btn]') as HTMLElement;
-            if (actionBtn) actionBtn.style.opacity = '0';
+            if (editingFolder !== node.id) {
+              e.currentTarget.style.backgroundColor = node.type === 'folder' && dropTarget === node.id ? 'hsl(var(--primary) / 0.1)' : 
+                                                     highlightedReportId && node.reportId === highlightedReportId ? 'hsl(var(--primary) / 0.2)' : 'transparent';
+              const actionBtn = e.currentTarget.querySelector('[data-action-btn]') as HTMLElement;
+              if (actionBtn) actionBtn.style.opacity = '0';
+            }
           }}
+          draggable={node.type === 'report'}
+          onDragStart={() => node.reportId && handleDragStart(node.reportId)}
+          onDragOver={(e) => node.type === 'folder' && handleDragOver(e, node.id)}
+          onDragLeave={handleDragLeave}
+          onDrop={(e) => node.type === 'folder' && handleDrop(e, node.id)}
         >
           {node.type === 'folder' && (
             <div style={{ width: '16px', display: 'flex', justifyContent: 'center' }}>
@@ -134,7 +219,32 @@ export const FoldersView: React.FC<FoldersViewProps> = ({
             )}
           </div>
           
-          <span style={nameStyle}>{node.name}</span>
+          {editingFolder === node.id ? (
+            <input
+              type="text"
+              value={editFolderName}
+              onChange={(e) => setEditFolderName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') handleRenameComplete();
+                if (e.key === 'Escape') handleRenameCancel();
+              }}
+              onBlur={handleRenameComplete}
+              style={{
+                flex: 1,
+                padding: '4px 8px',
+                border: '1px solid hsl(var(--border))',
+                borderRadius: '4px',
+                fontSize: '14px',
+                fontWeight: '600',
+                backgroundColor: 'hsl(var(--background))',
+                color: 'hsl(var(--foreground))',
+                outline: 'none'
+              }}
+              autoFocus
+            />
+          ) : (
+            <span style={nameStyle}>{node.name}</span>
+          )}
           
           {node.type === 'folder' && folderReports.length > 0 && (
             <span style={{ 
@@ -158,22 +268,21 @@ export const FoldersView: React.FC<FoldersViewProps> = ({
             }} />
           )}
           
-          <button
-            data-action-btn
-            style={actionButtonStyle}
-            onClick={(e) => {
-              e.stopPropagation();
-              // Handle action menu
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = 'hsl(var(--muted))';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = 'transparent';
-            }}
-          >
-            <MoreVertical size={14} />
-          </button>
+          {node.type === 'folder' && (
+            <button
+              data-action-btn
+              style={actionButtonStyle}
+              onClick={(e) => handleFolderContextMenu(node.id, e)}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = 'hsl(var(--muted))';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent';
+              }}
+            >
+              <MoreVertical size={14} />
+            </button>
+          )}
         </div>
         
         {node.type === 'folder' && isExpanded && (
@@ -344,6 +453,124 @@ export const FoldersView: React.FC<FoldersViewProps> = ({
           </div>
         )}
       </div>
+
+      {/* Folder Context Menu */}
+      {folderContextMenu && (
+        <>
+          <div
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              zIndex: 998
+            }}
+            onClick={closeFolderContextMenu}
+          />
+          <div
+            style={{
+              position: 'fixed',
+              top: folderContextMenu.y,
+              left: folderContextMenu.x,
+              backgroundColor: 'hsl(var(--card))',
+              border: '1px solid hsl(var(--border))',
+              borderRadius: '8px',
+              boxShadow: '0 8px 24px rgba(0, 0, 0, 0.15)',
+              zIndex: 999,
+              minWidth: '200px',
+              overflow: 'hidden'
+            }}
+          >
+            <button
+              onClick={() => {
+                const folder = folders.find(f => f.id === folderContextMenu.folderId);
+                if (folder) {
+                  handleRenameStart(folder.id, folder.name);
+                }
+              }}
+              style={{
+                width: '100%',
+                padding: '12px 16px',
+                backgroundColor: 'transparent',
+                border: 'none',
+                textAlign: 'left',
+                fontSize: '14px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                color: 'hsl(var(--foreground))'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = 'hsl(var(--muted))';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent';
+              }}
+            >
+              <Edit2 size={14} />
+              Rename
+            </button>
+            <button
+              onClick={() => {
+                setCreatingFolder(true);
+                closeFolderContextMenu();
+              }}
+              style={{
+                width: '100%',
+                padding: '12px 16px',
+                backgroundColor: 'transparent',
+                border: 'none',
+                textAlign: 'left',
+                fontSize: '14px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                color: 'hsl(var(--foreground))'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = 'hsl(var(--muted))';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent';
+              }}
+            >
+              <Plus size={14} />
+              Create Subfolder
+            </button>
+            <button
+              onClick={() => {
+                onNewScanInFolder(folderContextMenu.folderId);
+                closeFolderContextMenu();
+              }}
+              style={{
+                width: '100%',
+                padding: '12px 16px',
+                backgroundColor: 'transparent',
+                border: 'none',
+                textAlign: 'left',
+                fontSize: '14px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                color: 'hsl(var(--foreground))'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = 'hsl(var(--muted))';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent';
+              }}
+            >
+              <Scan size={14} />
+              New Scan in This Folder
+            </button>
+          </div>
+        </>
+      )}
     </div>
   );
 };

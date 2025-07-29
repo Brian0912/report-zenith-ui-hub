@@ -108,6 +108,27 @@ export const useXRayState = () => {
     }));
   }, []);
 
+  const renameFolder = useCallback((folderId: string, newName: string) => {
+    setState(prev => {
+      const updateFolderName = (folders: FolderNode[]): FolderNode[] => {
+        return folders.map(folder => {
+          if (folder.id === folderId) {
+            return { ...folder, name: newName, updatedAt: new Date().toISOString() };
+          }
+          if (folder.children) {
+            return { ...folder, children: updateFolderName(folder.children) };
+          }
+          return folder;
+        });
+      };
+
+      return {
+        ...prev,
+        folders: updateFolderName(prev.folders)
+      };
+    });
+  }, []);
+
   // Computed values
   const starredReports = useMemo(() => 
     state.reports.filter(report => state.starredReportIds.has(report.id)),
@@ -163,6 +184,7 @@ export const useXRayState = () => {
     addReport,
     addFolder,
     moveReport,
+    renameFolder,
     starredReports,
     recentReports,
     filteredReports,
