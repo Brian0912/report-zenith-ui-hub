@@ -108,8 +108,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
 
   const containerStyle: React.CSSProperties = {
     padding: '24px',
-    maxWidth: '1400px',
-    margin: '0 auto'
+    width: '100%'
   };
 
   const headerStyle: React.CSSProperties = {

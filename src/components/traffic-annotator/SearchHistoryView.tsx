@@ -37,8 +37,7 @@ export const SearchHistoryView: React.FC<SearchHistoryViewProps> = ({
 
   const containerStyle: React.CSSProperties = {
     padding: '24px',
-    maxWidth: '800px',
-    margin: '0 auto'
+    width: '100%'
   };
 
   const searchBarStyle: React.CSSProperties = {

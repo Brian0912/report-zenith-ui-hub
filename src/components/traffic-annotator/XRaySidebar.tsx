@@ -56,10 +56,10 @@ export const XRaySidebar: React.FC<XRaySidebarProps> = ({
   };
 
   const sidebarStyle: React.CSSProperties = {
-    position: 'fixed',
+    position: 'absolute',
     top: 0,
     left: 0,
-    height: '100vh',
+    height: '100%',
     width: isOpen ? '320px' : '60px',
     backgroundColor: '#ffffff',
     borderRight: '1px solid #e5e7eb',

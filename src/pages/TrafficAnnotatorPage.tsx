@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { TrafficAnnotatorHeader } from '../components/traffic-annotator/TrafficAnnotatorHeader';
 import { CurlInputPanel } from '../components/traffic-annotator/CurlInputPanel';
@@ -125,32 +124,34 @@ export const TrafficAnnotatorPage: React.FC = () => {
   };
 
   const containerStyle: React.CSSProperties = {
-    display: 'flex',
-    minHeight: '100vh',
-    backgroundColor: '#f8fafc'
+    position: 'relative',
+    height: '100vh',
+    backgroundColor: '#f8fafc',
+    overflow: 'hidden'
   };
 
   const mainContentStyle: React.CSSProperties = {
-    flex: 1,
     marginLeft: sidebarOpen ? '320px' : '60px',
     transition: 'margin-left 0.3s ease-in-out',
-    minHeight: '100vh',
+    height: '100vh',
     display: 'flex',
-    flexDirection: 'column'
+    flexDirection: 'column',
+    overflow: 'hidden'
   };
 
   const contentAreaStyle: React.CSSProperties = {
     flex: 1,
-    maxWidth: '1400px',
-    margin: '0 auto',
-    padding: '32px 24px',
-    width: '100%'
+    overflow: 'auto',
+    padding: '32px 24px'
   };
 
   const newScanLayoutStyle: React.CSSProperties = {
     display: 'grid',
     gridTemplateColumns: '1fr',
-    gap: '32px'
+    gap: '32px',
+    maxWidth: '1400px',
+    margin: '0 auto',
+    width: '100%'
   };
 
   const renderMainContent = () => {
