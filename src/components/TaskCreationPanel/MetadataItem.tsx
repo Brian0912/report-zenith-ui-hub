@@ -1,7 +1,10 @@
 
 import React from 'react';
-import { X } from 'lucide-react';
+import { X, ChevronDown } from 'lucide-react';
 import { MetadataItemType, METADATA_CATEGORIES } from './types';
+import { AutocompleteInput } from './AutocompleteInput';
+import { MultiSelectDropdown } from './MultiSelectDropdown';
+import { RangeSliderInput } from './RangeSliderInput';
 
 interface MetadataItemProps {
   item: MetadataItemType;
@@ -14,60 +17,203 @@ export const MetadataItem: React.FC<MetadataItemProps> = ({ item, onUpdate, onRe
   const option = category.options.find(opt => opt.key === item.key);
   const IconComponent = category.icon;
 
+  const renderInput = () => {
+    if (!option) return null;
+
+    const commonInputStyle: React.CSSProperties = {
+      width: '100%',
+      padding: '8px',
+      fontSize: '14px',
+      border: '1px solid #d1d5db',
+      borderRadius: '6px',
+      outline: 'none'
+    };
+
+    switch (option.inputType) {
+      case 'autocomplete':
+        return (
+          <AutocompleteInput
+            value={item.value}
+            onChange={(value) => onUpdate(item.id, value)}
+            placeholder={option.placeholder}
+            examples={option.examples}
+          />
+        );
+
+      case 'dropdown':
+        return (
+          <div style={{ position: 'relative' }}>
+            <select
+              value={item.value}
+              onChange={(e) => onUpdate(item.id, e.target.value)}
+              style={{
+                ...commonInputStyle,
+                appearance: 'none',
+                paddingRight: '32px',
+                cursor: 'pointer'
+              }}
+            >
+              <option value="">{option.placeholder}</option>
+              {option.options?.map((opt) => (
+                <option key={opt} value={opt}>
+                  {opt}
+                </option>
+              ))}
+            </select>
+            <ChevronDown
+              size={16}
+              style={{
+                position: 'absolute',
+                right: '8px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                color: '#9ca3af',
+                pointerEvents: 'none'
+              }}
+            />
+          </div>
+        );
+
+      case 'multiselect':
+        return (
+          <MultiSelectDropdown
+            value={item.value}
+            onChange={(value) => onUpdate(item.id, value)}
+            options={option.options || []}
+            placeholder={option.placeholder}
+          />
+        );
+
+      case 'datetime':
+        return (
+          <input
+            type="datetime-local"
+            value={item.value}
+            onChange={(e) => onUpdate(item.id, e.target.value)}
+            style={commonInputStyle}
+          />
+        );
+
+      case 'range':
+        return (
+          <RangeSliderInput
+            value={item.value}
+            onChange={(value) => onUpdate(item.id, value)}
+            placeholder={option.placeholder}
+            max={option.key.includes('nodes') ? 5000 : 100}
+          />
+        );
+
+      case 'number':
+        return (
+          <input
+            type="number"
+            value={item.value}
+            onChange={(e) => onUpdate(item.id, e.target.value)}
+            placeholder={option.placeholder}
+            style={commonInputStyle}
+          />
+        );
+
+      case 'text':
+      default:
+        return (
+          <input
+            type="text"
+            value={item.value}
+            onChange={(e) => onUpdate(item.id, e.target.value)}
+            placeholder={option.placeholder}
+            style={commonInputStyle}
+          />
+        );
+    }
+  };
+
   return (
     <div
       style={{
         display: 'flex',
-        alignItems: 'center',
+        alignItems: 'flex-start',
         gap: '12px',
-        padding: '12px',
+        padding: '16px',
         backgroundColor: '#ffffff',
         border: '1px solid #e5e7eb',
-        borderRadius: '8px',
+        borderRadius: '12px',
         transition: 'all 0.2s ease'
       }}
     >
       <div style={{
-        width: '24px',
-        height: '24px',
-        borderRadius: '50%',
+        width: '32px',
+        height: '32px',
+        borderRadius: '8px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: '#dbeafe',
-        flexShrink: 0
+        flexShrink: 0,
+        marginTop: '4px'
       }}>
-        <IconComponent size={12} style={{ color: '#2563eb' }} />
+        <IconComponent size={16} style={{ color: '#2563eb' }} />
       </div>
+      
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-          <span style={{ fontSize: '12px', fontWeight: '500', color: '#6b7280' }}>{category.name}</span>
-          <span style={{ fontSize: '12px', color: '#9ca3af' }}>•</span>
-          <span style={{ fontSize: '12px', fontWeight: '500', color: '#1f2937' }}>{option?.label}</span>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+            <span style={{ 
+              fontSize: '12px', 
+              fontWeight: '600', 
+              color: '#6b7280',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px'
+            }}>
+              {category.name}
+            </span>
+            <span style={{ fontSize: '12px', color: '#d1d5db' }}>•</span>
+            <span style={{ 
+              fontSize: '14px', 
+              fontWeight: '600', 
+              color: '#1f2937'
+            }}>
+              {option?.label}
+            </span>
+            {option?.inputType && (
+              <span style={{
+                fontSize: '10px',
+                fontWeight: '500',
+                color: '#6b7280',
+                backgroundColor: '#f3f4f6',
+                padding: '2px 6px',
+                borderRadius: '4px',
+                textTransform: 'uppercase'
+              }}>
+                {option.inputType}
+              </span>
+            )}
+          </div>
+          
+          {option?.description && (
+            <p style={{
+              fontSize: '12px',
+              color: '#6b7280',
+              margin: 0,
+              lineHeight: '1.4'
+            }}>
+              {option.description}
+            </p>
+          )}
+
+          {option?.examples && option.examples.length > 0 && (
+            <div style={{ fontSize: '11px', color: '#9ca3af' }}>
+              Examples: {option.examples.join(', ')}
+            </div>
+          )}
+
+          <div style={{ marginTop: '4px' }}>
+            {renderInput()}
+          </div>
         </div>
-        <input
-          type="text"
-          value={item.value}
-          onChange={(e) => onUpdate(item.id, e.target.value)}
-          placeholder={option?.placeholder || 'Enter value...'}
-          style={{
-            width: '100%',
-            padding: '8px',
-            fontSize: '14px',
-            border: '1px solid #d1d5db',
-            borderRadius: '6px',
-            outline: 'none'
-          }}
-          onFocus={(e) => {
-            e.target.style.borderColor = '#3b82f6';
-            e.target.style.boxShadow = '0 0 0 1px #3b82f6';
-          }}
-          onBlur={(e) => {
-            e.target.style.borderColor = '#d1d5db';
-            e.target.style.boxShadow = 'none';
-          }}
-        />
       </div>
+      
       <button
         type="button"
         onClick={() => onRemove(item.id)}
@@ -77,12 +223,13 @@ export const MetadataItem: React.FC<MetadataItemProps> = ({ item, onUpdate, onRe
           border: 'none',
           cursor: 'pointer',
           color: '#9ca3af',
-          padding: '4px',
-          borderRadius: '4px',
+          padding: '6px',
+          borderRadius: '6px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          flexShrink: 0
+          flexShrink: 0,
+          marginTop: '4px'
         }}
         onMouseEnter={(e) => {
           e.currentTarget.style.color = '#ef4444';
@@ -93,7 +240,7 @@ export const MetadataItem: React.FC<MetadataItemProps> = ({ item, onUpdate, onRe
           e.currentTarget.style.backgroundColor = 'transparent';
         }}
       >
-        <X size={14} />
+        <X size={16} />
       </button>
     </div>
   );
