@@ -380,6 +380,71 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
       <div style={{ padding: '24px' }}>
         {parsedRequest && <SuccessBanner parsedRequest={parsedRequest} />}
         
+        {/* Annotation Section */}
+        <div style={{ marginBottom: '24px' }}>
+          <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#1a202c', marginBottom: '16px' }}>
+            Annotation
+          </h3>
+          <div style={{ 
+            border: '1px solid #e5e7eb', 
+            borderRadius: '8px', 
+            backgroundColor: '#f9fafb',
+            minHeight: '120px'
+          }}>
+            {selectedFields.length === 0 ? (
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                height: '120px',
+                color: '#9ca3af',
+                fontSize: '14px'
+              }}>
+                No annotations available
+              </div>
+            ) : (
+              <div style={{ padding: '16px' }}>
+                {selectedFields.map((field, index) => (
+                  <div key={field.id} style={{ 
+                    marginBottom: index === selectedFields.length - 1 ? '0' : '16px',
+                    padding: '12px',
+                    backgroundColor: '#ffffff',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '6px'
+                  }}>
+                    <div style={{ 
+                      fontSize: '13px', 
+                      fontWeight: '500', 
+                      color: '#374151',
+                      marginBottom: '6px'
+                    }}>
+                      {field.fieldPath} ({field.source} {field.category})
+                    </div>
+                    {field.selectedComment?.text && (
+                      <div style={{ 
+                        fontSize: '14px', 
+                        color: '#1f2937',
+                        lineHeight: '1.4'
+                      }}>
+                        {field.selectedComment.text}
+                      </div>
+                    )}
+                    {field.selectedFinding && (
+                      <div style={{ 
+                        fontSize: '12px', 
+                        color: '#6b7280',
+                        marginTop: '4px'
+                      }}>
+                        Finding: {field.selectedFinding}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+        
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
           <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#1a202c', margin: 0 }}>
             Field Analysis
