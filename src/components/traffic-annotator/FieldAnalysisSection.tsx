@@ -105,6 +105,8 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
     responseBody: []
   });
   const [selectedFields, setSelectedFields] = useState<FieldData[]>([]);
+  const [savedAnnotations, setSavedAnnotations] = useState<FieldData[][]>([]);
+  const [expandedAnnotations, setExpandedAnnotations] = useState<Record<number, boolean>>({});
   const [editingField, setEditingField] = useState<FieldData | null>(null);
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [showBulkCommentModal, setShowBulkCommentModal] = useState(false);
@@ -353,6 +355,15 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
     );
   };
 
+  const handleSaveAnnotations = (annotations: FieldData[]) => {
+    // Add the annotations as a new group
+    setSavedAnnotations(prev => [...prev, annotations]);
+    // Clear selected fields after saving
+    setSelectedFields([]);
+    // Expand the newly added annotation group
+    setExpandedAnnotations(prev => ({ ...prev, [savedAnnotations.length]: true }));
+  };
+
   const getAllFields = (): FieldData[] => {
     return Object.values(fieldAnalysisData).flat();
   };
@@ -391,7 +402,7 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
             backgroundColor: '#f9fafb',
             minHeight: '120px'
           }}>
-            {selectedFields.length === 0 ? (
+            {savedAnnotations.length === 0 ? (
               <div style={{ 
                 display: 'flex', 
                 alignItems: 'center', 
@@ -404,42 +415,100 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
               </div>
             ) : (
               <div style={{ padding: '16px' }}>
-                {selectedFields.map((field, index) => (
-                  <div key={field.id} style={{ 
-                    marginBottom: index === selectedFields.length - 1 ? '0' : '16px',
-                    padding: '12px',
-                    backgroundColor: '#ffffff',
-                    border: '1px solid #e5e7eb',
-                    borderRadius: '6px'
-                  }}>
-                    <div style={{ 
-                      fontSize: '13px', 
-                      fontWeight: '500', 
-                      color: '#374151',
-                      marginBottom: '6px'
+                {savedAnnotations.map((annotationGroup, groupIndex) => {
+                  const isExpanded = expandedAnnotations[groupIndex] ?? false;
+                  const timestamp = new Date().toLocaleString();
+                  
+                  return (
+                    <div key={groupIndex} style={{ 
+                      marginBottom: groupIndex === savedAnnotations.length - 1 ? '0' : '16px',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: '8px',
+                      backgroundColor: '#ffffff'
                     }}>
-                      {field.fieldPath} ({field.source} {field.category})
+                      <div 
+                        style={{ 
+                          padding: '12px 16px',
+                          borderBottom: isExpanded ? '1px solid #e5e7eb' : 'none',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center'
+                        }}
+                        onClick={() => setExpandedAnnotations(prev => ({ 
+                          ...prev, 
+                          [groupIndex]: !isExpanded 
+                        }))}
+                      >
+                        <div>
+                          <div style={{ 
+                            fontSize: '14px', 
+                            fontWeight: '500', 
+                            color: '#374151',
+                            marginBottom: '4px'
+                          }}>
+                            Annotation Group {groupIndex + 1} ({annotationGroup.length} fields)
+                          </div>
+                          <div style={{ 
+                            fontSize: '12px', 
+                            color: '#6b7280'
+                          }}>
+                            Saved: {timestamp}
+                          </div>
+                        </div>
+                        <div style={{ 
+                          fontSize: '18px', 
+                          color: '#6b7280',
+                          transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                          transition: 'transform 0.2s'
+                        }}>
+                          ▼
+                        </div>
+                      </div>
+                      
+                      {isExpanded && (
+                        <div style={{ padding: '16px' }}>
+                          {annotationGroup.map((field, fieldIndex) => (
+                            <div key={field.id} style={{ 
+                              marginBottom: fieldIndex === annotationGroup.length - 1 ? '0' : '12px',
+                              padding: '8px 12px',
+                              backgroundColor: '#f9fafb',
+                              border: '1px solid #e5e7eb',
+                              borderRadius: '6px'
+                            }}>
+                              <div style={{ 
+                                fontSize: '13px', 
+                                fontWeight: '500', 
+                                color: '#374151',
+                                marginBottom: '6px'
+                              }}>
+                                {field.fieldPath} ({field.source} {field.category})
+                              </div>
+                              {field.selectedComment?.text && (
+                                <div style={{ 
+                                  fontSize: '14px', 
+                                  color: '#1f2937',
+                                  lineHeight: '1.4',
+                                  marginBottom: '4px'
+                                }}>
+                                  {field.selectedComment.text}
+                                </div>
+                              )}
+                              {field.selectedFinding && (
+                                <div style={{ 
+                                  fontSize: '12px', 
+                                  color: '#6b7280'
+                                }}>
+                                  Finding: {field.selectedFinding}
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
-                    {field.selectedComment?.text && (
-                      <div style={{ 
-                        fontSize: '14px', 
-                        color: '#1f2937',
-                        lineHeight: '1.4'
-                      }}>
-                        {field.selectedComment.text}
-                      </div>
-                    )}
-                    {field.selectedFinding && (
-                      <div style={{ 
-                        fontSize: '12px', 
-                        color: '#6b7280',
-                        marginTop: '4px'
-                      }}>
-                        Finding: {field.selectedFinding}
-                      </div>
-                    )}
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
@@ -622,6 +691,7 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
         parsedRequest={parsedRequest}
         response={response}
         selectedFields={selectedFields}
+        onSave={handleSaveAnnotations}
       />
 
       <BulkCommentModal

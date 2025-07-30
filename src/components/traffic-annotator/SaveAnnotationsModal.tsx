@@ -47,6 +47,7 @@ interface SaveAnnotationsModalProps {
   parsedRequest: ParsedRequest | null;
   response: MockResponse | null;
   selectedFields: FieldData[];
+  onSave?: (annotations: FieldData[]) => void;
 }
 
 export const SaveAnnotationsModal: React.FC<SaveAnnotationsModalProps> = ({
@@ -55,7 +56,8 @@ export const SaveAnnotationsModal: React.FC<SaveAnnotationsModalProps> = ({
   curlInput,
   parsedRequest,
   response,
-  selectedFields
+  selectedFields,
+  onSave
 }) => {
   const [includeOptions, setIncludeOptions] = useState({
     curl: true,
@@ -123,6 +125,13 @@ export const SaveAnnotationsModal: React.FC<SaveAnnotationsModalProps> = ({
     return saveData;
   };
 
+  const handleSave = () => {
+    if (onSave) {
+      onSave(selectedFields);
+    }
+    onClose();
+  };
+
   const handleDownload = () => {
     const data = generateSaveData();
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -132,6 +141,10 @@ export const SaveAnnotationsModal: React.FC<SaveAnnotationsModalProps> = ({
     a.download = `traffic-annotations-${new Date().toISOString().split('T')[0]}.json`;
     a.click();
     URL.revokeObjectURL(url);
+    
+    if (onSave) {
+      onSave(selectedFields);
+    }
     onClose();
   };
 
@@ -326,6 +339,22 @@ export const SaveAnnotationsModal: React.FC<SaveAnnotationsModalProps> = ({
             }}
           >
             Cancel
+          </button>
+          <button
+            onClick={handleSave}
+            style={{
+              padding: '8px 16px',
+              backgroundColor: '#2563eb',
+              color: 'white',
+              border: 'none',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}
+          >
+            Save Annotations
           </button>
           <button
             onClick={handleDownload}
