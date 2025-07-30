@@ -11,7 +11,7 @@ import { ViewModeSelector, ViewMode } from './ViewModeSelector';
 import { GroupedFieldView } from './GroupedFieldView';
 import { CompactFieldView } from './CompactFieldView';
 import { TabsFieldView } from './TabsFieldView';
-import { BulkCommentModal } from './BulkCommentModal';
+
 
 interface ParsedRequest {
   url: string;
@@ -109,7 +109,6 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
   const [expandedAnnotations, setExpandedAnnotations] = useState<Record<number, boolean>>({});
   const [editingField, setEditingField] = useState<FieldData | null>(null);
   const [showSaveModal, setShowSaveModal] = useState(false);
-  const [showBulkCommentModal, setShowBulkCommentModal] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>('grouped');
   const [columnVisibility, setColumnVisibility] = useState<ColumnVisibilityState>({
     group: true,
@@ -346,14 +345,6 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
     );
   };
 
-  const handleBulkComment = (comment: CommentData) => {
-    setSelectedFields(prev => 
-      prev.map(field => ({ 
-        ...field, 
-        selectedComment: comment 
-      }))
-    );
-  };
 
   const handleSaveAnnotations = (annotations: FieldData[], groupComment?: string) => {
     // Add the annotations as a new group with group comment
@@ -674,12 +665,6 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
         onSave={handleSaveAnnotations}
       />
 
-      <BulkCommentModal
-        isOpen={showBulkCommentModal}
-        onClose={() => setShowBulkCommentModal(false)}
-        selectedFields={selectedFields}
-        onSave={handleBulkComment}
-      />
     </div>
   );
 };
