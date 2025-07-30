@@ -187,8 +187,8 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
 
   const metaStyle: React.CSSProperties = {
     display: 'flex',
-    alignItems: 'center',
-    gap: '16px',
+    flexDirection: 'column',
+    gap: '8px',
     fontSize: '14px',
     color: '#6b7280'
   };
@@ -303,12 +303,15 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
         
         <div style={metaStyle}>
           <span>Analyzed on {new Date(analysisItem.timestamp).toLocaleString()}</span>
-          <span>•</span>
           <span style={{ 
             fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Cascadia, "Cascadia Code", Fira Code, "Fira Mono", Consolas, "Liberation Mono", Menlo, monospace',
             backgroundColor: '#f3f4f6',
             padding: '2px 6px',
-            borderRadius: '4px'
+            borderRadius: '4px',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            maxWidth: '600px'
           }}>
             {parsedRequest?.method || 'GET'} {parsedRequest?.url || 'Unknown URL'}
           </span>
