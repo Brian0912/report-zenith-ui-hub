@@ -1,6 +1,4 @@
-
 import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '../ui/dialog';
 
 interface ParsedRequest {
   url: string;
@@ -52,9 +50,6 @@ interface SaveAnnotationsModalProps {
 export const SaveAnnotationsModal: React.FC<SaveAnnotationsModalProps> = ({
   isOpen,
   onClose,
-  curlInput,
-  parsedRequest,
-  response,
   selectedFields,
   onSave
 }) => {
@@ -64,42 +59,70 @@ export const SaveAnnotationsModal: React.FC<SaveAnnotationsModalProps> = ({
     if (onSave) {
       onSave(selectedFields, groupComment);
     }
-    setGroupComment(''); // Clear comment after saving
+    setGroupComment('');
     onClose();
   };
 
+  const handleCancel = () => {
+    setGroupComment('');
+    onClose();
+  };
+
+  if (!isOpen) return null;
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent style={{ 
-        maxWidth: '400px', 
-        width: '90vw',
-        position: 'fixed',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        zIndex: 50,
+    <div style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 1000
+    }}>
+      <div style={{
         backgroundColor: '#ffffff',
-        border: '1px solid #e5e7eb',
         borderRadius: '12px',
-        boxShadow: '0 10px 25px rgba(0, 0, 0, 0.15)'
+        padding: '24px',
+        width: '90%',
+        maxWidth: '500px',
+        maxHeight: '80vh',
+        overflow: 'auto',
+        boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+        border: '1px solid #e5e7eb'
       }}>
-        <DialogHeader>
-          <DialogTitle>Add Annotations</DialogTitle>
-          <DialogDescription>
-            Add a comment for this group of {selectedFields.length} field{selectedFields.length !== 1 ? 's' : ''}
-          </DialogDescription>
-        </DialogHeader>
-
+        {/* Header */}
         <div style={{ marginBottom: '20px' }}>
-          <label style={{ 
-            display: 'block', 
-            fontSize: '14px', 
-            fontWeight: '500', 
-            marginBottom: '8px', 
-            color: '#111827' 
+          <h2 style={{
+            fontSize: '20px',
+            fontWeight: '600',
+            color: '#111827',
+            margin: '0 0 8px 0'
           }}>
-            Group Comment:
+            Add Annotations
+          </h2>
+          <p style={{
+            fontSize: '14px',
+            color: '#6b7280',
+            margin: 0
+          }}>
+            Add a comment for this group of {selectedFields.length} field{selectedFields.length !== 1 ? 's' : ''}
+          </p>
+        </div>
+
+        {/* Comment Input */}
+        <div style={{ marginBottom: '20px' }}>
+          <label style={{
+            display: 'block',
+            fontSize: '14px',
+            fontWeight: '500',
+            color: '#374151',
+            marginBottom: '8px'
+          }}>
+            Group Comment
           </label>
           <textarea
             value={groupComment}
@@ -112,33 +135,49 @@ export const SaveAnnotationsModal: React.FC<SaveAnnotationsModalProps> = ({
               border: '1px solid #d1d5db',
               borderRadius: '8px',
               fontSize: '14px',
+              fontFamily: 'inherit',
               resize: 'vertical',
-              fontFamily: 'inherit'
+              outline: 'none',
+              boxSizing: 'border-box'
+            }}
+            onFocus={(e) => {
+              e.target.style.borderColor = '#3b82f6';
+              e.target.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
+            }}
+            onBlur={(e) => {
+              e.target.style.borderColor = '#d1d5db';
+              e.target.style.boxShadow = 'none';
             }}
             autoFocus
           />
         </div>
 
-        <div style={{ 
-          backgroundColor: '#f9fafb', 
-          padding: '12px', 
-          borderRadius: '8px', 
-          marginBottom: '20px'
+        {/* Selected Fields Preview */}
+        <div style={{
+          backgroundColor: '#f9fafb',
+          border: '1px solid #e5e7eb',
+          borderRadius: '8px',
+          padding: '16px',
+          marginBottom: '24px'
         }}>
-          <div style={{ 
-            fontSize: '12px', 
-            fontWeight: '500', 
-            marginBottom: '8px', 
-            color: '#111827' 
+          <h3 style={{
+            fontSize: '14px',
+            fontWeight: '500',
+            color: '#374151',
+            margin: '0 0 12px 0'
           }}>
-            Selected Fields:
-          </div>
-          <div style={{ maxHeight: '120px', overflow: 'auto' }}>
+            Selected Fields ({selectedFields.length})
+          </h3>
+          <div style={{
+            maxHeight: '120px',
+            overflow: 'auto'
+          }}>
             {selectedFields.map((field, index) => (
-              <div key={field.id} style={{ 
-                fontSize: '12px', 
+              <div key={field.id} style={{
+                fontSize: '13px',
                 color: '#6b7280',
-                marginBottom: index === selectedFields.length - 1 ? '0' : '4px'
+                marginBottom: index === selectedFields.length - 1 ? '0' : '6px',
+                padding: '4px 0'
               }}>
                 • {field.fieldPath} ({field.source} {field.category})
               </div>
@@ -146,16 +185,30 @@ export const SaveAnnotationsModal: React.FC<SaveAnnotationsModalProps> = ({
           </div>
         </div>
 
-        <DialogFooter style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+        {/* Footer Buttons */}
+        <div style={{
+          display: 'flex',
+          gap: '12px',
+          justifyContent: 'flex-end'
+        }}>
           <button
-            onClick={onClose}
+            onClick={handleCancel}
             style={{
-              padding: '8px 16px',
-              backgroundColor: '#f3f4f6',
+              padding: '10px 20px',
+              backgroundColor: '#f9fafb',
               border: '1px solid #d1d5db',
-              borderRadius: '6px',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontWeight: '500',
+              color: '#374151',
               cursor: 'pointer',
-              fontSize: '14px'
+              transition: 'all 0.2s'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#f3f4f6';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#f9fafb';
             }}
           >
             Cancel
@@ -163,20 +216,27 @@ export const SaveAnnotationsModal: React.FC<SaveAnnotationsModalProps> = ({
           <button
             onClick={handleSave}
             style={{
-              padding: '8px 16px',
-              backgroundColor: '#10B981',
-              color: 'white',
+              padding: '10px 20px',
+              backgroundColor: '#10b981',
               border: 'none',
-              borderRadius: '6px',
-              cursor: 'pointer',
+              borderRadius: '8px',
               fontSize: '14px',
-              fontWeight: '500'
+              fontWeight: '500',
+              color: '#ffffff',
+              cursor: 'pointer',
+              transition: 'all 0.2s'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#059669';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#10b981';
             }}
           >
             Add Annotations
           </button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </div>
+      </div>
+    </div>
   );
 };
