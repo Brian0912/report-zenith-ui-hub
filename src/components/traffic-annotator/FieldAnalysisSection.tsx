@@ -105,7 +105,7 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
     responseBody: []
   });
   const [selectedFields, setSelectedFields] = useState<FieldData[]>([]);
-  const [savedAnnotations, setSavedAnnotations] = useState<{fields: FieldData[], groupComment: string, timestamp: string}[]>([]);
+  const [savedAnnotations, setSavedAnnotations] = useState<{fields: FieldData[], groupComment: CommentData, timestamp: string}[]>([]);
   const [expandedAnnotations, setExpandedAnnotations] = useState<Record<number, boolean>>({});
   const [editingField, setEditingField] = useState<FieldData | null>(null);
   const [showSaveModal, setShowSaveModal] = useState(false);
@@ -346,11 +346,11 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
   };
 
 
-  const handleSaveAnnotations = (annotations: FieldData[], groupComment?: string) => {
+  const handleSaveAnnotations = (annotations: FieldData[], groupComment?: CommentData) => {
     // Add the annotations as a new group with group comment
     const annotationGroup = {
       fields: annotations,
-      groupComment: groupComment || '',
+      groupComment: groupComment || { text: '', images: [] },
       timestamp: new Date().toISOString()
     };
     setSavedAnnotations(prev => [...prev, annotationGroup]);
@@ -443,7 +443,7 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
                             color: '#374151',
                             marginBottom: '4px'
                           }}>
-                            {annotationGroup.groupComment || `Annotation Group ${groupIndex + 1}`} ({annotationGroup.fields.length} fields)
+                            {(typeof annotationGroup.groupComment === 'string' ? annotationGroup.groupComment : annotationGroup.groupComment?.text) || `Annotation Group ${groupIndex + 1}`} ({annotationGroup.fields.length} fields)
                           </div>
                           <div style={{ 
                             fontSize: '12px', 

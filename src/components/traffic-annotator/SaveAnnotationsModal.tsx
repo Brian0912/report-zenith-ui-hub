@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { CommentEditor } from './CommentEditor';
 
 interface ParsedRequest {
   url: string;
@@ -44,7 +45,7 @@ interface SaveAnnotationsModalProps {
   parsedRequest: ParsedRequest | null;
   response: MockResponse | null;
   selectedFields: FieldData[];
-  onSave?: (annotations: FieldData[], groupComment?: string) => void;
+  onSave?: (annotations: FieldData[], groupComment?: CommentData) => void;
 }
 
 export const SaveAnnotationsModal: React.FC<SaveAnnotationsModalProps> = ({
@@ -53,18 +54,18 @@ export const SaveAnnotationsModal: React.FC<SaveAnnotationsModalProps> = ({
   selectedFields,
   onSave
 }) => {
-  const [groupComment, setGroupComment] = useState('');
+  const [groupComment, setGroupComment] = useState<CommentData>({ text: '', images: [] });
 
   const handleSave = () => {
     if (onSave) {
       onSave(selectedFields, groupComment);
     }
-    setGroupComment('');
+    setGroupComment({ text: '', images: [] });
     onClose();
   };
 
   const handleCancel = () => {
-    setGroupComment('');
+    setGroupComment({ text: '', images: [] });
     onClose();
   };
 
@@ -124,31 +125,10 @@ export const SaveAnnotationsModal: React.FC<SaveAnnotationsModalProps> = ({
           }}>
             Group Comment
           </label>
-          <textarea
+          <CommentEditor
             value={groupComment}
-            onChange={(e) => setGroupComment(e.target.value)}
+            onChange={setGroupComment}
             placeholder="Enter a comment for this annotation group..."
-            style={{
-              width: '100%',
-              minHeight: '100px',
-              padding: '12px',
-              border: '1px solid #d1d5db',
-              borderRadius: '8px',
-              fontSize: '14px',
-              fontFamily: 'inherit',
-              resize: 'vertical',
-              outline: 'none',
-              boxSizing: 'border-box'
-            }}
-            onFocus={(e) => {
-              e.target.style.borderColor = '#3b82f6';
-              e.target.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
-            }}
-            onBlur={(e) => {
-              e.target.style.borderColor = '#d1d5db';
-              e.target.style.boxShadow = 'none';
-            }}
-            autoFocus
           />
         </div>
 
