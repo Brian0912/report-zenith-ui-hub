@@ -541,6 +541,66 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
             onEditField={handleEditField}
           />
         )}
+
+        {/* Action Buttons */}
+        <div style={{ 
+          display: 'flex', 
+          gap: '12px', 
+          marginTop: '24px',
+          paddingTop: '16px',
+          borderTop: '1px solid #e5e7eb'
+        }}>
+          <button
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '8px 16px',
+              backgroundColor: '#3b82f6',
+              color: 'white',
+              border: 'none',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontSize: '14px',
+              fontWeight: '500'
+            }}
+            onClick={() => window.open('/governance', '_blank')}
+          >
+            View Governance Page
+          </button>
+          <button
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '8px 16px',
+              border: '1px solid #d1d5db',
+              borderRadius: '6px',
+              backgroundColor: 'white',
+              cursor: 'pointer',
+              fontSize: '14px',
+              fontWeight: '500'
+            }}
+          >
+            Share
+          </button>
+          <button
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '8px 16px',
+              border: '1px solid #d1d5db',
+              borderRadius: '6px',
+              backgroundColor: 'white',
+              cursor: 'pointer',
+              fontSize: '14px',
+              fontWeight: '500'
+            }}
+          >
+            Download
+          </button>
+        </div>
       </div>
 
       <FieldEditModal

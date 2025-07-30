@@ -362,27 +362,12 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
       <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '32px' }}>
         {response && (
           <>
-            <ResponseDisplayPanel response={response} />
-            
-            {/* Enhanced Field Analysis with Action Buttons */}
-            <div>
-              <FieldAnalysisSection 
-                parsedRequest={parsedRequest}
-                response={response}
-                curlInput={analysisItem.curlCommand}
-              />
-              
-              <div style={actionButtonsStyle}>
-                <button style={buttonStyle} onClick={() => setShowShareModal(true)}>
-                  <Share size={16} />
-                  Share
-                </button>
-                <button style={buttonStyle} onClick={handleDownload}>
-                  <Download size={16} />
-                  Download
-                </button>
-              </div>
-            </div>
+            {/* Field Analysis Section */}
+            <FieldAnalysisSection 
+              parsedRequest={parsedRequest}
+              response={response}
+              curlInput={analysisItem.curlCommand}
+            />
 
             {/* Annotation Section */}
             <div style={sectionStyle}>
@@ -424,6 +409,10 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
                 </div>
               )}
             </div>
+
+            {/* Response Display Panel */}
+            <ResponseDisplayPanel response={response} />
+
           </>
         )}
       </div>
