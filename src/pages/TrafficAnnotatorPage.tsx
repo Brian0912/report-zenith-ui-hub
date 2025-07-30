@@ -45,6 +45,7 @@ export const TrafficAnnotatorPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showHistory, setShowHistory] = useState(false);
+  const [scanName, setScanName] = useState('');
   
   // Sidebar state
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -209,6 +210,8 @@ export const TrafficAnnotatorPage: React.FC = () => {
               setResponse={setResponse}
               showHistory={showHistory}
               setShowHistory={setShowHistory}
+              scanName={scanName}
+              setScanName={setScanName}
             />
             
             {response && (

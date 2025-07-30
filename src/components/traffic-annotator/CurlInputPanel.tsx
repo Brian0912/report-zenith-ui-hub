@@ -27,6 +27,8 @@ interface CurlInputPanelProps {
   setResponse: (value: MockResponse | null) => void;
   showHistory: boolean;
   setShowHistory: (value: boolean) => void;
+  scanName: string;
+  setScanName: (value: string) => void;
 }
 
 export const CurlInputPanel: React.FC<CurlInputPanelProps> = ({
@@ -40,7 +42,9 @@ export const CurlInputPanel: React.FC<CurlInputPanelProps> = ({
   setError,
   setResponse,
   showHistory,
-  setShowHistory
+  setShowHistory,
+  scanName,
+  setScanName
 }) => {
   const PLACEHOLDER_TEXT = `curl -X POST 'https://api.example.com/data?userId=123&format=json' -H 'Content-Type: application/json' -H 'Authorization: Bearer token123' -d '{"name": "John", "email": "john@example.com"}'`;
 
@@ -234,37 +238,62 @@ export const CurlInputPanel: React.FC<CurlInputPanelProps> = ({
       </div>
       
       <div style={contentStyle}>
-        <div style={{ marginBottom: '16px' }}>
-          <label style={labelStyle}>cURL Command</label>
-        </div>
-        
-        <div style={{ marginBottom: '16px' }}>
-          <label style={labelStyle}>Folder Path</label>
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              padding: '8px 12px',
-              border: '1px solid #d1d5db',
-              borderRadius: '8px',
-              backgroundColor: '#ffffff',
-              cursor: 'pointer',
-              fontSize: '14px',
-              color: '#374151',
-              transition: 'border-color 0.2s'
-            }}
-            onClick={() => {
-              // TODO: Open folder selection modal
-              console.log('Open folder selection');
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = '#4F46E5';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = '#d1d5db';
-            }}
-          >
-            📁 Default
+        <div style={{ display: 'flex', gap: '16px', marginBottom: '16px' }}>
+          <div style={{ flex: 1 }}>
+            <label style={labelStyle}>Scan Name</label>
+            <input
+              type="text"
+              value={scanName}
+              onChange={(e) => setScanName(e.target.value)}
+              placeholder="Enter scan name"
+              style={{
+                width: '100%',
+                padding: '8px 12px',
+                border: '1px solid #d1d5db',
+                borderRadius: '8px',
+                backgroundColor: '#ffffff',
+                fontSize: '14px',
+                color: '#374151',
+                outline: 'none',
+                transition: 'border-color 0.2s'
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = '#4F46E5';
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = '#d1d5db';
+              }}
+            />
+          </div>
+          
+          <div style={{ flex: 1 }}>
+            <label style={labelStyle}>Folder Path</label>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                padding: '8px 12px',
+                border: '1px solid #d1d5db',
+                borderRadius: '8px',
+                backgroundColor: '#ffffff',
+                cursor: 'pointer',
+                fontSize: '14px',
+                color: '#374151',
+                transition: 'border-color 0.2s'
+              }}
+              onClick={() => {
+                // TODO: Open folder selection modal
+                console.log('Open folder selection');
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = '#4F46E5';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = '#d1d5db';
+              }}
+            >
+              📁 Default
+            </div>
           </div>
         </div>
         
