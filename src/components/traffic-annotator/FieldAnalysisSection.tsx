@@ -127,6 +127,11 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
     images: false
   });
   
+  // Define getAllFields function first
+  const getAllFields = (): FieldData[] => {
+    return Object.values(fieldAnalysisData).flat();
+  };
+  
   // Pagination and filter states
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(10);
@@ -419,9 +424,6 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
     setExpandedAnnotations(prev => ({ ...prev, [savedAnnotations.length]: true }));
   };
 
-  const getAllFields = (): FieldData[] => {
-    return Object.values(fieldAnalysisData).flat();
-  };
 
   const cardStyle: React.CSSProperties = {
     backgroundColor: '#ffffff',
