@@ -71,7 +71,15 @@ export const SaveAnnotationsModal: React.FC<SaveAnnotationsModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent style={{ maxWidth: '400px', width: '90vw' }}>
+      <DialogContent style={{ 
+        maxWidth: '400px', 
+        width: '90vw',
+        position: 'fixed',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        zIndex: 50
+      }}>
         <DialogHeader>
           <DialogTitle>Add Annotations</DialogTitle>
           <DialogDescription>
