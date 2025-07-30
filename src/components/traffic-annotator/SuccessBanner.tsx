@@ -15,14 +15,25 @@ interface SuccessBannerProps {
 
 export const SuccessBanner: React.FC<SuccessBannerProps> = ({ parsedRequest }) => {
   const extractTrafficInfo = (request: ParsedRequest) => {
-    const urlObj = new URL(request.url);
-    const host = urlObj.hostname;
-    const psmService = host.replace(/\./g, '.').substring(0, 15) + '.service.api';
-    const apiPath = urlObj.pathname;
-    const httpMethod = request.method.toUpperCase();
-    const bytetree = 'Security';
-    
-    return { host, psmService, apiPath, httpMethod, bytetree };
+    try {
+      const urlObj = new URL(request.url);
+      const host = urlObj.hostname;
+      const psmService = host.replace(/\./g, '.').substring(0, 15) + '.service.api';
+      const apiPath = urlObj.pathname;
+      const httpMethod = request.method.toUpperCase();
+      const bytetree = 'Security';
+      
+      return { host, psmService, apiPath, httpMethod, bytetree };
+    } catch (error) {
+      // Fallback for invalid URLs
+      return {
+        host: 'invalid-url',
+        psmService: 'invalid.service.api',
+        apiPath: '/unknown',
+        httpMethod: request.method.toUpperCase() || 'GET',
+        bytetree: 'Security'
+      };
+    }
   };
 
   const { host, psmService, apiPath, httpMethod, bytetree } = extractTrafficInfo(parsedRequest);
