@@ -46,6 +46,7 @@ export const TrafficAnnotatorPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [showHistory, setShowHistory] = useState(false);
   const [scanName, setScanName] = useState('');
+  const [showAnalysisReport, setShowAnalysisReport] = useState(false);
   
   // Sidebar state
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -196,6 +197,23 @@ export const TrafficAnnotatorPage: React.FC = () => {
       
       case 'new-scan':
       default:
+        // If we have a response and parsed request, show the analysis report
+        if (response && parsedRequest) {
+          const currentAnalysisItem: AnalysisItem = {
+            id: Date.now().toString(),
+            name: scanName || 'New Analysis',
+            curlCommand: curlInput,
+            timestamp: new Date().toISOString(),
+            isStarred: false,
+            isShared: false,
+            parsedRequest: parsedRequest,
+            response: response
+          };
+          
+          return <AnalysisReportView analysisItem={currentAnalysisItem} />;
+        }
+        
+        // Otherwise show the input panel
         return (
           <div style={newScanLayoutStyle}>
             <CurlInputPanel
@@ -213,17 +231,6 @@ export const TrafficAnnotatorPage: React.FC = () => {
               scanName={scanName}
               setScanName={setScanName}
             />
-            
-            {response && (
-              <>
-                <ResponseDisplayPanel response={response} />
-                <FieldAnalysisSection 
-                  parsedRequest={parsedRequest}
-                  response={response}
-                  curlInput={curlInput}
-                />
-              </>
-            )}
           </div>
         );
     }
