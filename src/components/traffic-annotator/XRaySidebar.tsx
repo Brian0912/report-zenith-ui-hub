@@ -385,13 +385,13 @@ export const XRaySidebar: React.FC<XRaySidebarProps> = ({
             </span>
           </div>
           {expandedSections.access && isOpen && (
-            <div style={{ padding: '8px 16px' }}>
+            <div style={{ padding: '8px 16px', display: 'flex', gap: '8px' }}>
               <input
                 type="text"
                 placeholder="Enter access code"
                 value={accessCode}
                 onChange={(e) => setAccessCode(e.target.value)}
-                style={accessInputStyle}
+                style={{ ...accessInputStyle, marginBottom: '0', flex: 1 }}
                 onKeyPress={(e) => {
                   if (e.key === 'Enter') {
                     handleAccessSubmit();
@@ -399,7 +399,7 @@ export const XRaySidebar: React.FC<XRaySidebarProps> = ({
                 }}
               />
               <button
-                style={accessButtonStyle}
+                style={{ ...accessButtonStyle, width: 'auto', flexShrink: 0 }}
                 onClick={handleAccessSubmit}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.backgroundColor = '#2563eb';
