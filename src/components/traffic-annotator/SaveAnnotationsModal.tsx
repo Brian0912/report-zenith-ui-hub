@@ -78,7 +78,11 @@ export const SaveAnnotationsModal: React.FC<SaveAnnotationsModalProps> = ({
         top: '50%',
         left: '50%',
         transform: 'translate(-50%, -50%)',
-        zIndex: 50
+        zIndex: 50,
+        backgroundColor: '#ffffff',
+        border: '1px solid #e5e7eb',
+        borderRadius: '12px',
+        boxShadow: '0 10px 25px rgba(0, 0, 0, 0.15)'
       }}>
         <DialogHeader>
           <DialogTitle>Add Annotations</DialogTitle>
