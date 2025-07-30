@@ -7,6 +7,8 @@ import { RequestHistory } from '../components/traffic-annotator/RequestHistory';
 import { XRaySidebar } from '../components/traffic-annotator/XRaySidebar';
 import { SearchHistoryView } from '../components/traffic-annotator/SearchHistoryView';
 import { AnalysisReportView } from '../components/traffic-annotator/AnalysisReportView';
+import { FolderControlPage } from '../components/traffic-annotator/FolderControlPage';
+import { ShareControlPage } from '../components/traffic-annotator/ShareControlPage';
 
 interface ParsedRequest {
   url: string;
@@ -34,7 +36,7 @@ interface AnalysisItem {
   response?: MockResponse;
 }
 
-type ViewMode = 'new-scan' | 'search-history' | 'analysis-report';
+type ViewMode = 'new-scan' | 'search-history' | 'analysis-report' | 'folder-control' | 'share-control';
 
 export const TrafficAnnotatorPage: React.FC = () => {
   const [curlInput, setCurlInput] = useState('');
@@ -108,6 +110,22 @@ export const TrafficAnnotatorPage: React.FC = () => {
     setSelectedAnalysisItem(null);
   };
 
+  const handleFolderControl = () => {
+    setCurrentView('folder-control');
+    setSelectedAnalysisItem(null);
+  };
+
+  const handleShareControl = () => {
+    setCurrentView('share-control');
+    setSelectedAnalysisItem(null);
+  };
+
+  const handleAccessScan = (accessCode: string) => {
+    // Handle access scan with code
+    console.log('Accessing scan with code:', accessCode);
+    // TODO: Implement actual access logic
+  };
+
   const handleViewAnalysis = (item: AnalysisItem) => {
     setSelectedAnalysisItem(item);
     setCurrentView('analysis-report');
@@ -168,6 +186,12 @@ export const TrafficAnnotatorPage: React.FC = () => {
         return selectedAnalysisItem ? (
           <AnalysisReportView analysisItem={selectedAnalysisItem} />
         ) : null;
+
+      case 'folder-control':
+        return <FolderControlPage />;
+
+      case 'share-control':
+        return <ShareControlPage />;
       
       case 'new-scan':
       default:
@@ -209,8 +233,11 @@ export const TrafficAnnotatorPage: React.FC = () => {
         onToggle={() => setSidebarOpen(!sidebarOpen)}
         onNewScan={handleNewScan}
         onSearchHistory={handleSearchHistory}
+        onFolderControl={handleFolderControl}
+        onShareControl={handleShareControl}
         onViewAnalysis={handleViewAnalysis}
         onToggleStar={handleToggleStar}
+        onAccessScan={handleAccessScan}
         sharedItems={sharedItems}
         starredItems={starredItems}
         recentItems={recentItems}

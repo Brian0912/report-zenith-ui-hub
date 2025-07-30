@@ -21,11 +21,40 @@ export const SearchHistoryView: React.FC<SearchHistoryViewProps> = ({
   items
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [methodFilter, setMethodFilter] = useState('');
+  const [pathFilter, setPathFilter] = useState('');
+  const [curlFilter, setCurlFilter] = useState('');
 
-  const filteredItems = items.filter(item =>
-    item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.curlCommand.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const extractMethod = (curlCommand: string) => {
+    const methodMatch = curlCommand.match(/-X\s+(\w+)/i);
+    return methodMatch ? methodMatch[1].toUpperCase() : 'GET';
+  };
+
+  const extractPath = (curlCommand: string) => {
+    const urlMatch = curlCommand.match(/['"](https?:\/\/[^'"]+)['"]/);
+    if (urlMatch) {
+      try {
+        const url = new URL(urlMatch[1]);
+        return url.pathname;
+      } catch {
+        return '';
+      }
+    }
+    return '';
+  };
+
+  const filteredItems = items.filter(item => {
+    const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.curlCommand.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesMethod = !methodFilter || extractMethod(item.curlCommand) === methodFilter;
+    
+    const matchesPath = !pathFilter || extractPath(item.curlCommand).toLowerCase().includes(pathFilter.toLowerCase());
+    
+    const matchesCurl = !curlFilter || item.curlCommand.toLowerCase().includes(curlFilter.toLowerCase());
+
+    return matchesSearch && matchesMethod && matchesPath && matchesCurl;
+  });
 
   const formatTimestamp = (timestamp: string) => {
     return new Date(timestamp).toLocaleString();
@@ -127,6 +156,38 @@ export const SearchHistoryView: React.FC<SearchHistoryViewProps> = ({
       <h2 style={{ fontSize: '24px', fontWeight: '700', color: '#1f2937', marginBottom: '24px' }}>
         Search History
       </h2>
+
+      {/* Filters */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px', marginBottom: '16px' }}>
+        <select
+          value={methodFilter}
+          onChange={(e) => setMethodFilter(e.target.value)}
+          style={{ padding: '8px 12px', border: '1px solid #d1d5db', borderRadius: '6px' }}
+        >
+          <option value="">All Methods</option>
+          <option value="GET">GET</option>
+          <option value="POST">POST</option>
+          <option value="PUT">PUT</option>
+          <option value="DELETE">DELETE</option>
+          <option value="PATCH">PATCH</option>
+        </select>
+        
+        <input
+          type="text"
+          placeholder="Filter by API path..."
+          value={pathFilter}
+          onChange={(e) => setPathFilter(e.target.value)}
+          style={{ padding: '8px 12px', border: '1px solid #d1d5db', borderRadius: '6px' }}
+        />
+        
+        <input
+          type="text"
+          placeholder="Filter by cURL..."
+          value={curlFilter}
+          onChange={(e) => setCurlFilter(e.target.value)}
+          style={{ padding: '8px 12px', border: '1px solid #d1d5db', borderRadius: '6px' }}
+        />
+      </div>
 
       {/* Search Bar */}
       <div style={searchBarStyle}>

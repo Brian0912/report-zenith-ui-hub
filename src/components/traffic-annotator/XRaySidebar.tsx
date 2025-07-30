@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Menu, X, Scan, History, Star, Share, Clock, MoreVertical } from 'lucide-react';
+import { Menu, X, Scan, History, Star, Clock, MoreVertical, Folder, Settings, Key } from 'lucide-react';
 
 interface AnalysisItem {
   id: string;
@@ -16,8 +16,11 @@ interface XRaySidebarProps {
   onToggle: () => void;
   onNewScan: () => void;
   onSearchHistory: () => void;
+  onFolderControl: () => void;
+  onShareControl: () => void;
   onViewAnalysis: (item: AnalysisItem) => void;
   onToggleStar: (itemId: string) => void;
+  onAccessScan: (accessCode: string) => void;
   sharedItems: AnalysisItem[];
   starredItems: AnalysisItem[];
   recentItems: AnalysisItem[];
@@ -28,19 +31,24 @@ export const XRaySidebar: React.FC<XRaySidebarProps> = ({
   onToggle,
   onNewScan,
   onSearchHistory,
+  onFolderControl,
+  onShareControl,
   onViewAnalysis,
   onToggleStar,
+  onAccessScan,
   sharedItems,
   starredItems,
   recentItems
 }) => {
   const [expandedSections, setExpandedSections] = useState({
-    shared: true,
+    access: false,
     starred: true,
     recent: true
   });
 
-  const toggleSection = (section: 'shared' | 'starred' | 'recent') => {
+  const [accessCode, setAccessCode] = useState('');
+
+  const toggleSection = (section: 'access' | 'starred' | 'recent') => {
     setExpandedSections(prev => ({
       ...prev,
       [section]: !prev[section]
@@ -53,6 +61,13 @@ export const XRaySidebar: React.FC<XRaySidebarProps> = ({
 
   const truncateCommand = (command: string, maxLength: number = 30) => {
     return command.length > maxLength ? `${command.substring(0, maxLength)}...` : command;
+  };
+
+  const handleAccessSubmit = () => {
+    if (accessCode.trim()) {
+      onAccessScan(accessCode.trim());
+      setAccessCode('');
+    }
   };
 
   const sidebarStyle: React.CSSProperties = {
@@ -163,7 +178,28 @@ export const XRaySidebar: React.FC<XRaySidebarProps> = ({
     transition: 'all 0.2s'
   };
 
-  const renderItemList = (items: AnalysisItem[], sectionKey: 'shared' | 'starred' | 'recent') => {
+  const accessInputStyle: React.CSSProperties = {
+    width: '100%',
+    padding: '8px 12px',
+    border: '1px solid #d1d5db',
+    borderRadius: '6px',
+    fontSize: '12px',
+    marginBottom: '8px'
+  };
+
+  const accessButtonStyle: React.CSSProperties = {
+    width: '100%',
+    padding: '8px 12px',
+    backgroundColor: '#3b82f6',
+    color: 'white',
+    border: 'none',
+    borderRadius: '6px',
+    fontSize: '12px',
+    fontWeight: '500',
+    cursor: 'pointer'
+  };
+
+  const renderItemList = (items: AnalysisItem[], sectionKey: 'starred' | 'recent') => {
     if (!expandedSections[sectionKey] || !isOpen) return null;
 
     return (
@@ -198,28 +234,33 @@ export const XRaySidebar: React.FC<XRaySidebarProps> = ({
               </div>
             </div>
             
-            <button
-              className="config-btn"
-              style={configButtonStyle}
-              onClick={(e) => {
-                e.stopPropagation();
-                onToggleStar(item.id);
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = '#f3f4f6';
-                e.currentTarget.style.color = '#374151';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'transparent';
-                e.currentTarget.style.color = '#9ca3af';
-              }}
-            >
-              <Star 
-                size={14} 
-                fill={item.isStarred ? '#fbbf24' : 'none'}
-                color={item.isStarred ? '#fbbf24' : '#9ca3af'}
-              />
-            </button>
+            {sectionKey === 'recent' && (
+              <button
+                className="config-btn"
+                style={configButtonStyle}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onToggleStar(item.id);
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#f3f4f6';
+                  e.currentTarget.style.color = '#374151';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                  e.currentTarget.style.color = '#9ca3af';
+                }}
+              >
+                <MoreVertical size={14} />
+              </button>
+            )}
+            
+            <Star 
+              size={14} 
+              fill={item.isStarred ? '#fbbf24' : 'none'}
+              color={item.isStarred ? '#fbbf24' : '#9ca3af'}
+              style={{ marginLeft: sectionKey === 'recent' ? '0' : '8px' }}
+            />
           </div>
         ))}
       </div>
@@ -297,25 +338,80 @@ export const XRaySidebar: React.FC<XRaySidebarProps> = ({
           <History size={18} />
           Search History
         </button>
+
+        <button
+          style={navButtonStyle}
+          onClick={onFolderControl}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = '#f3f4f6';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = 'transparent';
+          }}
+        >
+          <Folder size={18} />
+          Folder Control
+        </button>
+
+        <button
+          style={navButtonStyle}
+          onClick={onShareControl}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = '#f3f4f6';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = 'transparent';
+          }}
+        >
+          <Settings size={18} />
+          Share Control
+        </button>
       </div>
 
       {/* Content Sections */}
       <div style={{ flex: 1, overflow: 'auto', padding: '8px 0' }}>
-        {/* Shared with You */}
+        {/* Access Scan */}
         <div>
           <div
             style={sectionHeaderStyle}
-            onClick={() => toggleSection('shared')}
+            onClick={() => toggleSection('access')}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Share size={14} />
-              Shared with You ({sharedItems.length})
+              <Key size={14} />
+              Access Scan
             </div>
-            <span style={{ transform: expandedSections.shared ? 'rotate(90deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>
+            <span style={{ transform: expandedSections.access ? 'rotate(90deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>
               ▶
             </span>
           </div>
-          {renderItemList(sharedItems, 'shared')}
+          {expandedSections.access && isOpen && (
+            <div style={{ padding: '8px 16px' }}>
+              <input
+                type="text"
+                placeholder="Enter access code"
+                value={accessCode}
+                onChange={(e) => setAccessCode(e.target.value)}
+                style={accessInputStyle}
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter') {
+                    handleAccessSubmit();
+                  }
+                }}
+              />
+              <button
+                style={accessButtonStyle}
+                onClick={handleAccessSubmit}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#2563eb';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#3b82f6';
+                }}
+              >
+                Access
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Starred */}
@@ -325,7 +421,7 @@ export const XRaySidebar: React.FC<XRaySidebarProps> = ({
             onClick={() => toggleSection('starred')}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Star size={14} />
+              <Star size={14} fill="#fbbf24" color="#fbbf24" />
               Starred ({starredItems.length})
             </div>
             <span style={{ transform: expandedSections.starred ? 'rotate(90deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>
