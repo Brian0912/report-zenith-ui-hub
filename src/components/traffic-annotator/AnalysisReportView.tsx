@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import { Share, Download, ChevronDown, ChevronUp, Clock, Globe, Lock, Copy, X } from 'lucide-react';
+import React from 'react';
 import { ResponseDisplayPanel } from './ResponseDisplayPanel';
 import { FieldAnalysisSection } from './FieldAnalysisSection';
 
@@ -29,173 +28,14 @@ interface AnalysisItem {
   response?: MockResponse;
 }
 
-interface Annotation {
-  id: string;
-  fieldPath: string;
-  text: string;
-  timestamp: string;
-}
-
 interface AnalysisReportViewProps {
   analysisItem: AnalysisItem;
 }
 
-const ShareModal: React.FC<{
-  isOpen: boolean;
-  onClose: () => void;
-  analysisItem: AnalysisItem;
-}> = ({ isOpen, onClose, analysisItem }) => {
-  const [expiration, setExpiration] = useState('7days');
-  const [accessType, setAccessType] = useState<'public' | 'private'>('public');
-  const [allowedUsers, setAllowedUsers] = useState('');
-  const [shareLink, setShareLink] = useState('');
-
-  if (!isOpen) return null;
-
-  const handleGenerateLink = () => {
-    const link = `https://app.example.com/share/${analysisItem.id}?exp=${expiration}&type=${accessType}`;
-    setShareLink(link);
-  };
-
-  const overlayStyle: React.CSSProperties = {
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 1000
-  };
-
-  const modalStyle: React.CSSProperties = {
-    backgroundColor: 'white',
-    borderRadius: '12px',
-    padding: '24px',
-    width: '480px',
-    maxWidth: '90vw',
-    maxHeight: '80vh',
-    overflow: 'auto'
-  };
-
-  return (
-    <div style={overlayStyle} onClick={onClose}>
-      <div style={modalStyle} onClick={(e) => e.stopPropagation()}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-          <h3 style={{ fontSize: '18px', fontWeight: '600', margin: 0 }}>Share Analysis Report</h3>
-          <button onClick={onClose} style={{ border: 'none', background: 'none', cursor: 'pointer' }}>
-            <X size={20} />
-          </button>
-        </div>
-
-        <div style={{ marginBottom: '16px' }}>
-          <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500' }}>Expiration</label>
-          <select
-            value={expiration}
-            onChange={(e) => setExpiration(e.target.value)}
-            style={{ width: '100%', padding: '8px', border: '1px solid #d1d5db', borderRadius: '6px' }}
-          >
-            <option value="1day">1 day</option>
-            <option value="7days">7 days</option>
-            <option value="30days">30 days</option>
-            <option value="never">Never</option>
-          </select>
-        </div>
-
-        <div style={{ marginBottom: '16px' }}>
-          <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500' }}>Access Type</label>
-          <div style={{ display: 'flex', gap: '16px' }}>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <input
-                type="radio"
-                checked={accessType === 'public'}
-                onChange={() => setAccessType('public')}
-              />
-              <Globe size={16} />
-              Public - Anyone with the link can access
-            </label>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <input
-                type="radio"
-                checked={accessType === 'private'}
-                onChange={() => setAccessType('private')}
-              />
-              <Lock size={16} />
-              Private - Only specified users can access
-            </label>
-          </div>
-        </div>
-
-        {accessType === 'private' && (
-          <div style={{ marginBottom: '16px' }}>
-            <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500' }}>Allowed Users</label>
-            <input
-              type="text"
-              placeholder="Enter usernames, comma-separated"
-              value={allowedUsers}
-              onChange={(e) => setAllowedUsers(e.target.value)}
-              style={{ width: '100%', padding: '8px', border: '1px solid #d1d5db', borderRadius: '6px' }}
-            />
-          </div>
-        )}
-
-        <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
-          <button
-            onClick={onClose}
-            style={{ padding: '8px 16px', border: '1px solid #d1d5db', borderRadius: '6px', background: 'white' }}
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleGenerateLink}
-            style={{ padding: '8px 16px', backgroundColor: '#3b82f6', color: 'white', border: 'none', borderRadius: '6px' }}
-          >
-            Generate Link
-          </button>
-        </div>
-
-        {shareLink && (
-          <div style={{ marginTop: '16px', padding: '12px', backgroundColor: '#f0f9ff', borderRadius: '6px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '14px', wordBreak: 'break-all' }}>{shareLink}</span>
-              <button
-                onClick={() => navigator.clipboard.writeText(shareLink)}
-                style={{ padding: '4px 8px', backgroundColor: '#3b82f6', color: 'white', border: 'none', borderRadius: '4px' }}
-              >
-                <Copy size={14} />
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
-
 export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
   analysisItem
 }) => {
-  const [showShareModal, setShowShareModal] = useState(false);
-  const [annotationsExpanded, setAnnotationsExpanded] = useState(true);
-
-  // Mock annotations data
-  const [annotations] = useState<Annotation[]>([
-    {
-      id: '1',
-      fieldPath: 'headers.Authorization',
-      text: 'Bearer token detected - ensure proper validation',
-      timestamp: new Date().toISOString()
-    },
-    {
-      id: '2', 
-      fieldPath: 'body.userId',
-      text: 'User ID should be validated against current session',
-      timestamp: new Date().toISOString()
-    }
-  ]);
-
+  // Parse the curl command to extract request details
   const parseCurl = (curlCommand: string): ParsedRequest | null => {
     try {
       const trimmed = curlCommand.trim();
@@ -233,6 +73,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
     }
   };
 
+  // Generate mock response for the analysis
   const generateMockResponse = (): MockResponse => {
     return {
       status: 200,
@@ -262,22 +103,6 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
     };
   };
 
-  const handleDownload = () => {
-    const reportData = {
-      analysisItem,
-      annotations,
-      timestamp: new Date().toISOString()
-    };
-    
-    const blob = new Blob([JSON.stringify(reportData, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `analysis-report-${analysisItem.id}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
   const parsedRequest = analysisItem.parsedRequest || parseCurl(analysisItem.curlCommand);
   const response = analysisItem.response || generateMockResponse();
 
@@ -292,47 +117,32 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
     borderBottom: '1px solid #e5e7eb'
   };
 
-  const sectionStyle: React.CSSProperties = {
-    marginBottom: '32px',
-    border: '1px solid #e5e7eb',
-    borderRadius: '8px',
-    overflow: 'hidden'
+  const titleStyle: React.CSSProperties = {
+    fontSize: '28px',
+    fontWeight: '700',
+    color: '#1f2937',
+    marginBottom: '8px'
   };
 
-  const sectionHeaderStyle: React.CSSProperties = {
-    padding: '16px',
-    backgroundColor: '#f9fafb',
-    borderBottom: '1px solid #e5e7eb',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    cursor: 'pointer'
-  };
-
-  const actionButtonsStyle: React.CSSProperties = {
-    display: 'flex',
-    gap: '12px',
-    marginTop: '16px'
-  };
-
-  const buttonStyle: React.CSSProperties = {
+  const metaStyle: React.CSSProperties = {
     display: 'flex',
     alignItems: 'center',
-    gap: '8px',
-    padding: '8px 16px',
-    border: '1px solid #d1d5db',
-    borderRadius: '6px',
-    backgroundColor: 'white',
-    cursor: 'pointer',
+    gap: '16px',
     fontSize: '14px',
-    fontWeight: '500'
+    color: '#6b7280'
+  };
+
+  const contentLayoutStyle: React.CSSProperties = {
+    display: 'grid',
+    gridTemplateColumns: '1fr',
+    gap: '32px'
   };
 
   return (
     <div style={containerStyle}>
       {/* Report Header */}
       <div style={headerStyle}>
-        <h1 style={{ fontSize: '28px', fontWeight: '700', color: '#1f2937', marginBottom: '8px' }}>
+        <h1 style={titleStyle}>
           {analysisItem.name}
           {analysisItem.isShared && analysisItem.sharedBy && (
             <span style={{ color: '#10b981', fontSize: '16px', fontWeight: '400', marginLeft: '12px' }}>
@@ -344,7 +154,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
           )}
         </h1>
         
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', fontSize: '14px', color: '#6b7280' }}>
+        <div style={metaStyle}>
           <span>Analyzed on {new Date(analysisItem.timestamp).toLocaleString()}</span>
           <span>•</span>
           <span style={{ 
@@ -359,69 +169,18 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
       </div>
 
       {/* Analysis Content */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '32px' }}>
+      <div style={contentLayoutStyle}>
         {response && (
           <>
-            {/* Field Analysis Section */}
+            <ResponseDisplayPanel response={response} />
             <FieldAnalysisSection 
               parsedRequest={parsedRequest}
               response={response}
               curlInput={analysisItem.curlCommand}
             />
-
-            {/* Annotation Section */}
-            <div style={sectionStyle}>
-              <div 
-                style={sectionHeaderStyle}
-                onClick={() => setAnnotationsExpanded(!annotationsExpanded)}
-              >
-                <h3 style={{ fontSize: '18px', fontWeight: '600', margin: 0 }}>Annotations</h3>
-                {annotationsExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
-              </div>
-              
-              {annotationsExpanded && (
-                <div style={{ padding: '16px' }}>
-                  {annotations.length === 0 ? (
-                    <p style={{ color: '#6b7280', textAlign: 'center', margin: 0 }}>
-                      No annotations available
-                    </p>
-                  ) : (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                      {annotations.map((annotation) => (
-                        <div key={annotation.id} style={{ 
-                          padding: '12px', 
-                          backgroundColor: '#f8fafc', 
-                          borderRadius: '6px',
-                          borderLeft: '3px solid #3b82f6'
-                        }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '6px' }}>
-                            <strong style={{ fontSize: '14px', color: '#1f2937' }}>{annotation.fieldPath}</strong>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: '#6b7280' }}>
-                              <Clock size={12} />
-                              {new Date(annotation.timestamp).toLocaleString()}
-                            </div>
-                          </div>
-                          <p style={{ margin: 0, fontSize: '14px', color: '#4b5563' }}>{annotation.text}</p>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-
-            {/* Response Display Panel */}
-            <ResponseDisplayPanel response={response} />
-
           </>
         )}
       </div>
-
-      <ShareModal
-        isOpen={showShareModal}
-        onClose={() => setShowShareModal(false)}
-        analysisItem={analysisItem}
-      />
     </div>
   );
 };
