@@ -194,31 +194,6 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
 
   return (
     <div style={containerStyle}>
-      {/* cURL Request Section */}
-      <div style={curlSectionStyle}>
-        <div style={curlHeaderStyle}>
-          <h3 style={curlTitleStyle}>cURL Request</h3>
-          <button 
-            style={copyButtonStyle}
-            onClick={handleCopyCurl}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = '#f3f4f6';
-              e.currentTarget.style.borderColor = '#9ca3af';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = '#ffffff';
-              e.currentTarget.style.borderColor = '#d1d5db';
-            }}
-          >
-            <Copy size={16} />
-            Copy
-          </button>
-        </div>
-        <div style={curlCodeStyle}>
-          {analysisItem.curlCommand}
-        </div>
-      </div>
-
       {/* Report Header */}
       <div style={headerStyle}>
         <h1 style={titleStyle}>
@@ -244,6 +219,31 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
           }}>
             {parsedRequest?.method || 'GET'} {parsedRequest?.url || 'Unknown URL'}
           </span>
+        </div>
+      </div>
+
+      {/* cURL Request Section */}
+      <div style={curlSectionStyle}>
+        <div style={curlHeaderStyle}>
+          <h3 style={curlTitleStyle}>cURL Request</h3>
+          <button 
+            style={copyButtonStyle}
+            onClick={handleCopyCurl}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#f3f4f6';
+              e.currentTarget.style.borderColor = '#9ca3af';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#ffffff';
+              e.currentTarget.style.borderColor = '#d1d5db';
+            }}
+          >
+            <Copy size={16} />
+            Copy
+          </button>
+        </div>
+        <div style={curlCodeStyle}>
+          {analysisItem.curlCommand}
         </div>
       </div>
 
