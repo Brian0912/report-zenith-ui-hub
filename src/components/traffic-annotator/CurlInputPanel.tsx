@@ -234,21 +234,38 @@ export const CurlInputPanel: React.FC<CurlInputPanelProps> = ({
       </div>
       
       <div style={contentStyle}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+        <div style={{ marginBottom: '16px' }}>
           <label style={labelStyle}>cURL Command</label>
-          <button
-            onClick={() => setShowHistory(!showHistory)}
-            style={historyButtonStyle}
+        </div>
+        
+        <div style={{ marginBottom: '16px' }}>
+          <label style={labelStyle}>Folder Path</label>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              padding: '8px 12px',
+              border: '1px solid #d1d5db',
+              borderRadius: '8px',
+              backgroundColor: '#ffffff',
+              cursor: 'pointer',
+              fontSize: '14px',
+              color: '#374151',
+              transition: 'border-color 0.2s'
+            }}
+            onClick={() => {
+              // TODO: Open folder selection modal
+              console.log('Open folder selection');
+            }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = '#F3F4F6';
+              e.currentTarget.style.borderColor = '#4F46E5';
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = 'transparent';
+              e.currentTarget.style.borderColor = '#d1d5db';
             }}
           >
-            <History size={16} />
-            History
-          </button>
+            📁 Default
+          </div>
         </div>
         
         <div style={{ position: 'relative' }}>
