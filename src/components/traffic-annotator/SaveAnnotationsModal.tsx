@@ -47,7 +47,7 @@ interface SaveAnnotationsModalProps {
   parsedRequest: ParsedRequest | null;
   response: MockResponse | null;
   selectedFields: FieldData[];
-  onSave?: (annotations: FieldData[]) => void;
+  onSave?: (annotations: FieldData[], groupComment?: string) => void;
 }
 
 export const SaveAnnotationsModal: React.FC<SaveAnnotationsModalProps> = ({
@@ -59,6 +59,7 @@ export const SaveAnnotationsModal: React.FC<SaveAnnotationsModalProps> = ({
   selectedFields,
   onSave
 }) => {
+  const [groupComment, setGroupComment] = useState('');
   const [includeOptions, setIncludeOptions] = useState({
     curl: true,
     response: true,
@@ -127,7 +128,7 @@ export const SaveAnnotationsModal: React.FC<SaveAnnotationsModalProps> = ({
 
   const handleSave = () => {
     if (onSave) {
-      onSave(selectedFields);
+      onSave(selectedFields, groupComment);
     }
     onClose();
   };
@@ -143,7 +144,7 @@ export const SaveAnnotationsModal: React.FC<SaveAnnotationsModalProps> = ({
     URL.revokeObjectURL(url);
     
     if (onSave) {
-      onSave(selectedFields);
+      onSave(selectedFields, groupComment);
     }
     onClose();
   };
@@ -176,11 +177,37 @@ export const SaveAnnotationsModal: React.FC<SaveAnnotationsModalProps> = ({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent style={modalStyle}>
         <DialogHeader>
-          <DialogTitle>Save Traffic Annotations</DialogTitle>
+          <DialogTitle>Add Annotations</DialogTitle>
           <DialogDescription>
-            Select which components to include in your annotation export
+            Add a comment for this group of annotations
           </DialogDescription>
         </DialogHeader>
+
+        <div style={{ marginBottom: '20px' }}>
+          <label style={{ 
+            display: 'block', 
+            fontSize: '14px', 
+            fontWeight: '500', 
+            marginBottom: '8px', 
+            color: '#111827' 
+          }}>
+            Group Comment:
+          </label>
+          <textarea
+            value={groupComment}
+            onChange={(e) => setGroupComment(e.target.value)}
+            placeholder="Enter a comment for this annotation group..."
+            style={{
+              width: '100%',
+              minHeight: '80px',
+              padding: '12px',
+              border: '1px solid #d1d5db',
+              borderRadius: '8px',
+              fontSize: '14px',
+              resize: 'vertical'
+            }}
+          />
+        </div>
 
         <div style={{ marginBottom: '20px' }}>
           <h4 style={{ fontSize: '14px', fontWeight: '500', marginBottom: '12px', color: '#111827' }}>

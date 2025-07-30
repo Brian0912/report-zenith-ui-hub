@@ -105,7 +105,7 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
     responseBody: []
   });
   const [selectedFields, setSelectedFields] = useState<FieldData[]>([]);
-  const [savedAnnotations, setSavedAnnotations] = useState<FieldData[][]>([]);
+  const [savedAnnotations, setSavedAnnotations] = useState<{fields: FieldData[], groupComment: string, timestamp: string}[]>([]);
   const [expandedAnnotations, setExpandedAnnotations] = useState<Record<number, boolean>>({});
   const [editingField, setEditingField] = useState<FieldData | null>(null);
   const [showSaveModal, setShowSaveModal] = useState(false);
@@ -355,9 +355,14 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
     );
   };
 
-  const handleSaveAnnotations = (annotations: FieldData[]) => {
-    // Add the annotations as a new group
-    setSavedAnnotations(prev => [...prev, annotations]);
+  const handleSaveAnnotations = (annotations: FieldData[], groupComment?: string) => {
+    // Add the annotations as a new group with group comment
+    const annotationGroup = {
+      fields: annotations,
+      groupComment: groupComment || '',
+      timestamp: new Date().toISOString()
+    };
+    setSavedAnnotations(prev => [...prev, annotationGroup]);
     // Clear selected fields after saving
     setSelectedFields([]);
     // Expand the newly added annotation group
@@ -417,7 +422,7 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
               <div style={{ padding: '16px' }}>
                 {savedAnnotations.map((annotationGroup, groupIndex) => {
                   const isExpanded = expandedAnnotations[groupIndex] ?? false;
-                  const timestamp = new Date().toLocaleString();
+                  const timestamp = new Date(annotationGroup.timestamp).toLocaleString();
                   
                   return (
                     <div key={groupIndex} style={{ 
@@ -447,7 +452,7 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
                             color: '#374151',
                             marginBottom: '4px'
                           }}>
-                            Annotation Group {groupIndex + 1} ({annotationGroup.length} fields)
+                            {annotationGroup.groupComment || `Annotation Group ${groupIndex + 1}`} ({annotationGroup.fields.length} fields)
                           </div>
                           <div style={{ 
                             fontSize: '12px', 
@@ -468,9 +473,9 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
                       
                       {isExpanded && (
                         <div style={{ padding: '16px' }}>
-                          {annotationGroup.map((field, fieldIndex) => (
+                          {annotationGroup.fields.map((field, fieldIndex) => (
                             <div key={field.id} style={{ 
-                              marginBottom: fieldIndex === annotationGroup.length - 1 ? '0' : '12px',
+                              marginBottom: fieldIndex === annotationGroup.fields.length - 1 ? '0' : '12px',
                               padding: '8px 12px',
                               backgroundColor: '#f9fafb',
                               border: '1px solid #e5e7eb',
@@ -559,31 +564,6 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
                   Clear All
                 </button>
                 <button
-                  onClick={() => setShowBulkCommentModal(true)}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    padding: '8px 16px',
-                    backgroundColor: '#F59E0B',
-                    color: '#ffffff',
-                    border: 'none',
-                    borderRadius: '8px',
-                    cursor: 'pointer',
-                    fontSize: '14px',
-                    fontWeight: '500',
-                    transition: 'all 0.2s'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = '#D97706';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = '#F59E0B';
-                  }}
-                >
-                  Add Comment to All
-                </button>
-                <button
                   onClick={() => setShowSaveModal(true)}
                   style={{
                     display: 'flex',
@@ -607,7 +587,7 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
                   }}
                 >
                   <Save size={16} />
-                  Save Annotations
+                  Add Annotations
                 </button>
               </>
             )}
