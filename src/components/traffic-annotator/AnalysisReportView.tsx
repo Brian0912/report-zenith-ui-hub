@@ -245,7 +245,9 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
     whiteSpace: 'pre-wrap',
     wordBreak: 'break-all',
     color: '#1f2937',
-    lineHeight: '1.5'
+    lineHeight: '1.5',
+    maxHeight: '200px',
+    overflowY: 'auto'
   };
 
   return (
