@@ -1,4 +1,5 @@
 import React from 'react';
+import { Copy } from 'lucide-react';
 import { ResponseDisplayPanel } from './ResponseDisplayPanel';
 import { FieldAnalysisSection } from './FieldAnalysisSection';
 
@@ -106,6 +107,10 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
   const parsedRequest = analysisItem.parsedRequest || parseCurl(analysisItem.curlCommand);
   const response = analysisItem.response || generateMockResponse();
 
+  const handleCopyCurl = () => {
+    navigator.clipboard.writeText(analysisItem.curlCommand);
+  };
+
   const containerStyle: React.CSSProperties = {
     padding: '24px',
     width: '100%'
@@ -138,8 +143,82 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
     gap: '32px'
   };
 
+  const curlSectionStyle: React.CSSProperties = {
+    marginBottom: '24px',
+    padding: '16px',
+    backgroundColor: '#f8fafc',
+    border: '1px solid #e2e8f0',
+    borderRadius: '8px'
+  };
+
+  const curlHeaderStyle: React.CSSProperties = {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: '12px'
+  };
+
+  const curlTitleStyle: React.CSSProperties = {
+    fontSize: '16px',
+    fontWeight: '600',
+    color: '#374151',
+    margin: '0'
+  };
+
+  const copyButtonStyle: React.CSSProperties = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '6px',
+    padding: '6px 12px',
+    backgroundColor: '#ffffff',
+    border: '1px solid #d1d5db',
+    borderRadius: '6px',
+    cursor: 'pointer',
+    fontSize: '14px',
+    color: '#374151',
+    transition: 'all 0.2s'
+  };
+
+  const curlCodeStyle: React.CSSProperties = {
+    fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Cascadia, "Cascadia Code", Fira Code, "Fira Mono", Consolas, "Liberation Mono", Menlo, monospace',
+    fontSize: '14px',
+    backgroundColor: '#ffffff',
+    padding: '12px',
+    border: '1px solid #e5e7eb',
+    borderRadius: '6px',
+    whiteSpace: 'pre-wrap',
+    wordBreak: 'break-all',
+    color: '#1f2937',
+    lineHeight: '1.5'
+  };
+
   return (
     <div style={containerStyle}>
+      {/* cURL Request Section */}
+      <div style={curlSectionStyle}>
+        <div style={curlHeaderStyle}>
+          <h3 style={curlTitleStyle}>cURL Request</h3>
+          <button 
+            style={copyButtonStyle}
+            onClick={handleCopyCurl}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#f3f4f6';
+              e.currentTarget.style.borderColor = '#9ca3af';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#ffffff';
+              e.currentTarget.style.borderColor = '#d1d5db';
+            }}
+          >
+            <Copy size={16} />
+            Copy
+          </button>
+        </div>
+        <div style={curlCodeStyle}>
+          {analysisItem.curlCommand}
+        </div>
+      </div>
+
       {/* Report Header */}
       <div style={headerStyle}>
         <h1 style={titleStyle}>
