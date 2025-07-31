@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Save, X, Search, Edit } from 'lucide-react';
+import { Save, X, Search, Edit, Eye, Settings } from 'lucide-react';
 import { FindingDisplay } from './FindingDropdown';
 import { CommentDisplay } from './CommentDisplay';
 import { FieldEditModal } from './FieldEditModal';
@@ -11,7 +11,7 @@ import { ViewModeSelector, ViewMode } from './ViewModeSelector';
 import { GroupedFieldView } from './GroupedFieldView';
 import { CompactFieldView } from './CompactFieldView';
 import { TabsFieldView } from './TabsFieldView';
-import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '../ui/pagination';
+import { CommentEditor } from './CommentEditor';
 
 
 interface ParsedRequest {
@@ -140,6 +140,10 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
     hasSchema: 'all', // 'all', 'yes', 'no'
     policyAction: 'all'
   });
+
+  // Selected rows modal states
+  const [showSelectedModal, setShowSelectedModal] = useState(false);
+  const [selectedRowsComment, setSelectedRowsComment] = useState<CommentData>({ text: '', images: [] });
 
   // Get unique policy actions for filter dropdown
   const policyActions = useMemo(() => {
@@ -577,6 +581,31 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
           </h3>
           
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+            <button
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '8px 16px',
+                backgroundColor: '#3b82f6',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: '500',
+                transition: 'all 0.2s'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#2563eb';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = '#3b82f6';
+              }}
+            >
+              <Settings size={16} />
+              Vision Fields
+            </button>
             
             {selectedFields.length > 0 && (
               <>
@@ -948,97 +977,329 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
         {filteredAndPaginatedData.totalPages > 1 && (
           <div style={{ 
             display: 'flex', 
-            justifyContent: 'center', 
-            marginTop: '24px' 
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginTop: '24px',
+            padding: '16px',
+            backgroundColor: '#f9fafb',
+            border: '1px solid #e5e7eb',
+            borderRadius: '8px'
           }}>
-            <Pagination>
-              <PaginationContent>
-                {filteredAndPaginatedData.hasPreviousPage && (
-                  <PaginationItem>
-                    <PaginationPrevious 
-                      onClick={() => setCurrentPage(prev => prev - 1)}
-                      style={{ cursor: 'pointer' }}
-                    />
-                  </PaginationItem>
-                )}
-                
-                {Array.from({ length: filteredAndPaginatedData.totalPages }, (_, i) => i + 1).map((page) => {
-                  const isCurrentPage = page === filteredAndPaginatedData.currentPage;
-                  
-                  // Show first, last, current, and adjacent pages
-                  if (
-                    page === 1 || 
-                    page === filteredAndPaginatedData.totalPages || 
-                    Math.abs(page - filteredAndPaginatedData.currentPage) <= 1
-                  ) {
-                    return (
-                      <PaginationItem key={page}>
-                        <PaginationLink
-                          onClick={() => setCurrentPage(page)}
-                          isActive={isCurrentPage}
-                          style={{ cursor: 'pointer' }}
-                        >
-                          {page}
-                        </PaginationLink>
-                      </PaginationItem>
-                    );
-                  }
-                  
-                  // Show ellipsis for gaps
-                  if (
-                    page === 2 && filteredAndPaginatedData.currentPage > 4 ||
-                    page === filteredAndPaginatedData.totalPages - 1 && filteredAndPaginatedData.currentPage < filteredAndPaginatedData.totalPages - 3
-                  ) {
-                    return (
-                      <PaginationItem key={page}>
-                        <span style={{ 
-                          display: 'flex', 
-                          alignItems: 'center', 
-                          justifyContent: 'center',
-                          width: '36px',
-                          height: '36px',
-                          color: '#6b7280'
-                        }}>
-                          ...
-                        </span>
-                      </PaginationItem>
-                    );
-                  }
-                  
-                  return null;
-                })}
-                
-                {filteredAndPaginatedData.hasNextPage && (
-                  <PaginationItem>
-                    <PaginationNext 
-                      onClick={() => setCurrentPage(prev => prev + 1)}
-                      style={{ cursor: 'pointer' }}
-                    />
-                  </PaginationItem>
-                )}
-              </PaginationContent>
-            </Pagination>
+            <div style={{ fontSize: '14px', color: '#6b7280' }}>
+              Showing {((currentPage - 1) * pageSize) + 1} to {Math.min(currentPage * pageSize, filteredAndPaginatedData.totalItems)} of {filteredAndPaginatedData.totalItems} results
+            </div>
+            
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              <button
+                onClick={() => setCurrentPage(prev => prev - 1)}
+                disabled={!filteredAndPaginatedData.hasPreviousPage}
+                style={{
+                  padding: '8px 12px',
+                  backgroundColor: filteredAndPaginatedData.hasPreviousPage ? '#ffffff' : '#f3f4f6',
+                  color: filteredAndPaginatedData.hasPreviousPage ? '#374151' : '#9ca3af',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '6px',
+                  cursor: filteredAndPaginatedData.hasPreviousPage ? 'pointer' : 'not-allowed',
+                  fontSize: '14px',
+                  fontWeight: '500'
+                }}
+              >
+                Previous
+              </button>
+              
+              {Array.from({ length: filteredAndPaginatedData.totalPages }, (_, i) => i + 1)
+                .filter(page => 
+                  page === 1 || 
+                  page === filteredAndPaginatedData.totalPages || 
+                  Math.abs(page - currentPage) <= 1
+                )
+                .map((page, index, array) => (
+                  <React.Fragment key={page}>
+                    {index > 0 && array[index - 1] !== page - 1 && (
+                      <span style={{ color: '#9ca3af', fontSize: '14px' }}>...</span>
+                    )}
+                    <button
+                      onClick={() => setCurrentPage(page)}
+                      style={{
+                        padding: '8px 12px',
+                        backgroundColor: page === currentPage ? '#3b82f6' : '#ffffff',
+                        color: page === currentPage ? '#ffffff' : '#374151',
+                        border: '1px solid #d1d5db',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        fontSize: '14px',
+                        fontWeight: '500',
+                        minWidth: '40px'
+                      }}
+                    >
+                      {page}
+                    </button>
+                  </React.Fragment>
+                ))}
+              
+              <button
+                onClick={() => setCurrentPage(prev => prev + 1)}
+                disabled={!filteredAndPaginatedData.hasNextPage}
+                style={{
+                  padding: '8px 12px',
+                  backgroundColor: filteredAndPaginatedData.hasNextPage ? '#ffffff' : '#f3f4f6',
+                  color: filteredAndPaginatedData.hasNextPage ? '#374151' : '#9ca3af',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '6px',
+                  cursor: filteredAndPaginatedData.hasNextPage ? 'pointer' : 'not-allowed',
+                  fontSize: '14px',
+                  fontWeight: '500'
+                }}
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Selected rows floating modal */}
+        {selectedFields.length > 0 && (
+          <div style={{
+            position: 'fixed',
+            bottom: '20px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            backgroundColor: '#ffffff',
+            border: '1px solid #e5e7eb',
+            borderRadius: '12px',
+            boxShadow: '0 10px 25px rgba(0, 0, 0, 0.15)',
+            padding: '16px 24px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '16px',
+            zIndex: 1000,
+            animation: 'slideUp 0.3s ease-out'
+          }}>
+            <div style={{ fontSize: '14px', color: '#374151', fontWeight: '500' }}>
+              {selectedFields.length} row{selectedFields.length !== 1 ? 's' : ''} selected
+            </div>
+            <button
+              onClick={() => setShowSelectedModal(true)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '8px 16px',
+                backgroundColor: '#3b82f6',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: '500',
+                transition: 'all 0.2s'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#2563eb';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = '#3b82f6';
+              }}
+            >
+              <Eye size={16} />
+              View & Annotate
+            </button>
           </div>
         )}
       </div>
 
-      <FieldEditModal
-        field={editingField}
-        isOpen={!!editingField}
-        onClose={() => setEditingField(null)}
-        onSave={handleSaveFieldEdit}
-      />
+      {editingField && (
+        <FieldEditModal
+          isOpen={!!editingField}
+          onClose={() => setEditingField(null)}
+          field={editingField}
+          onSave={handleSaveFieldEdit}
+        />
+      )}
 
-      <SaveAnnotationsModal
-        isOpen={showSaveModal}
-        onClose={() => setShowSaveModal(false)}
-        curlInput={curlInput}
-        parsedRequest={parsedRequest}
-        response={response}
-        selectedFields={selectedFields}
-        onSave={handleSaveAnnotations}
-      />
+      {showSaveModal && (
+        <SaveAnnotationsModal
+          isOpen={showSaveModal}
+          onClose={() => setShowSaveModal(false)}
+          selectedFields={selectedFields}
+          onSave={handleSaveAnnotations}
+          curlInput={curlInput}
+          parsedRequest={parsedRequest}
+          response={response}
+        />
+      )}
 
+      {/* Selected Rows Modal */}
+      {showSelectedModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1001
+        }}>
+          <div style={{
+            backgroundColor: '#ffffff',
+            borderRadius: '12px',
+            boxShadow: '0 20px 25px rgba(0, 0, 0, 0.1)',
+            width: '90%',
+            maxWidth: '800px',
+            maxHeight: '80%',
+            overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column'
+          }}>
+            {/* Modal Header */}
+            <div style={{
+              padding: '24px',
+              borderBottom: '1px solid #e5e7eb',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center'
+            }}>
+              <div>
+                <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#1a202c', margin: 0 }}>
+                  Selected Rows Annotation
+                </h3>
+                <p style={{ fontSize: '14px', color: '#6b7280', margin: '4px 0 0' }}>
+                  Add comments and annotations to {selectedFields.length} selected row{selectedFields.length !== 1 ? 's' : ''}
+                </p>
+              </div>
+              <button
+                onClick={() => setShowSelectedModal(false)}
+                style={{
+                  padding: '8px',
+                  backgroundColor: 'transparent',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  color: '#6b7280'
+                }}
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div style={{ 
+              padding: '24px', 
+              overflowY: 'auto',
+              flex: 1
+            }}>
+              {/* Comment Editor */}
+              <div style={{ marginBottom: '24px' }}>
+                <label style={{
+                  display: 'block',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  color: '#374151',
+                  marginBottom: '8px'
+                }}>
+                  Add Comment
+                </label>
+                <CommentEditor
+                  value={selectedRowsComment}
+                  onChange={setSelectedRowsComment}
+                  placeholder="Add your comment about these selected fields..."
+                />
+              </div>
+
+              {/* Selected Fields Preview */}
+              <div>
+                <h4 style={{ fontSize: '16px', fontWeight: '500', color: '#374151', marginBottom: '12px' }}>
+                  Selected Fields ({selectedFields.length})
+                </h4>
+                <div style={{
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '8px',
+                  maxHeight: '300px',
+                  overflowY: 'auto'
+                }}>
+                  {selectedFields.map((field, index) => (
+                    <div
+                      key={field.id}
+                      style={{
+                        padding: '12px 16px',
+                        borderBottom: index === selectedFields.length - 1 ? 'none' : '1px solid #f3f4f6',
+                        backgroundColor: '#ffffff'
+                      }}
+                    >
+                      <div style={{ fontWeight: '500', color: '#1f2937', marginBottom: '4px' }}>
+                        {field.fieldPath}
+                      </div>
+                      <div style={{ fontSize: '12px', color: '#6b7280' }}>
+                        {field.source} • {field.category} • {field.policyAction}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div style={{
+              padding: '24px',
+              borderTop: '1px solid #e5e7eb',
+              display: 'flex',
+              justifyContent: 'flex-end',
+              gap: '12px'
+            }}>
+              <button
+                onClick={() => setShowSelectedModal(false)}
+                style={{
+                  padding: '8px 16px',
+                  backgroundColor: '#f3f4f6',
+                  color: '#6b7280',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '500'
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  handleSaveAnnotations(selectedFields, selectedRowsComment);
+                  setSelectedRowsComment({ text: '', images: [] });
+                  setShowSelectedModal(false);
+                }}
+                style={{
+                  padding: '8px 16px',
+                  backgroundColor: '#10B981',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '500'
+                }}
+              >
+                Confirm Annotation
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <style>{`
+        @keyframes slideUp {
+          from {
+            transform: translateX(-50%) translateY(100%);
+            opacity: 0;
+          }
+          to {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+          }
+        }
+      `}</style>
     </div>
   );
 };
