@@ -11,6 +11,10 @@ import { ViewModeSelector, ViewMode } from './ViewModeSelector';
 import { GroupedFieldView } from './GroupedFieldView';
 import { CompactFieldView } from './CompactFieldView';
 import { TabsFieldView } from './TabsFieldView';
+import { TableFilters, FilterState } from './TableFilters';
+import { PaginatedTable } from './PaginatedTable';
+import { FloatingSelectionModal } from './FloatingSelectionModal';
+import { AnnotationModal } from './AnnotationModal';
 
 
 interface ParsedRequest {
@@ -27,7 +31,7 @@ interface MockResponse {
   body: string;
 }
 
-interface CommentData {
+export interface CommentData {
   text: string;
   images: string[];
 }
@@ -109,7 +113,7 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
   const [expandedAnnotations, setExpandedAnnotations] = useState<Record<number, boolean>>({});
   const [editingField, setEditingField] = useState<FieldData | null>(null);
   const [showSaveModal, setShowSaveModal] = useState(false);
-  const [viewMode, setViewMode] = useState<ViewMode>('grouped');
+  const [viewMode, setViewMode] = useState<ViewMode>('table');
   const [columnVisibility, setColumnVisibility] = useState<ColumnVisibilityState>({
     group: true,
     value: true,
@@ -125,6 +129,12 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
     comment: false,
     images: false
   });
+  const [filters, setFilters] = useState<FilterState>({
+    fieldSearch: '',
+    hasSchema: 'all',
+    policyAction: 'All'
+  });
+  const [showAnnotationModal, setShowAnnotationModal] = useState(false);
 
   // Update group column visibility based on view mode
   useEffect(() => {
@@ -360,6 +370,20 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
     setExpandedAnnotations(prev => ({ ...prev, [savedAnnotations.length]: true }));
   };
 
+  const handleAnnotationConfirm = (comment: string, images: string[]) => {
+    const annotationGroup = {
+      fields: selectedFields.map(field => ({
+        ...field,
+        selectedComment: { text: comment, images }
+      })),
+      groupComment: { text: comment, images },
+      timestamp: new Date().toISOString()
+    };
+    setSavedAnnotations(prev => [...prev, annotationGroup]);
+    setSelectedFields([]);
+    setExpandedAnnotations(prev => ({ ...prev, [savedAnnotations.length]: true }));
+  };
+
   const getAllFields = (): FieldData[] => {
     return Object.values(fieldAnalysisData).flat();
   };
@@ -510,7 +534,7 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
           </div>
         </div>
         
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', flexWrap: 'wrap', gap: '16px' }}>
           <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#1a202c', margin: 0 }}>
             Field Analysis
           </h3>
@@ -520,101 +544,30 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
               currentMode={viewMode}
               onModeChange={setViewMode}
             />
-            
-            <ColumnVisibilityDropdown
-              visibility={columnVisibility}
-              onVisibilityChange={setColumnVisibility}
-            />
-            
-            {selectedFields.length > 0 && (
-              <>
-                <button
-                  onClick={clearAllSelectedFields}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '4px',
-                    padding: '6px 10px',
-                    backgroundColor: '#F3F4F6',
-                    color: '#6B7280',
-                    border: '1px solid #D1D5DB',
-                    borderRadius: '6px',
-                    cursor: 'pointer',
-                    fontSize: '12px',
-                    fontWeight: '500',
-                    transition: 'all 0.2s'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = '#E5E7EB';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = '#F3F4F6';
-                  }}
-                >
-                  <X size={14} />
-                  Clear All
-                </button>
-                <button
-                  onClick={() => setShowSaveModal(true)}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    padding: '8px 16px',
-                    backgroundColor: '#10B981',
-                    color: '#ffffff',
-                    border: 'none',
-                    borderRadius: '8px',
-                    cursor: 'pointer',
-                    fontSize: '14px',
-                    fontWeight: '500',
-                    transition: 'all 0.2s'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = '#059669';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = '#10B981';
-                  }}
-                >
-                  <Save size={16} />
-                  Add Annotations
-                </button>
-              </>
-            )}
           </div>
         </div>
 
-        {/* Selected Fields Section */}
-        {selectedFields.length > 0 && (
-          <div style={{ marginBottom: '24px' }}>
-            <div style={selectedFieldsHeaderStyle}>
-              <span>Selected Fields</span>
-              <span style={{ 
-                backgroundColor: '#EEF2FF', 
-                color: '#4F46E5', 
-                padding: '4px 12px', 
-                borderRadius: '16px', 
-                fontSize: '14px',
-                fontWeight: '500'
-              }}>
-                {selectedFields.length} fields
-              </span>
-            </div>
-            <div style={{ border: '1px solid #e5e7eb', borderRadius: '8px', overflow: 'hidden' }}>
-              <CompactFieldView
-                fields={selectedFields}
-                columnVisibility={columnVisibility}
-                selectedFields={selectedFields}
-                onFieldToggle={toggleFieldSelection}
-                onEditField={handleEditField}
-                showSectionHeaders={false}
-              />
-            </div>
-          </div>
+        {/* Table Filters */}
+        {viewMode === 'table' && (
+          <TableFilters
+            filters={filters}
+            onFiltersChange={setFilters}
+          />
         )}
 
         {/* Field Analysis Views */}
+        {viewMode === 'table' && (
+          <PaginatedTable
+            fields={getAllFields()}
+            filters={filters}
+            columnVisibility={columnVisibility}
+            onColumnVisibilityChange={setColumnVisibility}
+            selectedFields={selectedFields}
+            onFieldToggle={toggleFieldSelection}
+            onEditField={handleEditField}
+          />
+        )}
+
         {viewMode === 'grouped' && (
           <GroupedFieldView
             fieldAnalysisData={fieldAnalysisData}
@@ -663,6 +616,18 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
         response={response}
         selectedFields={selectedFields}
         onSave={handleSaveAnnotations}
+      />
+
+      <FloatingSelectionModal
+        selectedFields={selectedFields}
+        onViewAnnotate={() => setShowAnnotationModal(true)}
+      />
+
+      <AnnotationModal
+        isOpen={showAnnotationModal}
+        onClose={() => setShowAnnotationModal(false)}
+        selectedFields={selectedFields}
+        onConfirm={handleAnnotationConfirm}
       />
 
     </div>
