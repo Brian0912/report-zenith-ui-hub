@@ -160,9 +160,6 @@ export const PaginatedTable: React.FC<PaginatedTableProps> = ({
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr>
-              <th style={{ ...tableHeaderStyle, width: '40px' }}>
-                <input type="checkbox" style={{ width: '16px', height: '16px' }} disabled />
-              </th>
               {columnVisibility.group && (
                 <th style={tableHeaderStyle}>Group</th>
               )}
@@ -213,6 +210,7 @@ export const PaginatedTable: React.FC<PaginatedTableProps> = ({
                   backgroundColor: isFieldSelected(field) ? '#f0f9ff' : '#ffffff',
                   cursor: 'pointer'
                 }}
+                onClick={() => onFieldToggle(field)}
                 onMouseEnter={(e) => {
                   if (!isFieldSelected(field)) {
                     e.currentTarget.style.backgroundColor = '#f9fafb';
@@ -224,14 +222,6 @@ export const PaginatedTable: React.FC<PaginatedTableProps> = ({
                   }
                 }}
               >
-                <td style={tableCellStyle}>
-                  <input
-                    type="checkbox"
-                    checked={isFieldSelected(field)}
-                    onChange={() => onFieldToggle(field)}
-                    style={{ width: '16px', height: '16px', accentColor: '#10b981' }}
-                  />
-                </td>
                 {columnVisibility.group && (
                   <td style={tableCellStyle}>
                     <span style={{
