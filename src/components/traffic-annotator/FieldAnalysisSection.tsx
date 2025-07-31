@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Save, X } from 'lucide-react';
 import { FindingDisplay } from './FindingDropdown';
 import { CommentDisplay } from './CommentDisplay';
@@ -11,6 +11,10 @@ import { ViewModeSelector, ViewMode } from './ViewModeSelector';
 import { GroupedFieldView } from './GroupedFieldView';
 import { CompactFieldView } from './CompactFieldView';
 import { TabsFieldView } from './TabsFieldView';
+import { TableFilters } from './TableFilters';
+import { PaginatedTable } from './PaginatedTable';
+import { FloatingSelectionModal } from './FloatingSelectionModal';
+import { AnnotationModal } from './AnnotationModal';
 
 
 interface ParsedRequest {
@@ -27,7 +31,7 @@ interface MockResponse {
   body: string;
 }
 
-interface CommentData {
+export interface CommentData {
   text: string;
   images: string[];
 }
@@ -109,7 +113,7 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
   const [expandedAnnotations, setExpandedAnnotations] = useState<Record<number, boolean>>({});
   const [editingField, setEditingField] = useState<FieldData | null>(null);
   const [showSaveModal, setShowSaveModal] = useState(false);
-  const [viewMode, setViewMode] = useState<ViewMode>('grouped');
+  const [viewMode, setViewMode] = useState<ViewMode>('table');
   const [columnVisibility, setColumnVisibility] = useState<ColumnVisibilityState>({
     group: true,
     value: true,
@@ -125,6 +129,18 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
     comment: false,
     images: false
   });
+
+  // Table filters
+  const [fieldFilter, setFieldFilter] = useState('');
+  const [hasSchemaFilter, setHasSchemaFilter] = useState<boolean | null>(null);
+  const [policyActionFilter, setPolicyActionFilter] = useState('All');
+
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(25);
+
+  // Annotation modal
+  const [showAnnotationModal, setShowAnnotationModal] = useState(false);
 
   // Update group column visibility based on view mode
   useEffect(() => {
@@ -364,6 +380,52 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
     return Object.values(fieldAnalysisData).flat();
   };
 
+  // Filtered fields based on filters
+  const filteredFields = useMemo(() => {
+    const allFields = getAllFields();
+    
+    return allFields.filter(field => {
+      // Field name filter (fuzzy search)
+      const fieldMatches = fieldFilter === '' || 
+        field.fieldPath.toLowerCase().includes(fieldFilter.toLowerCase());
+      
+      // Has Schema filter
+      const schemaMatches = hasSchemaFilter === null || 
+        (hasSchemaFilter ? field.hasSchema === 'Yes' : field.hasSchema === 'No');
+      
+      // Policy Action filter
+      const policyMatches = policyActionFilter === 'All' || 
+        field.policyAction === policyActionFilter;
+      
+      return fieldMatches && schemaMatches && policyMatches;
+    });
+  }, [fieldAnalysisData, fieldFilter, hasSchemaFilter, policyActionFilter]);
+
+  // Paginated fields
+  const paginatedFields = useMemo(() => {
+    const startIndex = (currentPage - 1) * rowsPerPage;
+    const endIndex = startIndex + rowsPerPage;
+    return filteredFields.slice(startIndex, endIndex);
+  }, [filteredFields, currentPage, rowsPerPage]);
+
+  const totalPages = Math.ceil(filteredFields.length / rowsPerPage);
+
+  // Reset to first page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [fieldFilter, hasSchemaFilter, policyActionFilter, rowsPerPage]);
+
+  const handleAnnotationSave = (commentData: CommentData) => {
+    const annotationGroup = {
+      fields: selectedFields,
+      groupComment: commentData,
+      timestamp: new Date().toISOString()
+    };
+    setSavedAnnotations(prev => [...prev, annotationGroup]);
+    setSelectedFields([]);
+    setExpandedAnnotations(prev => ({ ...prev, [savedAnnotations.length]: true }));
+  };
+
   const cardStyle: React.CSSProperties = {
     backgroundColor: '#ffffff',
     borderRadius: '12px',
@@ -525,96 +587,38 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
               visibility={columnVisibility}
               onVisibilityChange={setColumnVisibility}
             />
-            
-            {selectedFields.length > 0 && (
-              <>
-                <button
-                  onClick={clearAllSelectedFields}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '4px',
-                    padding: '6px 10px',
-                    backgroundColor: '#F3F4F6',
-                    color: '#6B7280',
-                    border: '1px solid #D1D5DB',
-                    borderRadius: '6px',
-                    cursor: 'pointer',
-                    fontSize: '12px',
-                    fontWeight: '500',
-                    transition: 'all 0.2s'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = '#E5E7EB';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = '#F3F4F6';
-                  }}
-                >
-                  <X size={14} />
-                  Clear All
-                </button>
-                <button
-                  onClick={() => setShowSaveModal(true)}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    padding: '8px 16px',
-                    backgroundColor: '#10B981',
-                    color: '#ffffff',
-                    border: 'none',
-                    borderRadius: '8px',
-                    cursor: 'pointer',
-                    fontSize: '14px',
-                    fontWeight: '500',
-                    transition: 'all 0.2s'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = '#059669';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = '#10B981';
-                  }}
-                >
-                  <Save size={16} />
-                  Add Annotations
-                </button>
-              </>
-            )}
           </div>
         </div>
 
-        {/* Selected Fields Section */}
-        {selectedFields.length > 0 && (
-          <div style={{ marginBottom: '24px' }}>
-            <div style={selectedFieldsHeaderStyle}>
-              <span>Selected Fields</span>
-              <span style={{ 
-                backgroundColor: '#EEF2FF', 
-                color: '#4F46E5', 
-                padding: '4px 12px', 
-                borderRadius: '16px', 
-                fontSize: '14px',
-                fontWeight: '500'
-              }}>
-                {selectedFields.length} fields
-              </span>
-            </div>
-            <div style={{ border: '1px solid #e5e7eb', borderRadius: '8px', overflow: 'hidden' }}>
-              <CompactFieldView
-                fields={selectedFields}
-                columnVisibility={columnVisibility}
-                selectedFields={selectedFields}
-                onFieldToggle={toggleFieldSelection}
-                onEditField={handleEditField}
-                showSectionHeaders={false}
-              />
-            </div>
-          </div>
+        {/* Table Filters */}
+        {viewMode === 'table' && (
+          <TableFilters
+            fieldFilter={fieldFilter}
+            onFieldFilterChange={setFieldFilter}
+            hasSchemaFilter={hasSchemaFilter}
+            onHasSchemaFilterChange={setHasSchemaFilter}
+            policyActionFilter={policyActionFilter}
+            onPolicyActionFilterChange={setPolicyActionFilter}
+          />
         )}
 
         {/* Field Analysis Views */}
+        {viewMode === 'table' && (
+          <PaginatedTable
+            fields={paginatedFields}
+            columnVisibility={columnVisibility}
+            selectedFields={selectedFields}
+            onFieldToggle={toggleFieldSelection}
+            onEditField={handleEditField}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+            rowsPerPage={rowsPerPage}
+            onRowsPerPageChange={setRowsPerPage}
+            totalRows={filteredFields.length}
+          />
+        )}
+
         {viewMode === 'grouped' && (
           <GroupedFieldView
             fieldAnalysisData={fieldAnalysisData}
@@ -663,6 +667,18 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
         response={response}
         selectedFields={selectedFields}
         onSave={handleSaveAnnotations}
+      />
+
+      <FloatingSelectionModal
+        selectedCount={selectedFields.length}
+        onViewAnnotate={() => setShowAnnotationModal(true)}
+      />
+
+      <AnnotationModal
+        isOpen={showAnnotationModal}
+        onClose={() => setShowAnnotationModal(false)}
+        selectedFields={selectedFields}
+        onConfirm={handleAnnotationSave}
       />
 
     </div>
