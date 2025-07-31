@@ -48,6 +48,12 @@ export const PaginatedTable: React.FC<PaginatedTableProps> = ({
         return false;
       }
       
+      // Annotation filter - this would need to be implemented based on how you want to associate fields with annotations
+      if (filters.annotation !== 'All') {
+        // This is a placeholder - you'll need to implement the logic to check if a field belongs to a specific annotation
+        // For now, we'll just pass through
+      }
+      
       return true;
     });
   }, [fields, filters]);

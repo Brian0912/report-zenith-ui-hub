@@ -5,16 +5,19 @@ export interface FilterState {
   fieldSearch: string;
   hasSchema: 'all' | 'yes' | 'no';
   policyAction: string;
+  annotation: string;
 }
 
 interface TableFiltersProps {
   filters: FilterState;
   onFiltersChange: (filters: FilterState) => void;
+  savedAnnotations: Array<{fields: any[], groupComment: any, timestamp: string, name?: string}>;
 }
 
 export const TableFilters: React.FC<TableFiltersProps> = ({
   filters,
-  onFiltersChange
+  onFiltersChange,
+  savedAnnotations
 }) => {
   const policyActions = ['All', 'encrypted', 'plain-text', 'noise', 'masked', 'hashed'];
 
@@ -27,6 +30,10 @@ export const TableFilters: React.FC<TableFiltersProps> = ({
       ...filters, 
       hasSchema: checked ? 'yes' : 'all'
     });
+  };
+
+  const handleAnnotationChange = (value: string) => {
+    onFiltersChange({ ...filters, annotation: value });
   };
 
   const handlePolicyActionChange = (value: string) => {
@@ -145,6 +152,53 @@ export const TableFilters: React.FC<TableFiltersProps> = ({
             {policyActions.map(action => (
               <option key={action} value={action}>
                 {action}
+              </option>
+            ))}
+          </select>
+          <ChevronDown 
+            size={16} 
+            style={{
+              position: 'absolute',
+              right: '8px',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              color: '#9ca3af',
+              pointerEvents: 'none'
+            }}
+          />
+        </div>
+      </div>
+
+      {/* Annotation Filter */}
+      <div style={{ minWidth: '150px' }}>
+        <label style={{
+          display: 'block',
+          fontSize: '12px',
+          fontWeight: '500',
+          color: '#374151',
+          marginBottom: '4px'
+        }}>
+          Annotation
+        </label>
+        <div style={{ position: 'relative' }}>
+          <select
+            value={filters.annotation}
+            onChange={(e) => handleAnnotationChange(e.target.value)}
+            style={{
+              width: '100%',
+              padding: '8px 32px 8px 12px',
+              border: '1px solid #d1d5db',
+              borderRadius: '6px',
+              fontSize: '14px',
+              backgroundColor: '#ffffff',
+              appearance: 'none',
+              cursor: 'pointer'
+            }}
+          >
+            <option value="All">All</option>
+            {savedAnnotations.map((annotation, index) => (
+              <option key={index} value={annotation.name || `Annotation ${index + 1}`}>
+                {annotation.name || `Annotation ${index + 1}`}
               </option>
             ))}
           </select>

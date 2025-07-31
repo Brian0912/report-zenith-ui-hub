@@ -6,7 +6,7 @@ interface AnnotationModalProps {
   isOpen: boolean;
   onClose: () => void;
   selectedFields: FieldData[];
-  onConfirm: (comment: string, images: string[]) => void;
+  onConfirm: (name: string, comment: string, images: string[]) => void;
 }
 
 export const AnnotationModal: React.FC<AnnotationModalProps> = ({
@@ -15,6 +15,7 @@ export const AnnotationModal: React.FC<AnnotationModalProps> = ({
   selectedFields,
   onConfirm
 }) => {
+  const [name, setName] = useState('');
   const [comment, setComment] = useState('');
   const [images, setImages] = useState<string[]>([]);
 
@@ -39,13 +40,15 @@ export const AnnotationModal: React.FC<AnnotationModalProps> = ({
   };
 
   const handleConfirm = () => {
-    onConfirm(comment, images);
+    onConfirm(name, comment, images);
+    setName('');
     setComment('');
     setImages([]);
     onClose();
   };
 
   const handleCancel = () => {
+    setName('');
     setComment('');
     setImages([]);
     onClose();
@@ -154,6 +157,40 @@ export const AnnotationModal: React.FC<AnnotationModalProps> = ({
                 </div>
               ))}
             </div>
+          </div>
+
+          {/* Annotation Name */}
+          <div style={{ marginBottom: '24px' }}>
+            <h3 style={{
+              fontSize: '14px',
+              fontWeight: '600',
+              color: '#374151',
+              marginBottom: '8px'
+            }}>
+              Annotation Name:
+            </h3>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Enter annotation name..."
+              style={{
+                width: '100%',
+                padding: '12px',
+                border: '1px solid #d1d5db',
+                borderRadius: '8px',
+                fontSize: '14px',
+                outline: 'none'
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = '#10b981';
+                e.currentTarget.style.boxShadow = '0 0 0 3px rgba(16, 185, 129, 0.1)';
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = '#d1d5db';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
+            />
           </div>
 
           {/* Comments */}
