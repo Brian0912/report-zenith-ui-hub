@@ -1,8 +1,8 @@
 
 import React from 'react';
-import { LayoutGrid, List, Layers3, Table } from 'lucide-react';
+import { LayoutGrid, List, Layers3 } from 'lucide-react';
 
-export type ViewMode = 'grouped' | 'compact' | 'tabs' | 'table';
+export type ViewMode = 'grouped' | 'compact' | 'tabs';
 
 interface ViewModeSelectorProps {
   currentMode: ViewMode;
@@ -14,7 +14,6 @@ export const ViewModeSelector: React.FC<ViewModeSelectorProps> = ({
   onModeChange
 }) => {
   const modes = [
-    { key: 'table' as const, label: 'Table', icon: Table },
     { key: 'grouped' as const, label: 'Grouped', icon: LayoutGrid },
     { key: 'compact' as const, label: 'Compact', icon: List },
     { key: 'tabs' as const, label: 'Tabs', icon: Layers3 }
