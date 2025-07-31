@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { Save, X, Search, Edit, Eye, Settings } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Save, X } from 'lucide-react';
 import { FindingDisplay } from './FindingDropdown';
 import { CommentDisplay } from './CommentDisplay';
 import { FieldEditModal } from './FieldEditModal';
@@ -11,7 +11,6 @@ import { ViewModeSelector, ViewMode } from './ViewModeSelector';
 import { GroupedFieldView } from './GroupedFieldView';
 import { CompactFieldView } from './CompactFieldView';
 import { TabsFieldView } from './TabsFieldView';
-import { CommentEditor } from './CommentEditor';
 
 
 interface ParsedRequest {
@@ -126,73 +125,6 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
     comment: false,
     images: false
   });
-  
-  // Define getAllFields function first
-  const getAllFields = (): FieldData[] => {
-    return Object.values(fieldAnalysisData).flat();
-  };
-  
-  // Pagination and filter states
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize] = useState(10);
-  const [filters, setFilters] = useState({
-    field: '',
-    hasSchema: 'all', // 'all', 'yes', 'no'
-    policyAction: 'all'
-  });
-
-  // Selected rows modal states
-  const [showSelectedModal, setShowSelectedModal] = useState(false);
-  const [selectedRowsComment, setSelectedRowsComment] = useState<CommentData>({ text: '', images: [] });
-
-  // Get unique policy actions for filter dropdown
-  const policyActions = useMemo(() => {
-    const actions = new Set(getAllFields().map(field => field.policyAction));
-    return Array.from(actions);
-  }, [fieldAnalysisData]);
-
-  // Filter and paginate data
-  const filteredAndPaginatedData = useMemo(() => {
-    const allFields = getAllFields();
-    
-    // Apply filters
-    const filtered = allFields.filter(field => {
-      const matchesField = filters.field === '' || 
-        field.fieldPath.toLowerCase().includes(filters.field.toLowerCase()) ||
-        field.source.toLowerCase().includes(filters.field.toLowerCase()) ||
-        field.category.toLowerCase().includes(filters.field.toLowerCase());
-      
-      const matchesSchema = filters.hasSchema === 'all' || 
-        (filters.hasSchema === 'yes' && field.hasSchema === 'Yes') ||
-        (filters.hasSchema === 'no' && field.hasSchema === 'No');
-      
-      const matchesPolicy = filters.policyAction === 'all' || 
-        field.policyAction === filters.policyAction;
-      
-      return matchesField && matchesSchema && matchesPolicy;
-    });
-
-    // Calculate pagination
-    const totalItems = filtered.length;
-    const totalPages = Math.ceil(totalItems / pageSize);
-    const startIndex = (currentPage - 1) * pageSize;
-    const endIndex = startIndex + pageSize;
-    const paginatedData = filtered.slice(startIndex, endIndex);
-
-    return {
-      data: paginatedData,
-      totalItems,
-      totalPages,
-      currentPage,
-      hasNextPage: currentPage < totalPages,
-      hasPreviousPage: currentPage > 1
-    };
-  }, [fieldAnalysisData, filters, currentPage, pageSize]);
-
-  // Reset to first page when filters change
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [filters]);
 
   // Update group column visibility based on view mode
   useEffect(() => {
@@ -428,6 +360,9 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
     setExpandedAnnotations(prev => ({ ...prev, [savedAnnotations.length]: true }));
   };
 
+  const getAllFields = (): FieldData[] => {
+    return Object.values(fieldAnalysisData).flat();
+  };
 
   const cardStyle: React.CSSProperties = {
     backgroundColor: '#ffffff',
@@ -577,35 +512,19 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
         
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
           <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#1a202c', margin: 0 }}>
-            Field Analysis ({filteredAndPaginatedData.totalItems} fields)
+            Field Analysis
           </h3>
           
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-            <button
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                padding: '8px 16px',
-                backgroundColor: '#3b82f6',
-                color: '#ffffff',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                fontSize: '14px',
-                fontWeight: '500',
-                transition: 'all 0.2s'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = '#2563eb';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = '#3b82f6';
-              }}
-            >
-              <Settings size={16} />
-              Vision Fields
-            </button>
+            <ViewModeSelector
+              currentMode={viewMode}
+              onModeChange={setViewMode}
+            />
+            
+            <ColumnVisibilityDropdown
+              visibility={columnVisibility}
+              onVisibilityChange={setColumnVisibility}
+            />
             
             {selectedFields.length > 0 && (
               <>
@@ -666,145 +585,6 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
           </div>
         </div>
 
-        {/* Filters */}
-        <div style={{ 
-          display: 'flex', 
-          gap: '16px', 
-          marginBottom: '24px', 
-          flexWrap: 'wrap',
-          padding: '16px',
-          backgroundColor: '#f9fafb',
-          border: '1px solid #e5e7eb',
-          borderRadius: '8px'
-        }}>
-          {/* Field Filter */}
-          <div style={{ flex: '1', minWidth: '200px' }}>
-            <label style={{
-              display: 'block',
-              fontSize: '12px',
-              fontWeight: '500',
-              color: '#374151',
-              marginBottom: '4px'
-            }}>
-              Field
-            </label>
-            <div style={{ position: 'relative' }}>
-              <Search 
-                size={16} 
-                style={{
-                  position: 'absolute',
-                  left: '12px',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  color: '#9ca3af'
-                }}
-              />
-              <input
-                type="text"
-                value={filters.field}
-                onChange={(e) => setFilters(prev => ({ ...prev, field: e.target.value }))}
-                placeholder="Search field path, source, or category..."
-                style={{
-                  width: '100%',
-                  padding: '8px 12px 8px 36px',
-                  border: '1px solid #d1d5db',
-                  borderRadius: '6px',
-                  fontSize: '14px',
-                  outline: 'none',
-                  boxSizing: 'border-box'
-                }}
-                onFocus={(e) => {
-                  e.target.style.borderColor = '#3b82f6';
-                  e.target.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
-                }}
-                onBlur={(e) => {
-                  e.target.style.borderColor = '#d1d5db';
-                  e.target.style.boxShadow = 'none';
-                }}
-              />
-            </div>
-          </div>
-
-          {/* Has Schema Filter */}
-          <div style={{ minWidth: '150px' }}>
-            <label style={{
-              display: 'block',
-              fontSize: '12px',
-              fontWeight: '500',
-              color: '#374151',
-              marginBottom: '4px'
-            }}>
-              Has Schema
-            </label>
-            <select
-              value={filters.hasSchema}
-              onChange={(e) => setFilters(prev => ({ ...prev, hasSchema: e.target.value }))}
-              style={{
-                width: '100%',
-                padding: '8px 12px',
-                border: '1px solid #d1d5db',
-                borderRadius: '6px',
-                fontSize: '14px',
-                backgroundColor: '#ffffff',
-                outline: 'none',
-                boxSizing: 'border-box'
-              }}
-              onFocus={(e) => {
-                e.target.style.borderColor = '#3b82f6';
-                e.target.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
-              }}
-              onBlur={(e) => {
-                e.target.style.borderColor = '#d1d5db';
-                e.target.style.boxShadow = 'none';
-              }}
-            >
-              <option value="all">All</option>
-              <option value="yes">Yes</option>
-              <option value="no">No</option>
-            </select>
-          </div>
-
-          {/* Policy Action Filter */}
-          <div style={{ minWidth: '150px' }}>
-            <label style={{
-              display: 'block',
-              fontSize: '12px',
-              fontWeight: '500',
-              color: '#374151',
-              marginBottom: '4px'
-            }}>
-              Policy Action
-            </label>
-            <select
-              value={filters.policyAction}
-              onChange={(e) => setFilters(prev => ({ ...prev, policyAction: e.target.value }))}
-              style={{
-                width: '100%',
-                padding: '8px 12px',
-                border: '1px solid #d1d5db',
-                borderRadius: '6px',
-                fontSize: '14px',
-                backgroundColor: '#ffffff',
-                outline: 'none',
-                boxSizing: 'border-box'
-              }}
-              onFocus={(e) => {
-                e.target.style.borderColor = '#3b82f6';
-                e.target.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
-              }}
-              onBlur={(e) => {
-                e.target.style.borderColor = '#d1d5db';
-                e.target.style.boxShadow = 'none';
-              }}
-            >
-              <option value="all">All</option>
-              {policyActions.map(action => (
-                <option key={action} value={action}>{action}</option>
-              ))}
-            </select>
-          </div>
-        </div>
-
         {/* Selected Fields Section */}
         {selectedFields.length > 0 && (
           <div style={{ marginBottom: '24px' }}>
@@ -834,472 +614,57 @@ export const FieldAnalysisSection: React.FC<FieldAnalysisSectionProps> = ({
           </div>
         )}
 
-        {/* Field Analysis Table */}
-        <div style={{ border: '1px solid #e5e7eb', borderRadius: '8px', overflow: 'hidden' }}>
-          {/* Table Header */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: '40px 1fr 1fr 1fr 120px 120px 120px 80px',
-            backgroundColor: '#f9fafb',
-            borderBottom: '1px solid #e5e7eb',
-            padding: '12px 16px',
-            fontSize: '12px',
-            fontWeight: '600',
-            color: '#6b7280',
-            textTransform: 'uppercase'
-          }}>
-            <div></div>
-            <div>Field Path</div>
-            <div>Source</div>
-            <div>Category</div>
-            <div>Has Schema</div>
-            <div>Policy Action</div>
-            <div>Data Sovereignty</div>
-            <div>Actions</div>
-          </div>
+        {/* Field Analysis Views */}
+        {viewMode === 'grouped' && (
+          <GroupedFieldView
+            fieldAnalysisData={fieldAnalysisData}
+            columnVisibility={columnVisibility}
+            selectedFields={selectedFields}
+            onFieldToggle={toggleFieldSelection}
+            onEditField={handleEditField}
+          />
+        )}
 
-          {/* Table Body */}
-          {filteredAndPaginatedData.data.length === 0 ? (
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: '48px',
-              color: '#9ca3af',
-              fontSize: '14px'
-            }}>
-              No fields match the current filters
-            </div>
-          ) : (
-            filteredAndPaginatedData.data.map((field, index) => {
-              const isSelected = selectedFields.some(f => f.id === field.id);
-              return (
-                <div
-                  key={field.id}
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns: '40px 1fr 1fr 1fr 120px 120px 120px 80px',
-                    padding: '12px 16px',
-                    borderBottom: index === filteredAndPaginatedData.data.length - 1 ? 'none' : '1px solid #f3f4f6',
-                    backgroundColor: isSelected ? '#eff6ff' : '#ffffff',
-                    fontSize: '14px',
-                    alignItems: 'center',
-                    cursor: 'pointer',
-                    transition: 'background-color 0.2s'
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!isSelected) {
-                      e.currentTarget.style.backgroundColor = '#f9fafb';
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (!isSelected) {
-                      e.currentTarget.style.backgroundColor = '#ffffff';
-                    }
-                  }}
-                  onClick={() => toggleFieldSelection(field)}
-                >
-                  <div>
-                    <input
-                      type="checkbox"
-                      checked={isSelected}
-                      onChange={() => {}}
-                      style={{
-                        width: '16px',
-                        height: '16px',
-                        accentColor: '#3b82f6'
-                      }}
-                    />
-                  </div>
-                  <div style={{ fontWeight: '500', color: '#1f2937' }}>
-                    {field.fieldPath}
-                  </div>
-                  <div style={{ color: '#6b7280' }}>
-                    {field.source}
-                  </div>
-                  <div style={{ color: '#6b7280' }}>
-                    {field.category}
-                  </div>
-                  <div>
-                    <span style={{
-                      padding: '2px 8px',
-                      borderRadius: '12px',
-                      fontSize: '12px',
-                      fontWeight: '500',
-                      backgroundColor: field.hasSchema === 'Yes' ? '#dcfce7' : '#fef3c7',
-                      color: field.hasSchema === 'Yes' ? '#166534' : '#92400e'
-                    }}>
-                      {field.hasSchema}
-                    </span>
-                  </div>
-                  <div style={{ color: '#6b7280' }}>
-                    {field.policyAction}
-                  </div>
-                  <div style={{ color: '#6b7280' }}>
-                    {field.dataSovereignty}
-                  </div>
-                  <div>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleEditField(field);
-                      }}
-                      style={{
-                        padding: '4px 8px',
-                        backgroundColor: '#f3f4f6',
-                        border: '1px solid #d1d5db',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '4px',
-                        fontSize: '12px',
-                        color: '#6b7280'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = '#e5e7eb';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = '#f3f4f6';
-                      }}
-                    >
-                      <Edit size={12} />
-                      Edit
-                    </button>
-                  </div>
-                </div>
-              );
-            })
-          )}
-        </div>
-
-        {/* Pagination */}
-        {filteredAndPaginatedData.totalPages > 1 && (
-          <div style={{ 
-            display: 'flex', 
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginTop: '24px',
-            padding: '16px',
-            backgroundColor: '#f9fafb',
-            border: '1px solid #e5e7eb',
-            borderRadius: '8px'
-          }}>
-            <div style={{ fontSize: '14px', color: '#6b7280' }}>
-              Showing {((currentPage - 1) * pageSize) + 1} to {Math.min(currentPage * pageSize, filteredAndPaginatedData.totalItems)} of {filteredAndPaginatedData.totalItems} results
-            </div>
-            
-            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-              <button
-                onClick={() => setCurrentPage(prev => prev - 1)}
-                disabled={!filteredAndPaginatedData.hasPreviousPage}
-                style={{
-                  padding: '8px 12px',
-                  backgroundColor: filteredAndPaginatedData.hasPreviousPage ? '#ffffff' : '#f3f4f6',
-                  color: filteredAndPaginatedData.hasPreviousPage ? '#374151' : '#9ca3af',
-                  border: '1px solid #d1d5db',
-                  borderRadius: '6px',
-                  cursor: filteredAndPaginatedData.hasPreviousPage ? 'pointer' : 'not-allowed',
-                  fontSize: '14px',
-                  fontWeight: '500'
-                }}
-              >
-                Previous
-              </button>
-              
-              {Array.from({ length: filteredAndPaginatedData.totalPages }, (_, i) => i + 1)
-                .filter(page => 
-                  page === 1 || 
-                  page === filteredAndPaginatedData.totalPages || 
-                  Math.abs(page - currentPage) <= 1
-                )
-                .map((page, index, array) => (
-                  <React.Fragment key={page}>
-                    {index > 0 && array[index - 1] !== page - 1 && (
-                      <span style={{ color: '#9ca3af', fontSize: '14px' }}>...</span>
-                    )}
-                    <button
-                      onClick={() => setCurrentPage(page)}
-                      style={{
-                        padding: '8px 12px',
-                        backgroundColor: page === currentPage ? '#3b82f6' : '#ffffff',
-                        color: page === currentPage ? '#ffffff' : '#374151',
-                        border: '1px solid #d1d5db',
-                        borderRadius: '6px',
-                        cursor: 'pointer',
-                        fontSize: '14px',
-                        fontWeight: '500',
-                        minWidth: '40px'
-                      }}
-                    >
-                      {page}
-                    </button>
-                  </React.Fragment>
-                ))}
-              
-              <button
-                onClick={() => setCurrentPage(prev => prev + 1)}
-                disabled={!filteredAndPaginatedData.hasNextPage}
-                style={{
-                  padding: '8px 12px',
-                  backgroundColor: filteredAndPaginatedData.hasNextPage ? '#ffffff' : '#f3f4f6',
-                  color: filteredAndPaginatedData.hasNextPage ? '#374151' : '#9ca3af',
-                  border: '1px solid #d1d5db',
-                  borderRadius: '6px',
-                  cursor: filteredAndPaginatedData.hasNextPage ? 'pointer' : 'not-allowed',
-                  fontSize: '14px',
-                  fontWeight: '500'
-                }}
-              >
-                Next
-              </button>
-            </div>
+        {viewMode === 'compact' && (
+          <div style={{ border: '1px solid #e5e7eb', borderRadius: '8px', overflow: 'hidden' }}>
+            <CompactFieldView
+              fields={getAllFields()}
+              columnVisibility={columnVisibility}
+              selectedFields={selectedFields}
+              onFieldToggle={toggleFieldSelection}
+              onEditField={handleEditField}
+            />
           </div>
         )}
 
-        {/* Selected rows floating modal */}
-        {selectedFields.length > 0 && (
-          <div style={{
-            position: 'fixed',
-            bottom: '20px',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            backgroundColor: '#ffffff',
-            border: '1px solid #e5e7eb',
-            borderRadius: '12px',
-            boxShadow: '0 10px 25px rgba(0, 0, 0, 0.15)',
-            padding: '16px 24px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '16px',
-            zIndex: 1000,
-            animation: 'slideUp 0.3s ease-out'
-          }}>
-            <div style={{ fontSize: '14px', color: '#374151', fontWeight: '500' }}>
-              {selectedFields.length} row{selectedFields.length !== 1 ? 's' : ''} selected
-            </div>
-            <button
-              onClick={() => setShowSelectedModal(true)}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                padding: '8px 16px',
-                backgroundColor: '#3b82f6',
-                color: '#ffffff',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                fontSize: '14px',
-                fontWeight: '500',
-                transition: 'all 0.2s'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = '#2563eb';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = '#3b82f6';
-              }}
-            >
-              <Eye size={16} />
-              View & Annotate
-            </button>
-          </div>
+        {viewMode === 'tabs' && (
+          <TabsFieldView
+            fieldAnalysisData={fieldAnalysisData}
+            columnVisibility={columnVisibility}
+            selectedFields={selectedFields}
+            onFieldToggle={toggleFieldSelection}
+            onEditField={handleEditField}
+          />
         )}
       </div>
 
-      {editingField && (
-        <FieldEditModal
-          isOpen={!!editingField}
-          onClose={() => setEditingField(null)}
-          field={editingField}
-          onSave={handleSaveFieldEdit}
-        />
-      )}
+      <FieldEditModal
+        field={editingField}
+        isOpen={!!editingField}
+        onClose={() => setEditingField(null)}
+        onSave={handleSaveFieldEdit}
+      />
 
-      {showSaveModal && (
-        <SaveAnnotationsModal
-          isOpen={showSaveModal}
-          onClose={() => setShowSaveModal(false)}
-          selectedFields={selectedFields}
-          onSave={handleSaveAnnotations}
-          curlInput={curlInput}
-          parsedRequest={parsedRequest}
-          response={response}
-        />
-      )}
+      <SaveAnnotationsModal
+        isOpen={showSaveModal}
+        onClose={() => setShowSaveModal(false)}
+        curlInput={curlInput}
+        parsedRequest={parsedRequest}
+        response={response}
+        selectedFields={selectedFields}
+        onSave={handleSaveAnnotations}
+      />
 
-      {/* Selected Rows Modal */}
-      {showSelectedModal && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.5)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 1001
-        }}>
-          <div style={{
-            backgroundColor: '#ffffff',
-            borderRadius: '12px',
-            boxShadow: '0 20px 25px rgba(0, 0, 0, 0.1)',
-            width: '90%',
-            maxWidth: '800px',
-            maxHeight: '80%',
-            overflow: 'hidden',
-            display: 'flex',
-            flexDirection: 'column'
-          }}>
-            {/* Modal Header */}
-            <div style={{
-              padding: '24px',
-              borderBottom: '1px solid #e5e7eb',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center'
-            }}>
-              <div>
-                <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#1a202c', margin: 0 }}>
-                  Selected Rows Annotation
-                </h3>
-                <p style={{ fontSize: '14px', color: '#6b7280', margin: '4px 0 0' }}>
-                  Add comments and annotations to {selectedFields.length} selected row{selectedFields.length !== 1 ? 's' : ''}
-                </p>
-              </div>
-              <button
-                onClick={() => setShowSelectedModal(false)}
-                style={{
-                  padding: '8px',
-                  backgroundColor: 'transparent',
-                  border: 'none',
-                  borderRadius: '6px',
-                  cursor: 'pointer',
-                  color: '#6b7280'
-                }}
-              >
-                <X size={20} />
-              </button>
-            </div>
-
-            {/* Modal Content */}
-            <div style={{ 
-              padding: '24px', 
-              overflowY: 'auto',
-              flex: 1
-            }}>
-              {/* Comment Editor */}
-              <div style={{ marginBottom: '24px' }}>
-                <label style={{
-                  display: 'block',
-                  fontSize: '14px',
-                  fontWeight: '500',
-                  color: '#374151',
-                  marginBottom: '8px'
-                }}>
-                  Add Comment
-                </label>
-                <CommentEditor
-                  value={selectedRowsComment}
-                  onChange={setSelectedRowsComment}
-                  placeholder="Add your comment about these selected fields..."
-                />
-              </div>
-
-              {/* Selected Fields Preview */}
-              <div>
-                <h4 style={{ fontSize: '16px', fontWeight: '500', color: '#374151', marginBottom: '12px' }}>
-                  Selected Fields ({selectedFields.length})
-                </h4>
-                <div style={{
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '8px',
-                  maxHeight: '300px',
-                  overflowY: 'auto'
-                }}>
-                  {selectedFields.map((field, index) => (
-                    <div
-                      key={field.id}
-                      style={{
-                        padding: '12px 16px',
-                        borderBottom: index === selectedFields.length - 1 ? 'none' : '1px solid #f3f4f6',
-                        backgroundColor: '#ffffff'
-                      }}
-                    >
-                      <div style={{ fontWeight: '500', color: '#1f2937', marginBottom: '4px' }}>
-                        {field.fieldPath}
-                      </div>
-                      <div style={{ fontSize: '12px', color: '#6b7280' }}>
-                        {field.source} • {field.category} • {field.policyAction}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Modal Footer */}
-            <div style={{
-              padding: '24px',
-              borderTop: '1px solid #e5e7eb',
-              display: 'flex',
-              justifyContent: 'flex-end',
-              gap: '12px'
-            }}>
-              <button
-                onClick={() => setShowSelectedModal(false)}
-                style={{
-                  padding: '8px 16px',
-                  backgroundColor: '#f3f4f6',
-                  color: '#6b7280',
-                  border: '1px solid #d1d5db',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                  fontSize: '14px',
-                  fontWeight: '500'
-                }}
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => {
-                  handleSaveAnnotations(selectedFields, selectedRowsComment);
-                  setSelectedRowsComment({ text: '', images: [] });
-                  setShowSelectedModal(false);
-                }}
-                style={{
-                  padding: '8px 16px',
-                  backgroundColor: '#10B981',
-                  color: '#ffffff',
-                  border: 'none',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                  fontSize: '14px',
-                  fontWeight: '500'
-                }}
-              >
-                Confirm Annotation
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      <style>{`
-        @keyframes slideUp {
-          from {
-            transform: translateX(-50%) translateY(100%);
-            opacity: 0;
-          }
-          to {
-            transform: translateX(-50%) translateY(0);
-            opacity: 1;
-          }
-        }
-      `}</style>
     </div>
   );
 };
