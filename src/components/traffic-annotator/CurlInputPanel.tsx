@@ -101,7 +101,7 @@ export const CurlInputPanel: React.FC<CurlInputPanelProps> = ({
     }
   };
 
-  const sendRequest = () => {
+  const sendRequest = async () => {
     if (!parsedRequest) {
       setError('Please enter a valid cURL command');
       return;
@@ -111,38 +111,61 @@ export const CurlInputPanel: React.FC<CurlInputPanelProps> = ({
     setError(null);
     setResponse(null);
 
-    // Mock API response simulation
-    setTimeout(() => {
+    try {
+      const requestOptions: RequestInit = {
+        method: parsedRequest.method,
+        headers: parsedRequest.headers,
+      };
+
+      // Add body if it exists
+      if (parsedRequest.body && parsedRequest.method !== 'GET') {
+        requestOptions.body = parsedRequest.body;
+      }
+
+      console.log('Sending request:', {
+        url: parsedRequest.url,
+        options: requestOptions
+      });
+
+      const response = await fetch(parsedRequest.url, requestOptions);
+      
+      // Get response headers
+      const responseHeaders: Record<string, string> = {};
+      response.headers.forEach((value, key) => {
+        responseHeaders[key] = value;
+      });
+
+      // Get response body
+      let responseBody = '';
+      try {
+        const text = await response.text();
+        // Try to parse as JSON for prettier formatting
+        try {
+          const json = JSON.parse(text);
+          responseBody = JSON.stringify(json, null, 2);
+        } catch {
+          responseBody = text;
+        }
+      } catch (bodyError) {
+        responseBody = 'Error reading response body';
+      }
+
       const mockResponse: MockResponse = {
-        status: 200,
-        statusText: 'OK',
-        headers: {
-          'Content-Type': 'application/json',
-          'Content-Length': '156',
-          'Server': 'nginx/1.18.0',
-          'Set-Cookie': 'session_id=abc123; Path=/; HttpOnly'
-        },
-        body: JSON.stringify({
-          success: true,
-          data: { 
-            message: 'Request processed successfully',
-            userId: 12345,
-            profile: {
-              name: 'John Doe',
-              email: 'john@example.com',
-              preferences: {
-                notifications: true,
-                privacy: 'public'
-              }
-            }
-          },
-          timestamp: new Date().toISOString()
-        }, null, 2)
+        status: response.status,
+        statusText: response.statusText,
+        headers: responseHeaders,
+        body: responseBody
       };
 
       setResponse(mockResponse);
+      console.log('Response received:', mockResponse);
+
+    } catch (fetchError) {
+      console.error('Request failed:', fetchError);
+      setError(`Request failed: ${fetchError instanceof Error ? fetchError.message : 'Unknown error'}`);
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
   const cardStyle: React.CSSProperties = {
