@@ -1,5 +1,6 @@
 import React from 'react';
 import { History } from 'lucide-react';
+import { v4 as uuidv4 } from 'uuid';
 
 interface ParsedRequest {
   url: string;
@@ -112,9 +113,16 @@ export const CurlInputPanel: React.FC<CurlInputPanelProps> = ({
     setResponse(null);
 
     try {
+      // Add the extra headers to the existing headers
+      const enhancedHeaders = {
+        ...parsedRequest.headers,
+        'x-gw-xrayscan': uuidv4(),
+        'aplus-xray-cors': 'test'
+      };
+
       const requestOptions: RequestInit = {
         method: parsedRequest.method,
-        headers: parsedRequest.headers,
+        headers: enhancedHeaders,
       };
 
       // Add body if it exists
