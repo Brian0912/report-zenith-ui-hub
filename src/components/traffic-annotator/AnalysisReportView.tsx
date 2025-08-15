@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Copy, Download, Share2, Calendar, Users, Lock, Globe } from 'lucide-react';
+import { Copy, Download, Share2, Calendar, Users, Lock, Globe, Link } from 'lucide-react';
 import { ResponseDisplayPanel } from './ResponseDisplayPanel';
 import { FieldAnalysisSection } from './FieldAnalysisSection';
 import { useDownload } from '../../hooks/useDownload';
@@ -45,6 +45,7 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
     authorizedUsers: ''
   });
   const [accessCode, setAccessCode] = useState('');
+
   // Parse the curl command to extract request details
   const parseCurl = (curlCommand: string): ParsedRequest | null => {
     try {
@@ -138,6 +139,11 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
   const handleCloseShareModal = () => {
     setShowShareModal(false);
     setAccessCode('');
+  };
+
+  const handleCopyShareLink = () => {
+    const shareableLink = `${window.location.origin}/aplus/annotator/shared/${analysisItem.id}?code=${accessCode}`;
+    navigator.clipboard.writeText(shareableLink);
   };
 
   const containerStyle: React.CSSProperties = {
@@ -338,6 +344,79 @@ export const AnalysisReportView: React.FC<AnalysisReportViewProps> = ({
             }}>
               {accessCode}
             </span>
+          </div>
+        )}
+
+        {/* Shareable Link Section */}
+        {accessCode && (
+          <div style={{
+            marginTop: '12px',
+            padding: '12px',
+            backgroundColor: '#f0fdf4',
+            border: '1px solid #22c55e',
+            borderRadius: '8px',
+            fontSize: '14px',
+            color: '#15803d'
+          }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '12px'
+            }}>
+              <div style={{ flex: 1 }}>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  marginBottom: '6px'
+                }}>
+                  <Link size={16} />
+                  <strong>Shareable Link:</strong>
+                </div>
+                <div style={{
+                  fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Cascadia, "Cascadia Code", Fira Code, "Fira Mono", Consolas, "Liberation Mono", Menlo, monospace',
+                  backgroundColor: '#ffffff',
+                  padding: '8px 12px',
+                  borderRadius: '4px',
+                  border: '1px solid #22c55e',
+                  fontSize: '13px',
+                  wordBreak: 'break-all',
+                  color: '#374151'
+                }}>
+                  {`${window.location.origin}/aplus/annotator/shared/${analysisItem.id}?code=${accessCode}`}
+                </div>
+              </div>
+              <button
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '8px 12px',
+                  backgroundColor: '#ffffff',
+                  border: '1px solid #22c55e',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  color: '#15803d',
+                  transition: 'all 0.2s',
+                  whiteSpace: 'nowrap'
+                }}
+                onClick={handleCopyShareLink}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#f0fdf4';
+                  e.currentTarget.style.borderColor = '#16a34a';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#ffffff';
+                  e.currentTarget.style.borderColor = '#22c55e';
+                }}
+              >
+                <Copy size={16} />
+                Copy Link
+              </button>
+            </div>
           </div>
         )}
       </div>
